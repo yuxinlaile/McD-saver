@@ -7,10 +7,10 @@
 **让 AI 帮你用最少的钱吃麦当劳** —— Agent Skill + 独立 CLI 二合一
 
 [![在线试算](https://img.shields.io/badge/%F0%9F%8C%90_在线试算-免登录-FFC72C?style=flat-square)](https://yuxinlaile.github.io/McD-saver/demo.html)
-[![Release](https://img.shields.io/badge/Release-v2.0.3-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.0.3)
+[![Release](https://img.shields.io/badge/Release-v2.1.0-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.1.0)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Dependencies](https://img.shields.io/badge/Dependencies-None%20(stdlib)-green)
-![Tests](https://img.shields.io/badge/Tests-154%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/Tests-163%20passed-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![MCP](https://img.shields.io/badge/MCP-Streamable%20HTTP-purple)
 
@@ -100,7 +100,7 @@
 - 401 快速失败、429 指数退避尊重 `Retry-After`、5xx/网络错误自动重试
 - 范围边界：聚焦下单前的省钱决策——不包含爬虫、自动下单、无人值守定时领券等自动化能力
 
-**🧪 测试保障**：154 个单元测试覆盖 SSE 解析、Token 解析、退避计算、比价决策、
+**🧪 测试保障**：163 个单元测试覆盖 SSE 解析、Token 解析、退避计算、比价决策、
 组合优化与 CLI 退出码；`demo.py` 全链路输出被 `tests/test_demo_pipeline.py`
 断言——**demo 即回归测试**。
 
@@ -255,6 +255,7 @@ Cherry Studio / Trae / VSCode / Kiro 各自 MCP 设置页 · Codex `~/.codex/con
 
 | 版本 | 亮点 |
 |---|---|
+| **v2.1.0** | 主动滑动窗口限速（300/min）· 方案排名场景标签 |
 | **v2.0.3** | optimizer 自动衔接团购终局建议（官方 vs 团购一次算清）|
 | v2.0.2 | 移动端文案适配 + 悬浮计算按钮（结果可达性）|
 | v2.0.1 | 试算页移动端导入路径（Agent 粘贴 / menu.json 文件）|
