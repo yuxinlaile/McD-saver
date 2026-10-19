@@ -7,10 +7,10 @@
 **Let AI get you McDonald's for less** — Agent Skill + standalone CLI in one repo
 
 [![Live Demo](https://img.shields.io/badge/%F0%9F%8E%AE_Live_Demo-no_sign--in-FFC72C?style=flat-square)](https://yuxinlaile.github.io/McD-saver/demo.html)
-[![Release](https://img.shields.io/badge/Release-v2.1.0-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.1.0)
+[![Release](https://img.shields.io/badge/Release-v2.1.1-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.1.1)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Dependencies](https://img.shields.io/badge/Dependencies-None%20(stdlib)-green)
-![Tests](https://img.shields.io/badge/Tests-163%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/Tests-166%20passed-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![MCP](https://img.shields.io/badge/MCP-Streamable%20HTTP-purple)
 
@@ -106,7 +106,7 @@ order created ≠ paid — payment always happens on McDonald's official page.
 - 401 fails fast; 429 exponential backoff honoring `Retry-After`; 5xx/network auto-retry
 - Scope boundary: focused on pre-order savings decisions — no scraping, auto-ordering or unattended scheduling capabilities
 
-**🧪 Tested**: 163 unit tests covering SSE parsing, token resolution, backoff math,
+**🧪 Tested**: 166 unit tests covering SSE parsing, token resolution, backoff math,
 comparison decisions, combination optimization and CLI exit codes; the full
 `demo.py` pipeline is asserted by `tests/test_demo_pipeline.py` — **the demo
 doubles as a regression test**.
@@ -268,6 +268,7 @@ More troubleshooting: [`references/error-handling.md`](references/error-handling
 Current version **v2.0.3**. Recent highlights:/n
 | Version | Highlights |
 |---|---|
+| **v2.1.1** | Two-phase real pricing (Top-K prefilter, -60% calls) |
 | **v2.1.0** | Proactive rate limiting (300/min) · scene labels for plan ranking |
 | **v2.0.3** | optimizer auto-links group-buy final call (official vs deals in one pass) |
 | **v2.0.2** | Mobile copy adaptation + floating calc FAB (result reachability) |

@@ -307,3 +307,43 @@ class TestCrossChannelSection:
         from optimizer import cross_channel_section
         self._setup_deals(tmp_path, monkeypatch)
         assert cross_channel_section(self._result(0, 0)) == ""
+
+
+class TestPrefilterPlans:
+    """v2.1.1 新增：两阶段计价预筛（估算排序取 Top-K）。"""
+
+    def _plans_and_menu(self):
+        menu = {"items": [
+            {"mealCode": "A", "name": "汉堡", "price": 20.0},
+            {"mealCode": "B", "name": "套餐", "price": 35.0},
+        ]}
+        wants = [{"mealCode": "A", "quantity": 1}]
+        coupons = [
+            {"couponId": "c1", "title": "满20减5", "threshold": 20, "discount": 5},
+            {"couponId": "c2", "title": "满10减2", "threshold": 10, "discount": 2},
+            {"couponId": "c3", "title": "无券"},
+        ]
+        plans = build_candidates(wants, coupons, menu)
+        return plans, menu
+
+    def test_topk_reduces_plans(self):
+        from optimizer import prefilter_plans
+        plans, menu = self._plans_and_menu()
+        k = 2
+        filtered = prefilter_plans(plans, menu, k)
+        assert len(filtered) == min(k, len(plans))
+
+    def test_k_zero_returns_all(self):
+        from optimizer import prefilter_plans
+        plans, menu = self._plans_and_menu()
+        assert len(prefilter_plans(plans, menu, 0)) == len(plans)
+
+    def test_cheapest_estimate_survives(self):
+        from optimizer import prefilter_plans, make_local_pricer, score_and_rank
+        plans, menu = self._plans_and_menu()
+        fn = make_local_pricer(menu)
+        full = score_and_rank(plans, fn, top=len(plans))
+        best_label = full["ranked"][0].label
+        filtered = prefilter_plans(plans, menu, 2)
+        labels = [p.label for p in filtered]
+        assert best_label in labels  # 估算最优必在 Top-K 内

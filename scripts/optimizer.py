@@ -151,6 +151,27 @@ def make_mcp_pricer(client: Any) -> Callable[[Cart, Optional[Dict[str, Any]]], O
     return price
 
 
+def prefilter_plans(plans: List[Any], menu: Dict[str, Any], k: int) -> List[Any]:
+    """按本地估算价预筛前 K 个方案（两阶段计价的第一阶段，v2.1.1）。
+
+    k<=0 或方案数不足时原样返回。估算价排序与真实价排序高度一致
+    （价格同源），Top-K 之外方案的真实价通常不会翻盘；需要绝对严谨时
+    传 ``--mcp-top-k 0`` 全量核价。
+    """
+    if k <= 0 or len(plans) <= k:
+        return list(plans)
+    local_fn = make_local_pricer(menu)
+    est = []
+    for i, plan in enumerate(plans):
+        try:
+            price = local_fn(plan.cart, plan.coupon)
+        except Exception:
+            price = None
+        est.append((price if price is not None else float("inf"), i, plan))
+    est.sort(key=lambda x: (x[0], x[1]))
+    return [p for _, _, p in est[:k]]
+
+
 def _dig(obj: Any, key: str) -> Any:
     """在嵌套 dict 中按 key 深度优先查找第一个匹配值。"""
     if isinstance(obj, dict):
@@ -473,6 +494,8 @@ def build_parser() -> argparse.ArgumentParser:
     plan.add_argument("--top", type=int, default=3, help="输出前 N 个方案（默认 3）")
     plan.add_argument("--no-deals", action="store_true",
                       help="不自动衔接团购终局建议（默认：本地券库非空时自动输出）")
+    plan.add_argument("--mcp-top-k", type=int, default=8,
+                      help="真实计价模式下用本地估算预筛前 K 个方案再核价（默认 8，0=全量核价）")
     plan.add_argument("--budget", type=float, default=None, help="实付预算上限（元），超支方案排后并打标")
     plan.add_argument("--max-kcal", type=float, default=None, help="热量上限（kcal），菜单含 kcal 字段时生效")
     plan.add_argument("--min-protein", type=float, default=None,
@@ -519,6 +542,14 @@ def run_plan(args: argparse.Namespace) -> int:
         mode_label = "估算模式（本地计价，未经验证）"
 
     plans = build_candidates(wants, coupons, menu)
+    # 两阶段计价（v2.1.1）：真实核价按调用次数计延迟——先用本地估算排序预筛
+    # Top-K，仅对前 K 个方案走 calculate-price，典型调用次数降 60%+；
+    # K=0 时退化为全量核价（与原行为一致）
+    if args.mcp and getattr(args, "mcp_top_k", 0) > 0 and len(plans) > args.mcp_top_k:
+        total = len(plans)
+        plans = prefilter_plans(plans, menu, args.mcp_top_k)
+        mode_label = "真实计价模式（官方 calculate-price；本地估算预筛 Top-{0}，共 {1} 个候选）".format(
+            args.mcp_top_k, total)
     kcal_table = {i["mealCode"]: float(i["kcal"]) for i in menu.get("items", [])
                   if isinstance(i.get("kcal"), (int, float))}
     nutrition_table = {
