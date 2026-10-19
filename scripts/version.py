@@ -133,19 +133,29 @@ def apply_version(new_version: str) -> list[str]:
     p.write_text(t, encoding="utf-8", newline="")
     updated.append("scripts/mcd_client.py")
 
-    # 2) SKILL.md frontmatter
+    # 2) pyproject.toml 版本（此前为覆盖盲区）
+    p = REPO_ROOT / "pyproject.toml"
+    if p.exists():
+        t = p.read_text(encoding="utf-8")
+        t = re.sub(r'(?m)^version = "' + re.escape(old_v) + r'"$', f'version = "{new_version}"', t)
+        p.write_text(t, encoding="utf-8", newline="")
+        updated.append("pyproject.toml")
+
+    # 3) SKILL.md frontmatter
     p = REPO_ROOT / "SKILL.md"
     t = p.read_text(encoding="utf-8")
     t = re.sub(r"(?m)^version: " + re.escape(old_v) + r"$", f"version: {new_version}", t)
     p.write_text(t, encoding="utf-8", newline="")
     updated.append("SKILL.md")
 
-    # 3) README ×2 Release 徽章
+    # 3) README ×2：Release 徽章 URL + 「当前版本」句（测试锁定，防回退丢失）
     for name in ("README.md", "README_EN.md"):
         p = REPO_ROOT / name
         t = p.read_text(encoding="utf-8")
         t = t.replace(f"Release-v{old_v}-9a3412", f"Release-v{new_version}-9a3412")
         t = t.replace(f"releases/tag/v{old_v}", f"releases/tag/v{new_version}")
+        t = t.replace(f"当前版本 **v{old_v}**", f"当前版本 **v{new_version}**")
+        t = t.replace(f"Current version **v{old_v}**", f"Current version **v{new_version}**")
         p.write_text(t, encoding="utf-8", newline="")
         updated.append(name)
     return updated
