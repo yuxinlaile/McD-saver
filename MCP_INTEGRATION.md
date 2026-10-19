@@ -49,7 +49,7 @@
 
 `scripts/deal_compare.py`（外部团购比价引擎）**不调用任何麦当劳 MCP 工具以外的
 第三方接口**：美团/抖音等平台无公开 API，团购数据由用户手动录入本地券库，
-比价输出为估算值，仅供购买决策辅助。详见 `references/group-buy-comparison.md`。
+比价输出为估算参考。详见 `references/group-buy-comparison.md`。
 
 ## 3. 核心调用流程
 
