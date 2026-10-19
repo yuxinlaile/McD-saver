@@ -76,3 +76,46 @@ class TestNextVersion:
                     out = next_version(f"{z}.{x}.{y}")
                     oz, ox, oy = parse_version(out)
                     assert oy <= 3 and ox <= 6
+
+
+class TestApplyVersion:
+    """v2.1.2 新增：apply_version 文件同步（tmp 仓库结构 + pyproject 覆盖）。"""
+
+    def _make_repo(self, tmp_path):
+        import io as _io
+        (tmp_path / "scripts").mkdir()
+        (tmp_path / "scripts" / "mcd_client.py").write_text(
+            'CLIENT_INFO = {"name": "m", "version": "2.1.1"}\nUA = "maimai-saver/2.1.1"\n', encoding="utf-8")
+        (tmp_path / "SKILL.md").write_text("version: 2.1.1\n", encoding="utf-8")
+        (tmp_path / "README.md").write_text(
+            "Release-v2.1.1-9a3412 x releases/tag/v2.1.1 当前版本 **v2.1.1**\n", encoding="utf-8")
+        (tmp_path / "README_EN.md").write_text(
+            "Release-v2.1.1-9a3412 releases/tag/v2.1.1 Current version **v2.1.1**\n", encoding="utf-8")
+        (tmp_path / "pyproject.toml").write_text('version = "2.1.1"\n', encoding="utf-8")
+
+    def test_apply_updates_all_files(self, tmp_path, monkeypatch):
+        import version as vmod
+        self._make_repo(tmp_path)
+        monkeypatch.setattr(vmod, "REPO_ROOT", tmp_path)
+        updated = vmod.apply_version("2.1.2")
+        assert "scripts/mcd_client.py" in updated
+        assert "pyproject.toml" in updated
+        cc = (tmp_path / "scripts" / "mcd_client.py").read_text(encoding="utf-8")
+        assert "2.1.2" in cc and "2.1.1" not in cc
+        pp = (tmp_path / "pyproject.toml").read_text(encoding="utf-8")
+        assert 'version = "2.1.2"' in pp
+        rd = (tmp_path / "README.md").read_text(encoding="utf-8")
+        assert "当前版本 **v2.1.2**" in rd and "Release-v2.1.2" in rd
+
+    def test_apply_rejects_out_of_range(self, tmp_path, monkeypatch):
+        import version as vmod
+        self._make_repo(tmp_path)
+        monkeypatch.setattr(vmod, "REPO_ROOT", tmp_path)
+        with pytest.raises(VersionError):
+            vmod.apply_version("2.8.0")   # 次版本 8 超上限 6
+
+    def test_current_repo_version_reads_client_info(self, tmp_path, monkeypatch):
+        import version as vmod
+        self._make_repo(tmp_path)
+        monkeypatch.setattr(vmod, "REPO_ROOT", tmp_path)
+        assert vmod.current_repo_version() == "2.1.1"
