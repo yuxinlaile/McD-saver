@@ -20,13 +20,16 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Syntax check
-        run: python -m py_compile scripts/mcd_client.py scripts/mcd.py scripts/deal_compare.py scripts/optimizer.py scripts/silent_cost.py demo.py
+        run: python -m py_compile scripts/*.py demo.py
 
       - name: Install dev dependencies
         run: pip install -r requirements-dev.txt
 
       - name: Run unit tests with coverage
         run: python -m pytest tests/ -v --cov=scripts --cov-report=term-missing --cov-fail-under=55
+
+      - name: README anchors and structure
+        run: python scripts/check_toc.py
 
       - name: CLI smoke test
         run: |
