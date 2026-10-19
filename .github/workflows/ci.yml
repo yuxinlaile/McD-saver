@@ -25,8 +25,8 @@ jobs:
       - name: Install dev dependencies
         run: pip install -r requirements-dev.txt
 
-      - name: Run unit tests
-        run: python -m pytest tests/ -v
+      - name: Run unit tests with coverage
+        run: python -m pytest tests/ -v --cov=scripts --cov-report=term-missing --cov-fail-under=55
 
       - name: CLI smoke test
         run: |
