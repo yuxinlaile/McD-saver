@@ -201,3 +201,33 @@ class TestRateLimitThrottle:
         c._send_times.extend([now - 120.0, now - 119.0])  # 远超窗口 → 全部滑出
         c._throttle()
         assert len(c._send_times) == 1
+
+
+class TestTokenPermissionCheck:
+    """v2.1.2 新增：Token 文件权限检查（仅 POSIX 生效）。"""
+
+    def test_warns_on_loose_permissions(self, tmp_path, monkeypatch, capsys):
+        import mcd_client
+        f = tmp_path / "tok"
+        f.write_text("abc123\n", encoding="utf-8")
+        monkeypatch.setattr(mcd_client.os, "name", "posix")
+        monkeypatch.setattr(mcd_client.os, "stat", lambda p: type("S", (), {"st_mode": 0o644})())
+        monkeypatch.setattr(mcd_client.os.path, "isfile", lambda p: True)
+        monkeypatch.setenv(mcd_client.TOKEN_FILE_ENV_VAR, str(f))
+        monkeypatch.delenv(mcd_client.TOKEN_ENV_VAR, raising=False)
+        token = mcd_client.load_token()
+        assert token == "abc123"
+        err = capsys.readouterr().err
+        assert "权限过宽" in err
+
+    def test_no_warn_on_private_permissions(self, tmp_path, monkeypatch, capsys):
+        import mcd_client
+        f = tmp_path / "tok"
+        f.write_text("abc123\n", encoding="utf-8")
+        monkeypatch.setattr(mcd_client.os, "name", "posix")
+        monkeypatch.setattr(mcd_client.os, "stat", lambda p: type("S", (), {"st_mode": 0o600})())
+        monkeypatch.setattr(mcd_client.os.path, "isfile", lambda p: True)
+        monkeypatch.setenv(mcd_client.TOKEN_FILE_ENV_VAR, str(f))
+        monkeypatch.delenv(mcd_client.TOKEN_ENV_VAR, raising=False)
+        assert mcd_client.load_token() == "abc123"
+        assert "权限过宽" not in capsys.readouterr().err
