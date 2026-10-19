@@ -20,3 +20,8 @@ venv/
 # 系统文件
 .DS_Store
 Thumbs.db
+# 覆盖率与本地验证报告（不入库）
+.coverage
+.coverage.*
+htmlcov/
+examples/verified-run-report.html
