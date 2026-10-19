@@ -35,6 +35,7 @@ import os
 import random
 import sys
 import time
+from collections import deque
 import urllib.error
 import urllib.request
 from typing import Any, Dict, List, Optional
@@ -58,6 +59,7 @@ __all__ = [
 DEFAULT_BASE_URL = os.environ.get("MCD_MCP_URL", "https://mcp.mcd.cn")
 DEFAULT_TIMEOUT = 30.0          # 单次请求超时（秒）
 DEFAULT_MAX_RETRIES = 3         # 可重试错误的最大自动重试次数
+DEFAULT_RATE_LIMIT = 300        # 主动滑动窗口限速（次/分钟，官方上限 600 的一半）         # 可重试错误的最大自动重试次数
 MAX_BACKOFF_SECONDS = 30.0      # 单次退避等待上限（秒）
 TOKEN_ENV_VAR = "MCD_MCP_TOKEN"
 TOKEN_FILE_ENV_VAR = "MCD_MCP_TOKEN_FILE"
@@ -66,8 +68,8 @@ DEFAULT_TOKEN_FILE = "~/.mcd_mcp_token"
 # MCP 协议版本（Streamable HTTP 传输规范）
 PROTOCOL_VERSION = "2025-03-26"
 
-CLIENT_INFO = {"name": "maimai-saver", "version": "2.0.3"}
-USER_AGENT = "maimai-saver/2.0.3"
+CLIENT_INFO = {"name": "maimai-saver", "version": "2.1.0"}
+USER_AGENT = "maimai-saver/2.1.0"
 
 
 # ---------------------------------------------------------------------------
@@ -231,6 +233,7 @@ class McdMcpClient:
         timeout: float = DEFAULT_TIMEOUT,
         max_retries: int = DEFAULT_MAX_RETRIES,
         verbose: bool = False,
+        rate_limit: int = DEFAULT_RATE_LIMIT,
     ) -> None:
         if not token:
             raise AuthError(
@@ -246,11 +249,29 @@ class McdMcpClient:
         self.session_id: Optional[str] = None
         self._initialized = False
         self._request_id = 0
+        # 主动滑动窗口限速（借鉴 mcd-party-planner，MIT）：默认 300 次/分钟，
+        # 为官方上限 600 留一半余量，避免批量比对场景触发 429 被动等待
+        self._rate_limit = max(0, int(rate_limit))
+        self._send_times: deque = deque()
 
     # -- 内部：日志 ---------------------------------------------------------
     def _log(self, message: str) -> None:
         if self.verbose:
             print("[mcd-mcp] {0}".format(message), file=sys.stderr)
+
+    # -- 内部：主动限速 -----------------------------------------------------
+    def _throttle(self) -> None:
+        """滑动窗口限速：rate_limit 次/60s，超窗则等待最早请求滑出窗口。"""
+        if not self._rate_limit:
+            return
+        now = time.monotonic()
+        while self._send_times and now - self._send_times[0] >= 60.0:
+            self._send_times.popleft()
+        if len(self._send_times) >= self._rate_limit:
+            wait = 60.0 - (now - self._send_times[0])
+            self._log("主动限速：窗口已满，等待 {0:.1f}s".format(wait))
+            time.sleep(max(0.0, wait))
+        self._send_times.append(time.monotonic())
 
     # -- 内部：请求头 -------------------------------------------------------
     def _headers(self) -> Dict[str, str]:
@@ -317,6 +338,7 @@ class McdMcpClient:
     ) -> Optional[Dict[str, Any]]:
         body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
         last_error: Optional[McpError] = None
+        self._throttle()
 
         for attempt in range(self.max_retries + 1):
             request = urllib.request.Request(
