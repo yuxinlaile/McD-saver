@@ -281,7 +281,8 @@ maimai-saver/
 │   ├── index.html                      # Pages 根路径索引页（自动进入试算页）
 │   ├── development-log.md              # 开发过程记录（WorkBuddy 专项奖励核验用）
 │   ├── sync-checklist.md               # 更新同步清单（漏项教训 + 每次更新必查项）
-│   ├── coverage-and-promotion-plan.md  # 覆盖率分析与 #275 推广方案
+│   ├── coverage-and-promotion-plan.md  # 覆盖率分析（推广部分已迁至 promotion-plan.md）
+│   ├── promotion-plan.md               # 开源推广方案：受众/渠道/内容/指标/合规
 │   └── assets/banner.svg               # 品牌横幅（版本与测试数随发版同步）
 ├── config/
 │   └── mcp.example.json                # MCP 客户端配置示例（占位符 Token）
