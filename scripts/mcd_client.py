@@ -68,8 +68,8 @@ DEFAULT_TOKEN_FILE = "~/.mcd_mcp_token"
 # MCP 协议版本（Streamable HTTP 传输规范）
 PROTOCOL_VERSION = "2025-03-26"
 
-CLIENT_INFO = {"name": "maimai-saver", "version": "2.1.1"}
-USER_AGENT = "maimai-saver/2.1.1"
+CLIENT_INFO = {"name": "maimai-saver", "version": "2.1.2"}
+USER_AGENT = "maimai-saver/2.1.2"
 
 
 # ---------------------------------------------------------------------------
@@ -127,6 +127,19 @@ def load_token(cli_token: Optional[str] = None) -> Optional[str]:
     token_file = os.environ.get(TOKEN_FILE_ENV_VAR, DEFAULT_TOKEN_FILE)
     path = os.path.expanduser(token_file)
     if os.path.isfile(path):
+        # 权限检查（v2.1.2，安全）：Unix 上文件对其他用户可读时提示收紧；
+        # Windows 无 POSIX mode 语义，跳过（依赖 NTFS ACL）
+        if os.name == "posix":
+            try:
+                mode = os.stat(path).st_mode & 0o777
+                if mode & 0o077:
+                    print(
+                        "警告: Token 文件 {0} 权限过宽（{1:o}），建议执行 chmod 600 {0} "
+                        "以防其他用户读取。".format(path, mode),
+                        file=sys.stderr,
+                    )
+            except OSError:
+                pass
         try:
             with open(path, "r", encoding="utf-8") as fh:
                 content = fh.read().strip()
