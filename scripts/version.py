@@ -50,6 +50,12 @@ class VersionError(ValueError):
     """非法版本号输入。"""
 
 
+def _write_text(path: Path, text: str) -> None:
+    """兼容 Python 3.9 的写文件（3.9 的 Path.write_text 不支持 newline 参数）。"""
+    with open(path, "w", encoding="utf-8", newline="") as fh:
+        fh.write(text)
+
+
 def parse_version(text: str) -> tuple[int, int, int]:
     """解析 z.x.y 字符串为整数三元组；非法输入抛 VersionError。"""
     if not isinstance(text, str) or not text.strip():
@@ -130,7 +136,7 @@ def apply_version(new_version: str) -> list[str]:
     old_v = current_repo_version()
     t = t.replace(f'"version": "{old_v}"', f'"version": "{new_version}"')
     t = t.replace(f"maimai-saver/{old_v}", f"maimai-saver/{new_version}")
-    p.write_text(t, encoding="utf-8", newline="")
+    _write_text(p, t)
     updated.append("scripts/mcd_client.py")
 
     # 2) pyproject.toml 版本（此前为覆盖盲区）
@@ -138,14 +144,14 @@ def apply_version(new_version: str) -> list[str]:
     if p.exists():
         t = p.read_text(encoding="utf-8")
         t = re.sub(r'(?m)^version = "' + re.escape(old_v) + r'"$', f'version = "{new_version}"', t)
-        p.write_text(t, encoding="utf-8", newline="")
+        _write_text(p, t)
         updated.append("pyproject.toml")
 
     # 3) SKILL.md frontmatter
     p = REPO_ROOT / "SKILL.md"
     t = p.read_text(encoding="utf-8")
     t = re.sub(r"(?m)^version: " + re.escape(old_v) + r"$", f"version: {new_version}", t)
-    p.write_text(t, encoding="utf-8", newline="")
+    _write_text(p, t)
     updated.append("SKILL.md")
 
     # 3) README ×2：Release 徽章 URL + 「当前版本」句（测试锁定，防回退丢失）
@@ -156,7 +162,7 @@ def apply_version(new_version: str) -> list[str]:
         t = t.replace(f"releases/tag/v{old_v}", f"releases/tag/v{new_version}")
         t = t.replace(f"当前版本 **v{old_v}**", f"当前版本 **v{new_version}**")
         t = t.replace(f"Current version **v{old_v}**", f"Current version **v{new_version}**")
-        p.write_text(t, encoding="utf-8", newline="")
+        _write_text(p, t)
         updated.append(name)
     return updated
 
