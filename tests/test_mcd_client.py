@@ -154,3 +154,50 @@ class TestResultToText:
 
     def test_fallback_to_json(self):
         assert json.loads(result_to_text({"x": 1})) == {"x": 1}
+
+
+class TestRateLimitThrottle:
+    """v2.0.4 新增：主动滑动窗口限速（借鉴 mcd-party-planner，MIT）。"""
+
+    def _client(self, rate_limit):
+        from mcd_client import McdMcpClient as MCPClient
+        return MCPClient(token="t", rate_limit=rate_limit)
+
+    def test_disabled_when_zero(self):
+        c = self._client(0)
+        import time as _t
+        orig = _t.sleep
+        calls = []
+        _t.sleep = lambda s: calls.append(s)
+        try:
+            for _ in range(5):
+                c._throttle()
+        finally:
+            _t.sleep = orig
+        assert calls == [] and len(c._send_times) == 0  # disabled = 零开销不追踪
+
+    def test_sleep_called_when_window_full(self, monkeypatch):
+        import time as _t
+        c = self._client(2)
+        now = _t.monotonic()
+        c._send_times.extend([now - 1.0, now - 2.0])  # 窗口已满（2/2）
+        sleeps = []
+        monkeypatch.setattr(_t, "sleep", lambda s: sleeps.append(s))
+        c._throttle()
+        assert len(sleeps) == 1 and sleeps[0] > 0
+
+    def test_no_sleep_when_window_not_full(self, monkeypatch):
+        import time as _t
+        c = self._client(3)
+        monkeypatch.setattr(_t, "sleep", lambda s: (_ for _ in ()).throw(AssertionError("should not sleep")))
+        c._throttle()
+        c._throttle()
+        assert len(c._send_times) == 2
+
+    def test_old_entries_slide_out(self):
+        import time as _t
+        c = self._client(2)
+        now = _t.monotonic()
+        c._send_times.extend([now - 120.0, now - 119.0])  # 远超窗口 → 全部滑出
+        c._throttle()
+        assert len(c._send_times) == 1
