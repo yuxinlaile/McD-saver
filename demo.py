@@ -12,7 +12,7 @@
     【沉默成本】fixtures/coupons+orders        → 临期券排程（可实现 vs 注定过期）
     【跨渠道】  fixtures/deals.json            → 美团/抖音团购同口径估算对比
 
-数据说明（诚实声明）：fixtures 是**示例数据**，字段结构与真实 MCP 响应一致；
+数据来源说明（诚实声明）：fixtures 是**示例数据**，字段结构与真实 MCP 响应一致；
 真实运行时同样的响应由 `python scripts/mcd.py call ...` 实时获取，
 业务逻辑一字未改——因此本 demo 同时是全链路的回归测试
 （tests/test_demo_pipeline.py 会对输出做断言）。
