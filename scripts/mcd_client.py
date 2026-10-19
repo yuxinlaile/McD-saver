@@ -341,7 +341,9 @@ class McdMcpClient:
         message = self._post(payload, is_notification=is_notification)
         if is_notification:
             return None
-        if message is None or "result" not in message:
+        # JSON-RPC 的 error 响应没有 result，交由调用方（如 call_tool）按错误码处理，
+        # 不能在这里当成「无结果」吞掉——否则会丢失 code/message，且错误分支不可达。
+        if message is None or ("result" not in message and "error" not in message):
             raise TransportError("{0} 未返回有效结果".format(method))
         return message
 
@@ -439,7 +441,7 @@ class McdMcpClient:
                 "clientInfo": CLIENT_INFO,
             },
         )
-        result = message["result"] if message else None
+        result = message.get("result") if message else None
         if not isinstance(result, dict):
             raise TransportError("initialize 未返回有效结果")
         # 发送 initialized 通知（无响应体）
