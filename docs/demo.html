@@ -198,8 +198,23 @@
           <input id="search" type="text" placeholder="🔍 搜索餐品名…">
         </div>
         <div class="toolbar" id="chips"></div>
+        <div class="toolbar" style="gap:14px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--muted);">
+          <label style="display:flex;align-items:center;gap:6px;">💰 预算
+            <input type="range" id="cBudget" min="20" max="80" value="80" oninput="updSlider('cBudget','budgetVal','¥')" style="width:72px;">
+            <b id="budgetVal" style="color:var(--red);">不限</b></label>
+          <label style="display:flex;align-items:center;gap:6px;">🔥 热量
+            <input type="range" id="cKcal" min="400" max="1600" step="50" value="1600" oninput="updSlider('cKcal','kcalVal',' kcal')" style="width:72px;">
+            <b id="kcalVal" style="color:var(--red);">不限</b></label>
+          <label style="display:flex;align-items:center;gap:6px;">💪 蛋白下限
+            <input type="range" id="cProtein" min="0" max="40" step="5" value="0" oninput="updSlider('cProtein','proteinVal',' g')" style="width:72px;">
+            <b id="proteinVal" style="color:var(--red);">不限</b></label>
+          <label style="display:flex;align-items:center;gap:6px;">🧂 钠上限
+            <input type="range" id="cSodium" min="600" max="3000" step="100" value="3000" oninput="updSlider('cSodium','sodiumVal',' mg')" style="width:72px;">
+            <b id="sodiumVal" style="color:var(--red);">不限</b></label>
+        </div>
         <div id="menu"></div>
-        <div class="notice">示例菜单覆盖麦当劳 App 主流单品与套餐（31 项，价格为 2026-10 参考价）。
+        <div class="notice">示例菜单覆盖麦当劳 App 主流单品与套餐（31 项，价格为 2026-10 参考价；
+          <b>热量/蛋白/钠为示例营养值</b>，真实数据以官方 nutrition 接口为准，导入真实菜单后自动使用其中的营养字段）。
           App 全量菜单按门店/时段动态变化——用<b>页面顶部「🔑 导入你的真实菜单」</b>输入 Token 生成命令，
           本地执行后把输出粘贴回来，即可用<b>实时全量菜单</b>跑同一套优化算法。</div>
       </div>
@@ -246,48 +261,48 @@
 // 示例数据：覆盖麦当劳 App 主流单品/套餐（参考价，2026-10）
 let MENU = [
   // 汉堡与卷
-  {mealCode:"H1", name:"巨无霸", price:25.0, category:"汉堡"},
-  {mealCode:"H2", name:"麦辣鸡腿堡", price:22.0, category:"汉堡"},
-  {mealCode:"H3", name:"板烧鸡腿堡", price:24.0, category:"汉堡"},
-  {mealCode:"H4", name:"双层吉士汉堡", price:17.0, category:"汉堡"},
-  {mealCode:"H5", name:"麦香鱼", price:15.0, category:"汉堡"},
-  {mealCode:"H6", name:"不素之霸双层牛堡", price:23.0, category:"汉堡"},
-  {mealCode:"H7", name:"麦香鸡", price:11.0, category:"汉堡"},
+  {mealCode:"H1", name:"巨无霸", price:25.0, category:"汉堡", kc:550, pr:25, na:1010},
+  {mealCode:"H2", name:"麦辣鸡腿堡", price:22.0, category:"汉堡", kc:540, pr:24, na:1130},
+  {mealCode:"H3", name:"板烧鸡腿堡", price:24.0, category:"汉堡", kc:450, pr:26, na:1080},
+  {mealCode:"H4", name:"双层吉士汉堡", price:17.0, category:"汉堡", kc:450, pr:24, na:1260},
+  {mealCode:"H5", name:"麦香鱼", price:15.0, category:"汉堡", kc:340, pr:15, na:590},
+  {mealCode:"H6", name:"不素之霸双层牛堡", price:23.0, category:"汉堡", kc:500, pr:26, na:1150},
+  {mealCode:"H7", name:"麦香鸡", price:11.0, category:"汉堡", kc:390, pr:15, na:760},
   // 小食
-  {mealCode:"S1", name:"中薯条", price:12.0, category:"小食"},
-  {mealCode:"S2", name:"大薯条", price:15.0, category:"小食"},
-  {mealCode:"S3", name:"脆薯饼", price:7.0, category:"小食"},
-  {mealCode:"S4", name:"麦乐鸡(5块)", price:11.5, category:"小食"},
-  {mealCode:"S5", name:"麦辣鸡翅(2块)", price:12.0, category:"小食"},
-  {mealCode:"S6", name:"玉米杯", price:8.0, category:"小食"},
+  {mealCode:"S1", name:"中薯条", price:12.0, category:"小食", kc:340, pr:4, na:260},
+  {mealCode:"S2", name:"大薯条", price:15.0, category:"小食", kc:430, pr:5, na:330},
+  {mealCode:"S3", name:"脆薯饼", price:7.0, category:"小食", kc:150, pr:1, na:330},
+  {mealCode:"S4", name:"麦乐鸡(5块)", price:11.5, category:"小食", kc:230, pr:13, na:430},
+  {mealCode:"S5", name:"麦辣鸡翅(2块)", price:12.0, category:"小食", kc:240, pr:18, na:560},
+  {mealCode:"S6", name:"玉米杯", price:8.0, category:"小食", kc:90, pr:3, na:5},
   // 饮品
-  {mealCode:"D1", name:"中可乐", price:9.5, category:"饮品"},
-  {mealCode:"D2", name:"中零度可乐", price:9.5, category:"饮品"},
-  {mealCode:"D3", name:"中杯冰美式", price:13.0, category:"饮品"},
-  {mealCode:"D4", name:"中杯鲜煮咖啡", price:10.5, category:"饮品"},
-  {mealCode:"D5", name:"中杯拿铁(McCafé)", price:17.0, category:"饮品"},
+  {mealCode:"D1", name:"中可乐", price:9.5, category:"饮品", kc:200, pr:0, na:30},
+  {mealCode:"D2", name:"中零度可乐", price:9.5, category:"饮品", kc:0, pr:0, na:40},
+  {mealCode:"D3", name:"中杯冰美式", price:13.0, category:"饮品", kc:5, pr:0, na:5},
+  {mealCode:"D4", name:"中杯鲜煮咖啡", price:10.5, category:"饮品", kc:5, pr:0, na:5},
+  {mealCode:"D5", name:"中杯拿铁(McCafé)", price:17.0, category:"饮品", kc:190, pr:9, na:120},
   // 甜品
-  {mealCode:"T1", name:"麦旋风(奥利奥)", price:13.5, category:"甜品"},
-  {mealCode:"T2", name:"圆筒冰淇淋", price:5.0, category:"甜品"},
-  {mealCode:"T3", name:"草莓圣代", price:11.0, category:"甜品"},
-  {mealCode:"T4", name:"香芋派", price:7.5, category:"甜品"},
+  {mealCode:"T1", name:"麦旋风(奥利奥)", price:13.5, category:"甜品", kc:300, pr:6, na:150},
+  {mealCode:"T2", name:"圆筒冰淇淋", price:5.0, category:"甜品", kc:145, pr:4, na:65},
+  {mealCode:"T3", name:"草莓圣代", price:11.0, category:"甜品", kc:210, pr:4, na:85},
+  {mealCode:"T4", name:"香芋派", price:7.5, category:"甜品", kc:300, pr:3, na:160},
   // 早餐
-  {mealCode:"B1", name:"猪柳蛋麦满分", price:13.5, category:"早餐"},
-  {mealCode:"B2", name:"热香饼(2块)", price:9.0, category:"早餐"},
+  {mealCode:"B1", name:"猪柳蛋麦满分", price:13.5, category:"早餐", kc:400, pr:19, na:820},
+  {mealCode:"B2", name:"热香饼(2块)", price:9.0, category:"早餐", kc:340, pr:7, na:560},
   // 套餐与随心配
   {mealCode:"M1", name:"麦辣鸡腿堡三件套(堡+中薯+中可)", price:33.5, category:"套餐",
-   contains:["H2","S1","D1"]},
+   contains:["H2","S1","D1"], kc:1080, pr:28, na:1420},
   {mealCode:"M2", name:"巨无霸中套餐(堡+中薯+中可)", price:39.5, category:"套餐",
-   contains:["H1","S1","D1"]},
+   contains:["H1","S1","D1"], kc:1090, pr:29, na:1300},
   {mealCode:"M3", name:"板烧鸡腿堡中套餐(堡+中薯+中可)", price:41.0, category:"套餐",
-   contains:["H3","S1","D1"]},
+   contains:["H3","S1","D1"], kc:990, pr:30, na:1370},
   {mealCode:"M4", name:"双层吉士中套餐(堡+中薯+中可)", price:34.0, category:"套餐",
-   contains:["H4","S1","D1"]},
-  {mealCode:"M5", name:"1+1随心配(汉堡区+饮品区任选)", price:13.5, category:"套餐"},
+   contains:["H4","S1","D1"], kc:990, pr:28, na:1550},
+  {mealCode:"M5", name:"1+1随心配(汉堡区+饮品区任选)", price:13.5, category:"套餐", kc:400, pr:15, na:700},
   {mealCode:"M6", name:"巨无霸大套餐(堡+大薯+中可)", price:45.5, category:"套餐",
-   contains:["H1","S2","D1"]},
+   contains:["H1","S2","D1"], kc:1180, pr:30, na:1370},
   {mealCode:"M7", name:"早餐组合(猪柳蛋麦满分+鲜煮咖啡)", price:17.5, category:"套餐",
-   contains:["B1","D4"]},
+   contains:["B1","D4"], kc:405, pr:19, na:825},
 ];
 const COUPONS = [
   {couponId:"C1", title:"满15减2", threshold:15, discount:2},
@@ -322,9 +337,53 @@ const menuEl = document.getElementById("menu");
 const chipsEl = document.getElementById("chips");
 const searchEl = document.getElementById("search");
 const categories = [...new Set(MENU.map(m => m.category))];
+["cBudget","cKcal","cProtein","cSodium"].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.dispatchEvent(new Event("input"));
+});
 let activeCat = "全部";
 let keyword = "";
 const state = {};
+// ---- 四维约束（v2.1.2，借鉴竞品的三档可玩交互；与 CLI 同语义：违规排后并标注）----
+function updSlider(id, labelId, unit) {
+  const v = +document.getElementById(id).value;
+  const el = document.getElementById(labelId);
+  const unlimited = (id === "cBudget" && v >= 80) || (id === "cKcal" && v >= 1600) ||
+                    (id === "cProtein" && v <= 0) || (id === "cSodium" && v >= 3000);
+  el.textContent = unlimited ? "不限" : (unit.trim() === "¥" ? "¥" + v : v + unit);
+}
+function activeConstraints() {
+  const b = +document.getElementById("cBudget").value;
+  const k = +document.getElementById("cKcal").value;
+  const pr = +document.getElementById("cProtein").value;
+  const s = +document.getElementById("cSodium").value;
+  return { budget: b >= 80 ? null : b, kcal: k >= 1600 ? null : k,
+           protein: pr <= 0 ? null : pr, sodium: s >= 3000 ? null : s };
+}
+function nutrientOf(entries) {
+  let kc = 0, pr = 0, na = 0, known = true;
+  entries.forEach(e => {
+    const m = MENU.find(x => x.mealCode === e.mealCode);
+    if (!m || m.kc == null) { known = false; return; }
+    const q = e.quantity || 1;
+    kc += m.kc * q; pr += m.pr * q; na += m.na * q;
+  });
+  return known ? { kc, pr, na } : null;
+}
+function planViolations(plan, cons) {
+  const out = [];
+  const nut = nutrientOf(plan.entries);
+  plan.nut = nut;
+  if (cons.budget != null && plan.payable > cons.budget) out.push("超预算 ¥" + (plan.payable - cons.budget).toFixed(2));
+  if (cons.kcal != null && nut && nut.kc > cons.kcal) out.push("超热量 " + (nut.kc - cons.kcal) + " kcal");
+  if (cons.protein != null) {
+    if (!nut) out.push("蛋白质未知");
+    else if (nut.pr < cons.protein) out.push("蛋白质不足 " + (cons.protein - nut.pr) + " g");
+  }
+  if (cons.sodium != null && nut && nut.na > cons.sodium) out.push("超钠 " + (nut.na - cons.sodium) + " mg");
+  return out;
+}
+
 function qtyOf(code) { return state[code] || 0; }
 
 const chipAll = document.createElement("button");
@@ -462,7 +521,11 @@ function calc() {
     }
   });
   plans.forEach(p => { if (p.payable === null) p.payable = Infinity; });
-  plans.sort((a,b) => a.payable - b.payable || a.entries.length - b.entries.length);
+  const cons = activeConstraints();
+  plans.forEach(p => { p.violations = planViolations(p, cons); });
+  // 约束语义与 CLI 一致：违规方案排后（不静默剔除），同档内按价格升序
+  plans.sort((a,b) => (a.violations.length - b.violations.length) ||
+                      (a.payable - b.payable) || (a.entries.length - b.entries.length));
   const top = plans.filter(p => isFinite(p.payable)).slice(0, 4);
   const officialBest = plans[0].payable;
 
@@ -482,7 +545,9 @@ function calc() {
       <div class="head"><span class="label">${i+1}. ${p.label}${i===0 ? '<span class="best-tag">★ 官方最优</span>' : ""}</span>
         <span class="pay">¥${p.payable.toFixed(2)}</span></div>
       <div class="detail">${detail}</div>
+      ${p.nut ? `<div class="detail" style="color:var(--muted);">🔥 ${p.nut.kc} kcal ｜ 💪 蛋白 ${p.nut.pr} g ｜ 🧂 钠 ${p.nut.na} mg</div>` : ""}
       <div><span class="save">${save > 0 ? `较无券直点省 ¥${save.toFixed(2)}（${pct.toFixed(0)}%）` : "与无券直点同价"}</span></div>
+      ${p.violations && p.violations.length ? `<div class="warn">⚠️ ${p.violations.join(" · ")}</div>` : ""}
       ${p.note ? `<div class="warn">⚠️ ${p.note}——${ADDON_HINT}</div>` : ""}
       <div class="bar"><div style="width:${barW}%"></div></div>
     </div>`;
