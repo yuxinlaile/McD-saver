@@ -45,7 +45,7 @@ python scripts/build_releases.py --verify
 | 4 | `docs/assets/banner.svg` | 品牌 / 测试数变更 | 文本与数字同步（测试数自动项会校验，但 SVG 内品牌文案需人工确认） |
 | 5 | `social-preview.png` | 品牌 / banner 变更 | 用 headless Chrome 重新渲染 banner 后，手动上传仓库 Settings → Social preview |
 | 6 | 仓库 About | 品牌 / 定位变更 | description 含能力清单，homepage 指向在线试算页 |
-| 7 | `docs/development-log.md` | 新的开发阶段 | 追加记录（参赛核验材料，只增不删） |
+| 7 | `docs/development-log.md` | **已冻结（2026-10-19）** | 不再追加；仅作为赛事核验材料保留阶段 1–6 的既有记录 |
 
 ## 四、按变更类型的最短路径
 
@@ -104,4 +104,4 @@ python scripts/build_releases.py --verify
 会在 `git ls-files` 中匹配 `promotion|internal|ops` 目录或文件名，命中即失败。
 
 **唯一的例外**：`docs/development-log.md` 与 `CONTEST_DECLARATION.md` 是赛事核验材料，
-按 2026-10-14 的约定保留在仓库中；大赛结束后如需移除，须单独确认。
+按 2026-10-14 的约定保留在仓库中；前者自 2026-10-19 起**冻结不再更新**，大赛结束后如需移除，须单独确认。
