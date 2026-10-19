@@ -306,5 +306,5 @@ maimai-saver/
 │   └── verified-run.md                 # 真实环境验证记录（脱敏，可复现）
 ├── fixtures/                           # 7 份离线回归数据（菜单/券/订单/积分/团购等）
 ├── releases/                           # 发布产物：每版英文 zip + 中文说明 + 索引
-└── tests/                              # pytest 单元测试（185 个用例 + 一致性校验）
+└── tests/                              # pytest 单元测试（196 个用例 + 一致性校验）
 ```
