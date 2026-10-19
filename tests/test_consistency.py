@@ -16,6 +16,7 @@
 from __future__ import annotations
 
 import re
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -155,3 +156,39 @@ class TestRepositoryLayout:
     def test_no_python_files_at_repo_root_except_demo(self):
         strays = [p.name for p in ROOT.glob("*.py") if p.name != "demo.py"]
         assert not strays, "仓库根目录出现散落脚本：{0}".format(sorted(strays))
+
+
+class TestDocumentationSync:
+    """2026-10-19 审计漏项：目录漏章节、目录树漏文件、清单未链接。
+
+    这三类问题此前完全靠人眼，现在全部变成断言。
+    """
+
+    def test_readme_toc_covers_every_section(self):
+        """每个章节都必须出现在目录里（此前「反馈与支持」正文有、目录没有）。"""
+        sys.path.insert(0, str(SCRIPTS))
+        import check_toc
+
+        assert check_toc.main([]) == 0
+
+    def test_skill_tree_lists_every_reference(self):
+        """references/ 下每份文档都要出现在 SKILL 目录树。"""
+        skill = read("SKILL.md")
+        missing = [p.name for p in (ROOT / "references").glob("*.md") if p.name not in skill]
+        assert not missing, "SKILL.md 目录树缺少参考文档：{0}".format(sorted(missing))
+
+    def test_skill_tree_lists_site_docs_and_tooling(self):
+        skill = read("SKILL.md")
+        expected = ["demo.html", "index.html", "sync-checklist.md",
+                    "assets/banner.svg", "check_toc.py", "build_releases.py"]
+        missing = [name for name in expected if name not in skill]
+        assert not missing, "SKILL.md 目录树缺少：{0}".format(sorted(missing))
+
+    def test_contributing_links_sync_checklist(self):
+        assert "docs/sync-checklist.md" in read("CONTRIBUTING.md")
+
+    def test_sync_checklist_records_known_misses(self):
+        """清单必须保留审计出的漏项记录，避免「文档一改就丢历史」。"""
+        text = read("docs/sync-checklist.md")
+        for item in ("CHANGELOG", "SKILL.md 目录树", "README.md` 目录", "pyproject.toml", "releases/"):
+            assert item.replace("`", "") in text.replace("`", ""), "清单缺少漏项：{0}".format(item)
