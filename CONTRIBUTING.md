@@ -67,7 +67,8 @@ python -m py_compile scripts/mcd_client.py scripts/mcd.py \
 ## 发布流程
 
 版本号遵循项目自定义 `z.x.y` 规则（修订号 ≤3、次版本号 ≤6，超限进位），
-一次完整发布包含五步，缺一不可：
+一次完整发布包含五步，缺一不可。逐项同步点（含历史漏项与手动项）见
+[`docs/sync-checklist.md`](docs/sync-checklist.md)——提交前照表打勾：
 
 ```bash
 python scripts/version.py                    # 1. 预览下一版本号
