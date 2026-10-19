@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>麦麦省钱助手 · 沉默成本体检报告</title>
+<style>
+  body { font-family: -apple-system, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+         background: #FFF8EE; color: #292321; margin: 0; padding: 32px 16px; }
+  .card { max-width: 720px; margin: 0 auto 16px; background: #fff; border-radius: 14px;
+          padding: 22px 26px; box-shadow: 0 2px 10px rgba(191,124,26,.12); }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  h2 { font-size: 15px; margin: 0 0 10px; color: #B0720F; letter-spacing: .5px; }
+  .sub { color: #8a7a66; font-size: 12px; margin-bottom: 14px; }
+  .row { display: flex; justify-content: space-between; padding: 7px 0;
+          border-bottom: 1px dashed #f0e4d0; font-size: 14px; gap: 12px; }
+  .row:last-child { border-bottom: none; }
+  .money { font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+  .good { color: #1a7f37; } .bad { color: #c62828; } .muted { color: #9a8b77; }
+  .stat { display: flex; gap: 10px; margin: 10px 0 2px; flex-wrap: wrap; }
+  .stat div { flex: 1; min-width: 130px; background: #FFF3DC; border-radius: 10px;
+               padding: 10px 12px; text-align: center; }
+  .stat b { display: block; font-size: 20px; margin-top: 2px; }
+  footer { max-width: 720px; margin: 0 auto; text-align: center; color: #9a8b77;
+            font-size: 11px; line-height: 1.8; }
+  footer a { color: #B0720F; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🍟 沉默成本体检报告</h1>
+  <div class="sub">生成于 2026-10-19 14:15 · 数据来自麦当劳官方 MCP 只读工具 · 金额为估算口径</div>
+  <h2>【一】临期券（7 天内到期）</h2><div class="row"><span class="muted">近 7 天内没有临期券。</span></div>
+</div>
+<div class="card">
+  <h2>【二】消费画像</h2>
+  <div class="row"><span class="muted">暂无可识别的历史订单金额。</span></div>
+</div>
+<div class="card">
+  <h2>【三】积分体检</h2>
+  <div class="row"><span class="muted">积分账户字段未识别。</span></div>
+</div>
+<footer>McD Saver (maimai-saver) · 社区开源项目，与麦当劳公司无关联<br>
+<a href="https://github.com/yuxinlaile/McD-saver">GitHub 仓库</a> ·
+<a href="https://yuxinlaile.github.io/McD-saver/demo.html">在线试算</a> · 卡号/Token 已脱敏，可安全截图</footer>
+</body>
+</html>
