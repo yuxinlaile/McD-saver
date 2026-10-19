@@ -364,10 +364,27 @@ def render_report(result: Dict[str, Any], mode_label: str) -> str:
         lines.append("钠上限：{0:.0f} mg".format(result["max_sodium"]))
     lines.append("")
     lines.append("方案排名：")
+    # 三档场景标签（借鉴 mcd-party-planner 的经济/均衡/丰盛输出，v2.0.4）：
+    # 最便宜 → 最经济；kcal 最高 → 最丰盛；其余 → 均衡（仅 ranked≥2 且字段齐全时）
+    scene_labels: Dict[int, str] = {}
+    if len(ranked) >= 2 and all(p.payable is not None for p in ranked):
+        cheapest = min(range(len(ranked)), key=lambda i: ranked[i].payable)
+        richest = max(range(len(ranked)),
+                      key=lambda i: (ranked[i].kcal if ranked[i].kcal is not None else -1))
+        for i in range(len(ranked)):
+            if i == cheapest:
+                scene_labels[i] = "最经济"
+            elif i == richest and i != cheapest:
+                scene_labels[i] = "最丰盛"
+            elif len(scene_labels) < 2 and i not in (cheapest, richest):
+                scene_labels[i] = "均衡"
     for idx, plan in enumerate(ranked, 1):
         saving = baseline - (plan.payable or 0.0)
         ratio = (saving / baseline * 100.0) if baseline else 0.0
         mark = "  ← 最优" if idx == 1 else ""
+        scene = scene_labels.get(idx - 1)
+        if scene:
+            mark += (" ｜ " if mark else " ｜ ") + scene
         flags = []
         if plan.over_budget:
             flags.append("超预算 {0}".format(_fmt((plan.payable or 0) - (result["budget"] or 0))))
