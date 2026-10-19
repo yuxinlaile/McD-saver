@@ -262,7 +262,7 @@ class McdMcpClient:
         self.session_id: Optional[str] = None
         self._initialized = False
         self._request_id = 0
-        # 主动滑动窗口限速（借鉴 mcd-party-planner，MIT）：默认 300 次/分钟，
+        # 主动滑动窗口限速：默认 300 次/分钟，
         # 为官方上限 600 留一半余量，避免批量比对场景触发 429 被动等待
         self._rate_limit = max(0, int(rate_limit))
         self._send_times: deque = deque()

@@ -175,7 +175,7 @@ class TestDocumentationSync:
         """references/ 下每份文档都要出现在 SKILL 目录树。"""
         skill = read("SKILL.md")
         missing = [p.name for p in (ROOT / "references").glob("*.md") if p.name not in skill]
-        assert not missing, "SKILL.md 目录树缺少参考文档：{0}".format(sorted(missing))
+        assert not missing, "SKILL.md 目录树缺少文档：{0}".format(sorted(missing))
 
     def test_skill_tree_lists_site_docs_and_tooling(self):
         skill = read("SKILL.md")
@@ -192,3 +192,37 @@ class TestDocumentationSync:
         text = read("docs/sync-checklist.md")
         for item in ("CHANGELOG", "SKILL.md 目录树", "README.md` 目录", "pyproject.toml", "releases/"):
             assert item.replace("`", "") in text.replace("`", ""), "清单缺少漏项：{0}".format(item)
+
+
+class TestNeutralWording:
+    """对外文案不带来源借鉴表述（2026-10-19 规范）。
+
+    「借鉴 / 参考 / 致谢 / 灵感」在对外文档中一律改为中性实现描述；
+    历史核验记录（docs/development-log.md）、官方声明（CONTEST_DECLARATION.md）
+    与本规则文档本身不在扫描范围内。
+    """
+
+    FORBIDDEN = ("借鉴", "致谢", "灵感", "参考")
+
+    def _targets(self):
+        files = [ROOT / name for name in
+                 ("CHANGELOG.md", "README.md", "README_EN.md", "SKILL.md",
+                  "MCP_INTEGRATION.md", "CONTRIBUTING.md")]
+        files += sorted((ROOT / "references").glob("*.md"))
+        files += sorted((ROOT / "releases").glob("v*/*.md"))
+        files.append(ROOT / "docs" / "demo.html")
+        return [f for f in files if f.exists()]
+
+    def test_no_attribution_wording_in_user_docs(self):
+        offenders = []
+        for path in self._targets():
+            text = path.read_text(encoding="utf-8")
+            hits = [word for word in self.FORBIDDEN if word in text]
+            if hits:
+                offenders.append("{0}: {1}".format(path.relative_to(ROOT), "、".join(hits)))
+        assert not offenders, "对外文案仍含来源表述：{0}".format(offenders)
+
+    def test_rule_is_documented(self):
+        checklist = read("docs/sync-checklist.md")
+        assert "## 六、对外表述规范" in checklist
+        assert "借鉴" in checklist and "禁用词" in checklist

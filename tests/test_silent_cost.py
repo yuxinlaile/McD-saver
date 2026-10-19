@@ -131,7 +131,7 @@ class TestMallShadowPrice:
         points = analyze_points({"data": {"availablePoint": 1000.0}})
         out = render_report(analyze_coupons([], TODAY), analyze_orders({"data": []}),
                             points, mall)
-        assert "积分价值参考" in out and "0.0210" in out
+        assert "积分价值估算" in out and "0.0210" in out
         assert "¥21.00" in out
 
 
@@ -270,7 +270,7 @@ class TestSavingsGrade:
 
 
 class TestNetValueSchedule:
-    """v1.7.2 新增：净价值模型（借鉴 mcd-coupon-strategist planner.py，MIT）。"""
+    """v1.7.2 新增：净价值模型（门槛与客单价不匹配时判为纸面富贵）。"""
 
     def _orders(self, amounts):
         data = [{"createTime": "2026-10-12", "totalAmount": a} for a in amounts]

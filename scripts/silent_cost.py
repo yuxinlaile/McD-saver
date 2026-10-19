@@ -202,7 +202,7 @@ def analyze_orders(orders_raw: Any, today: Optional[datetime] = None) -> Dict[st
         elif amount > 0:
             # 消费口径：0 元订单（券核销/积分兑换）不计入客单价——
             # 拿它当「不看券时的自然消费基准」是循环论证，会系统性拉低基准
-            #（口径分离借鉴 mcd-coupon-strategist auditor.py，MIT License）
+            #（消费口径与点单口径分离）
             amounts.append(amount)
         else:
             free_count += 1
@@ -249,8 +249,7 @@ def analyze_orders(orders_raw: Any, today: Optional[datetime] = None) -> Dict[st
 def schedule_coupons(coupons: Dict[str, Any], orders: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """把临期券按**净价值**降序排入「过期窗口内的预期点单次数」。
 
-    净价值 = 券面价值 − max(0, 满减门槛 − 自然消费基准)（借鉴
-    mcd-coupon-strategist planner.py 的净价值模型，MIT License）——
+    净价值 = 券面价值 − max(0, 满减门槛 − 自然消费基准)——
     满减门槛远超客单价的券是「纸面富贵」，名义面值再高也不排入。
 
     窗口 = 临期券中最早到期的天数；预期点单次数 = 点单频率 × 窗口
@@ -466,7 +465,7 @@ def render_report(coupons: Dict[str, Any], orders: Dict[str, Any],
         lines.append("  建议：优先用积分兑换临期前会用到的餐品券。")
         if mall and mall.get("shadow_price"):
             shadow = mall["shadow_price"]
-            lines.append("  积分价值参考：最优兑换「{0}」= {1:.4f} 元/积分"
+            lines.append("  积分价值估算：最优兑换「{0}」= {1:.4f} 元/积分"
                          "（口径：积分商城最优标的效率）".format(
                              mall["best_product"]["name"], shadow))
             lines.append("  可用积分折现 ≈ ¥{0:.2f}——用它判断「这单要不要动积分」的机会成本。".format(

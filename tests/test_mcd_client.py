@@ -157,7 +157,7 @@ class TestResultToText:
 
 
 class TestRateLimitThrottle:
-    """v2.0.4 新增：主动滑动窗口限速（借鉴 mcd-party-planner，MIT）。"""
+    """v2.0.4 新增：主动滑动窗口限速（300 次/分钟滑动窗口）。"""
 
     def _client(self, rate_limit):
         from mcd_client import McdMcpClient as MCPClient

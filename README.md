@@ -10,7 +10,7 @@
 [![Release](https://img.shields.io/badge/Release-v2.1.3-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.1.3)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Dependencies](https://img.shields.io/badge/Dependencies-None%20(stdlib)-green)
-![Tests](https://img.shields.io/badge/Tests-241%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/Tests-243%20passed-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![MCP](https://img.shields.io/badge/MCP-Streamable%20HTTP-purple)
 
@@ -103,7 +103,7 @@
 - 401 快速失败、429 指数退避尊重 `Retry-After`、5xx/网络错误自动重试
 - 范围边界：聚焦下单前的省钱决策——不包含爬虫、自动下单、无人值守定时领券等自动化能力
 
-**🧪 测试保障**：241 个单元测试覆盖 SSE 解析、Token 解析、退避计算、比价决策、
+**🧪 测试保障**：243 个单元测试覆盖 SSE 解析、Token 解析、退避计算、比价决策、
 组合优化与 CLI 退出码；`demo.py` 全链路输出被 `tests/test_demo_pipeline.py`
 断言——**demo 即回归测试**。
 
@@ -212,7 +212,7 @@ Cherry Studio / Trae / VSCode / Kiro 各自 MCP 设置页 · Codex `~/.codex/con
 scripts/     核心实现：MCP 客户端、CLI、券组合优化器、沉默成本体检、版本与发布工具
 references/  方法论手册：工具目录、省钱策略、团购比价、场景工作流、MCP 踩坑、排错
 docs/        在线试算页与品牌资源（demo.html / index.html / banner.svg）
-tests/       241 项单元测试 + 规范一致性校验
+tests/       243 项单元测试 + 规范一致性校验
 fixtures/    离线回归数据（菜单、券、订单、积分、商城、团购）
 releases/    发布产物：每版英文压缩包 + 中文说明 + 索引
 ```
@@ -336,7 +336,7 @@ CHANGELOG 补充 · **README 中英同步**。
 或按场景选择：🐛 [提交 Bug 报告](https://github.com/yuxinlaile/McD-saver/issues/new?template=bug_report.md) ·
 💡 [提出功能建议](https://github.com/yuxinlaile/McD-saver/issues/new?template=feature_request.md) ·
 🤝 [分享团购券数据](https://github.com/yuxinlaile/McD-saver/discussions)（助力比价库更全）。
-每一条反馈都会认真查看——这也是试算页持续按真实使用场景优化的来源。
+每一条反馈都会认真查看——这也是试算页持续按真实使用场景优化的依据。
 
 ## Star History
 

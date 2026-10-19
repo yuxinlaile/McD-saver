@@ -9,7 +9,7 @@
 | # | 漏掉的位置 | 具体表现 | 根因 | 现在的守护方式 |
 |---|---|---|---|---|
 | 1 | `CHANGELOG.md` | 2.1.2 条目**重复两段**（内容完全相同） | 多轮编辑叠加，没有唯一性校验 | `test_consistency.py::TestChangelog` 断言无重复版本、版本降序 |
-| 2 | `SKILL.md` 目录树 | 缺 9 个已存在文件（`silent_report.py`、`version.py`、`verify_run.py`、`build_releases.py`、`mcp-pitfalls.md`、`agent-skill-installation.md`、`demo.html`、`index.html`、`releases/`） | 新增文件时只改代码，没回写目录树 | `test_skill_tree_lists_every_script` + 参考文档/站点文件断言 |
+| 2 | `SKILL.md` 目录树 | 缺 9 个已存在文件（`silent_report.py`、`version.py`、`verify_run.py`、`build_releases.py`、`mcp-pitfalls.md`、`agent-skill-installation.md`、`demo.html`、`index.html`、`releases/`） | 新增文件时只改代码，没回写目录树 | `test_skill_tree_lists_every_script` + 文档与站点文件断言 |
 | 3 | `README.md` 目录（TOC） | 正文有「反馈与支持」，**目录里没有**该条目 | 新增章节只补了正文与英文 TOC | `scripts/check_toc.py` 断言「每个章节都在目录里」 |
 | 4 | 测试计数（4 处） | README 中英徽章与正文、`banner.svg`、`SKILL.md` 多次不同步（122/154/171 混用） | 计数散落 4 处，纯靠人工 | `test_counts_are_equal_everywhere` 断言四处一致 |
 | 5 | `pyproject.toml` 版本 | 长期停留在 `1.6.0`，与 `CLIENT_INFO` 脱节 | `version.py --apply` 覆盖盲区 | `--apply` 已补 pyproject，并加 `test_pyproject_matches_client_info` |
@@ -71,3 +71,18 @@ python scripts/build_releases.py --verify
 - **产物与源码分离**：zip 是构建产物，改完源码忘了重建/重传，Release 里就是旧包。
 
 因此原则是：**能自动断言的就不要靠记性；不能自动的，写进这张表，发版前照表打勾。**
+
+## 六、对外表述规范（2026-10-19 起）
+
+**所有对外文案不写「来源借鉴」，只陈述能力与实现。**
+
+| 项目 | 要求 |
+|---|---|
+| 禁用词 | 「借鉴」「参考」「致谢」「灵感」以及「参考了 X」「思路来自 X」等变体 |
+| 正确写法 | 直接写实现与口径：如「净价值 = 面值 − max(0, 门槛 − 客单价)」「默认 300 次/分钟滑动窗口」 |
+| 可保留的事实 | 数据获取方式（如「券信息由用户手动录入」）、官方声明原文、历史核验记录 |
+| 覆盖范围 | CHANGELOG、README 中英、SKILL、references、`releases/` 说明、GitHub Release notes、#275 评论、Agensi 文案 |
+| 自动守卫 | `tests/test_consistency.py::TestNeutralWording`（命中即 CI 红） |
+
+**为什么**：对外文档只描述「做了什么、怎么做的、结果如何」，不把实现归因于他人项目，
+避免歧义与不必要的关联；技术事实（公式、阈值、行为）必须原样保留，只去掉来源表述。

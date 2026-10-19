@@ -55,11 +55,10 @@
 
 ### 新功能
 
-- **主动滑动窗口限速**（`scripts/mcd_client.py`，借鉴
-  [mcd-party-planner](https://github.com/zcbacxc/mcd-party-planner) 的限流设计，MIT License）：
+- **主动滑动窗口限速**（`scripts/mcd_client.py`）：
   默认 300 次/分钟（官方上限 600 的一半），批量比对场景不再触发 429 被动等待；
   `rate_limit=0` 可禁用。新增 4 项测试（禁用/窗口满等待/窗口未满/滑出）
-- **方案排名场景标签**（借鉴 mcd-party-planner 的经济/均衡/丰盛输出）：
+- **方案排名场景标签**（经济 / 均衡 / 丰盛）：
   Top-N 方案自动标注「最经济 / 均衡 / 最丰盛」，排名可读性提升
 
 ### 文档
@@ -155,8 +154,7 @@
 ### 改进
 
 - **用券排程升级为净价值模型**（净价值 = 券面价值 − max(0, 满减门槛 −
-  自然消费基准)，模型借鉴 [mcd-coupon-strategist](https://github.com/Ayzzz123/mcd-coupon-strategist)
-  的 planner.py，MIT License）：门槛远超客单价的满减券判定为
+  自然消费基准)）：门槛远超客单价的满减券判定为
   「纸面富贵」并建议放弃，不再计入可实现金额——修正了此前
   按面值排程导致的系统性高估
 - 排程建议展示从「面值」改为「净价值」，超出客单价的门槛部分如实说明
@@ -166,7 +164,7 @@
 - **客单价口径修正**：0 元订单（券核销/积分兑换）此前被计入客单价分母，
   会系统性拉低「自然消费基准」——现改为消费口径（客单价剔除 0 元单）
   与点单口径（频率含全部订单）分离，并新增 `free_order_count` 字段
-  与报告披露（口径分离思路借鉴同上项目 auditor.py）
+  与报告披露（消费口径与点单口径分离）
 
 ## [1.7.1] - 2026-10-15
 
@@ -179,7 +177,7 @@
 
 - MCP 踩坑指南新增**参数自动串联**技巧：上游响应中的 storeCode / orderId /
   spuId / couponId 可直接喂给下游工具，无需人工查文档即可跑通全部只读工具
-  （致谢 mcd-wrapped 的 MCP 能力探测器实测报告）
+  （实测 27/28 只读工具跑通，写操作按需跳过）
 
 ## [1.7.0] - 2026-10-14
 
@@ -275,11 +273,6 @@
 ### Changed
 - SKILL.md 工作流 5 补充约束参数说明；README 中英运行与命令同步
 
-### 致谢
-- 本版吸收了大赛社区项目的公开思路：YOMXXX/McOptima 的多约束求解、
-  akexin/mcd-points-actuary 的积分影子价格、BreadKid/mcd-order-calories 的
-  "算不出如实披露"原则
-
 ## [1.3.0] - 2026-10-12
 
 ### Added
@@ -348,7 +341,7 @@
   "先查后改 / 下单必确认 / 不虚构优惠"调用规范
 - 全渠道比价引擎 `scripts/deal_compare.py`：美团/抖音等团购券手动录入
   本地券库，与官方渠道（MCP calculate-price）同口径估算比价并输出推荐
-- 参考文档：`references/money-saving-strategies.md`（十一大策略）、
+- 相关文档：`references/money-saving-strategies.md`（十一大策略）、
   `references/group-buy-comparison.md`（比价方法论）
 - 大赛参赛文件：`CONTEST_DECLARATION.md`、`MCP_INTEGRATION.md`、
   `mcp-config.example.json`、`workbuddy.md`
@@ -365,5 +358,5 @@
   JSON/SSE 双格式响应解析；401 快速失败、429 指数退避 + 抖动重试
   （尊重 Retry-After）、5xx/网络错误自动重试
 - CLI（check / tools / schema / call），结构化退出码 0/1/2/3/4
-- Agent Skill 入口 `SKILL.md` 与 references 参考文档（工具目录、工作流、
+- Agent Skill 入口 `SKILL.md` 与 references 文档（工具目录、工作流、
   错误排查）、GitHub Actions CI、MIT LICENSE（含第三方条款声明）

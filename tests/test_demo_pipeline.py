@@ -1,4 +1,4 @@
-"""demo.py 全链路离线演示回归测试——demo 即回归测试（借鉴 fixtures 模式）。
+"""demo.py 全链路离线演示回归测试——demo 即回归测试（复用 fixtures 数据）。
 
 fixtures/*.json 的字段结构与真实 MCP 响应一致；demo.py 用同一套业务逻辑
 跑四步检查，因此对 demo 输出的断言就是对业务流水线的断言。
