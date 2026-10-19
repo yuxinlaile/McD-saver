@@ -1,7 +1,7 @@
 ---
 name: maimai-saver
 description: 麦麦省钱助手——基于麦当劳中国官方 MCP Server 的省钱点餐技能。当用户提到麦当劳、麦乐送、麦麦、点麦当劳、想省钱/薅羊毛/领券/优惠、查优惠怎么用、积分兑换、麦麦商城、积分抽奖、麦当劳活动，或询问"怎么点麦当劳最划算"时使用本技能。核心能力：在下单前自动完成"领券→选券→比价→积分抵扣评估"，用 35 个官方工具帮用户以最低价格吃到同样的麦当劳。
-version: 2.0.3
+version: 2.1.0
 license: MIT
 ---
 
@@ -284,5 +284,5 @@ maimai-saver/
 │   └── error-handling.md               # 错误码、重试策略与排查指南
 ├── examples/
 │   └── order-flow-example.md           # 一次完整省钱点餐的示例会话
-└── tests/                              # pytest 单元测试（154 个用例）
+└── tests/                              # pytest 单元测试（163 个用例）
 ```
