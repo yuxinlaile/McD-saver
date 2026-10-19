@@ -64,6 +64,30 @@ python -m py_compile scripts/mcd_client.py scripts/mcd.py \
 - [ ] 用户可见变更已写入 `CHANGELOG.md`（遵循 Keep a Changelog 格式）；
 - [ ] `docs/demo.html` 有改动时已用浏览器验证（或至少 `node --check` 校验内联 JS）。
 
+## 发布流程
+
+版本号遵循项目自定义 `z.x.y` 规则（修订号 ≤3、次版本号 ≤6，超限进位），
+一次完整发布包含五步，缺一不可：
+
+```bash
+python scripts/version.py                    # 1. 预览下一版本号
+python scripts/version.py --apply            # 2. 写回 CLIENT_INFO / pyproject / SKILL / README 徽章与「当前版本」
+python scripts/build_releases.py --current   # 3. 生成产物：releases/v<版本>/ 下的英文 zip + 中文说明
+#    4. 补 CHANGELOG 条目、推送、打 tag 并创建同名 Release，然后挂载两个产物：
+gh release upload v<版本> releases/v<版本>/* --clobber
+python scripts/build_releases.py --verify    # 5. 校验命名、配对、压缩包完整性与 SHA-256
+```
+
+产物命名固定，不接受自定义：
+
+| 类型 | 命名 | 形式 |
+|---|---|---|
+| 英文名 | `mcd-saver-v<版本>.zip` | 压缩包（tag 源码，解压根目录 `McD-Saver-v<版本>/`） |
+| 中文名 | `麦麦省钱助手-v<版本>-发布说明.md` | 说明文档（含安装、变更与 SHA-256） |
+
+`tests/test_consistency.py` 会校验版本号、测试计数、配置示例、`releases/` 产物与索引的一致性——
+CI 变红时优先看它，而不是怀疑业务代码。
+
 ## 合规红线（不可协商）
 
 以下内容无论以何种形式提交都会被拒绝：

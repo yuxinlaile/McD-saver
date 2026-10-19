@@ -186,6 +186,10 @@ def main(argv: list[str] | None = None) -> int:
         print("提醒：--apply 不覆盖测试计数。发版前请同步更新以下位置的用例数：")
         print("  docs/assets/banner.svg · README.md/README_EN.md（Tests 徽章与测试保障段）· SKILL.md 目录树")
         print("  并在 CHANGELOG 增加新版本条目、于 #275 同步版本进展。")
+        print("随后构建并挂载发布产物（英文 zip + 中文说明），最后校验 tags 与 releases 一致：")
+        print("  python scripts/build_releases.py --current")
+        print("  gh release upload v{0} releases/v{0}/* --clobber".format(new_version))
+        print("  python scripts/build_releases.py --verify")
     return 0
 
 

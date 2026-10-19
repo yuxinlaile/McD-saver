@@ -261,28 +261,50 @@ python scripts/mcd.py call query-my-account --raw > points.json
 ```
 maimai-saver/
 ├── SKILL.md                            # 本文件：省钱顾问方法论与技能入口
-├── README.md / README_EN.md            # 项目说明（中/英）
-├── CHANGELOG.md                        # 版本变更记录
+├── README.md / README_EN.md            # 项目说明（中/英，结构与锚点逐位对齐）
+├── CHANGELOG.md                        # 版本变更记录（Keep a Changelog 格式）
+├── CONTRIBUTING.md                     # 贡献指南与发布流程
 ├── LICENSE                             # MIT 许可证 + 第三方条款声明
 ├── CONTEST_DECLARATION.md              # 参赛声明（官方原文，未改动）
 ├── MCP_INTEGRATION.md                  # MCP 集成说明（参赛要求文件）
-├── mcp-config.example.json             # 脱敏 MCP 配置（仅环境变量占位符）
-├── docs/development-log.md             # 开发过程记录（WorkBuddy 专项奖励核验用）
+├── mcp-config.example.json             # 脱敏 MCP 配置（参赛要求文件，与 config/ 版内容一致）
+├── pyproject.toml                      # 打包元数据与 pytest 配置（版本号随发版同步）
+├── requirements-dev.txt                # 开发依赖（pytest / pytest-cov）
+├── install.ps1                         # Windows WorkBuddy 一键安装脚本
+├── demo.py                             # 离线全链路演示（内嵌 fixture，不联网）
+├── .github/
+│   ├── workflows/ci.yml                # CI：3.9 / 3.11 / 3.13 矩阵 + 覆盖率门槛
+│   ├── ISSUE_TEMPLATE/                 # Bug / 功能建议模板与讨论区入口
+│   └── PULL_REQUEST_TEMPLATE.md        # PR 检查清单
+├── docs/
+│   ├── demo.html                       # 在线试算页（四维约束滑杆 + 数值输入、Token 导入）
+│   ├── index.html                      # Pages 根路径索引页（自动进入试算页）
+│   ├── development-log.md              # 开发过程记录（WorkBuddy 专项奖励核验用）
+│   └── assets/banner.svg               # 品牌横幅（版本与测试数随发版同步）
 ├── config/
 │   └── mcp.example.json                # MCP 客户端配置示例（占位符 Token）
 ├── scripts/
-│   ├── mcd_client.py                   # MCP Streamable HTTP 客户端核心（纯标准库）
+│   ├── mcd_client.py                   # MCP Streamable HTTP 客户端核心（纯标准库、主动限速）
 │   ├── mcd.py                          # CLI 入口：check / tools / schema / call
 │   ├── deal_compare.py                 # 外部团购比价引擎（美团/抖音券手动录入）
-│   ├── optimizer.py                    # 券组合优化器（估算/--mcp 真实计价双模式）
-│   └── silent_cost.py                  # 沉默成本体检（临期券排程/消费画像/积分/实测/HTML 报告）
+│   ├── optimizer.py                    # 券组合优化器（估算 / --mcp 真实计价双模式、Top-K 预筛）
+│   ├── silent_cost.py                  # 沉默成本体检（临期券排程/消费画像/积分/实测）
+│   ├── silent_report.py                # HTML 体检报告渲染与省钱等级（silent_cost 再导出）
+│   ├── version.py                      # 版本号递增工具（自定义 z.x.y：y≤3、x≤6）
+│   ├── verify_run.py                   # 真实运行验证记录生成（自动脱敏）
+│   └── build_releases.py               # 发布产物构建与校验（英文 zip + 中文说明）
 ├── references/
 │   ├── tools.md                        # 35 个工具完整目录与使用要点
 │   ├── money-saving-strategies.md      # 十一大省钱策略详解（核心参考）
 │   ├── group-buy-comparison.md         # 外部团购比价方法论
 │   ├── workflows.md                    # 各业务场景的详细调用流程
+│   ├── mcp-pitfalls.md                 # MCP 实战踩坑与参数串联指南
+│   ├── agent-skill-installation.md     # 各客户端 Agent Skill 安装细则
 │   └── error-handling.md               # 错误码、重试策略与排查指南
 ├── examples/
-│   └── order-flow-example.md           # 一次完整省钱点餐的示例会话
-└── tests/                              # pytest 单元测试（171 个用例）
+│   ├── order-flow-example.md           # 一次完整省钱点餐的示例会话
+│   └── verified-run.md                 # 真实环境验证记录（脱敏，可复现）
+├── fixtures/                           # 7 份离线回归数据（菜单/券/订单/积分/团购等）
+├── releases/                           # 发布产物：每版英文 zip + 中文说明 + 索引
+└── tests/                              # pytest 单元测试（185 个用例 + 一致性校验）
 ```

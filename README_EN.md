@@ -10,7 +10,7 @@
 [![Release](https://img.shields.io/badge/Release-v2.1.3-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.1.3)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Dependencies](https://img.shields.io/badge/Dependencies-None%20(stdlib)-green)
-![Tests](https://img.shields.io/badge/Tests-171%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/Tests-185%20passed-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![MCP](https://img.shields.io/badge/MCP-Streamable%20HTTP-purple)
 
@@ -31,9 +31,11 @@
   - [Command cheat sheet](#command-cheat-sheet)
   - [Cross-channel example](#cross-channel-example)
 - [Configuration](#configuration)
+- [Project layout](#project-layout)
 - [Tool coverage](#tool-coverage)
 - [FAQ](#faq)
 - [Release notes](#release-notes)
+- [Release artifacts](#release-artifacts)
 - [Feedback](#feedback)
 - [Contributing](#contributing)
 - [Disclaimer](#disclaimer)
@@ -106,7 +108,7 @@ order created ≠ paid — payment always happens on McDonald's official page.
 - 401 fails fast; 429 exponential backoff honoring `Retry-After`; 5xx/network auto-retry
 - Scope boundary: focused on pre-order savings decisions — no scraping, auto-ordering or unattended scheduling capabilities
 
-**🧪 Tested**: 171 unit tests covering SSE parsing, token resolution, backoff math,
+**🧪 Tested**: 185 unit tests covering SSE parsing, token resolution, backoff math,
 comparison decisions, combination optimization and CLI exit codes; the full
 `demo.py` pipeline is asserted by `tests/test_demo_pipeline.py` — **the demo
 doubles as a regression test**.
@@ -214,6 +216,19 @@ in `~/.codex/config.toml`.
 **Token security**: provide the token via env var, token file or `--token` only;
 never commit it, never let it appear in logs. If leaked, re-apply at open.mcd.cn/mcp immediately.
 
+## Project layout
+
+```
+scripts/     Core: MCP client, CLI, coupon optimizer, silent-cost audit, version & release tooling
+references/  Playbooks: tool catalog, savings strategies, group-buy comparison, workflows, pitfalls
+docs/        Online calculator and brand assets (demo.html / index.html / banner.svg)
+tests/       185 unit tests plus repository-consistency checks
+fixtures/    Offline regression data (menu, coupons, orders, points, mall, deals)
+releases/    Release artifacts: English zip + Chinese notes + index per version
+```
+
+Full file-level tree: [`SKILL.md`](SKILL.md#directory-structure).
+
 ## Tool coverage
 
 | Domain | Tools |
@@ -315,6 +330,19 @@ This project's code is released under the [MIT](LICENSE) license; running it
 relies on the McDonald's China MCP service and the upstream integration guide
 ([M-China/mcd-mcp-server](https://github.com/M-China/mcd-mcp-server)) — using
 those services is subject to their terms and upstream restrictions.
+
+## Release artifacts
+
+Every version ships one pair of artifacts — in [`releases/`](releases/README.md) and on the matching GitHub Release:
+
+| Type | Naming | Form | Contents |
+|---|---|---|---|
+| English | `mcd-saver-v<version>.zip` | Archive | Full source at that tag; extracts to `McD-Saver-v<version>/` |
+| Chinese | `麦麦省钱助手-v<version>-发布说明.md` | Notes | Version info, install steps, changes for that version, SHA-256 |
+
+- Versions follow the project's custom `z.x.y` scheme (patch ≤3, minor ≤6, carry on overflow), bumped and synced by `scripts/version.py`
+- `scripts/build_releases.py` builds and verifies artifacts: `--all` for every tag, `--verify` for naming, pairing and archive integrity
+- Each tag maps to exactly one release, and every release carries the same two files — tag ↔ release ↔ `releases/` stay in lockstep
 
 ## Feedback
 

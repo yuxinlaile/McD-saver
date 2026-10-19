@@ -10,7 +10,7 @@
 [![Release](https://img.shields.io/badge/Release-v2.1.3-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.1.3)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Dependencies](https://img.shields.io/badge/Dependencies-None%20(stdlib)-green)
-![Tests](https://img.shields.io/badge/Tests-171%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/Tests-185%20passed-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![MCP](https://img.shields.io/badge/MCP-Streamable%20HTTP-purple)
 
@@ -31,9 +31,12 @@
   - [命令速查](#命令速查)
   - [全渠道比价示例](#全渠道比价示例)
 - [配置说明](#配置说明)
+- [项目结构](#项目结构)
 - [工具能力总览](#工具能力总览)
 - [常见问题](#常见问题)
 - [更新说明](#更新说明)
+- [发布产物与版本策略](#发布产物与版本策略)
+- [反馈与支持](#反馈与支持)
 - [参与贡献](#参与贡献)
 - [免责声明](#免责声明)
 - [许可证](#许可证)
@@ -100,7 +103,7 @@
 - 401 快速失败、429 指数退避尊重 `Retry-After`、5xx/网络错误自动重试
 - 范围边界：聚焦下单前的省钱决策——不包含爬虫、自动下单、无人值守定时领券等自动化能力
 
-**🧪 测试保障**：171 个单元测试覆盖 SSE 解析、Token 解析、退避计算、比价决策、
+**🧪 测试保障**：185 个单元测试覆盖 SSE 解析、Token 解析、退避计算、比价决策、
 组合优化与 CLI 退出码；`demo.py` 全链路输出被 `tests/test_demo_pipeline.py`
 断言——**demo 即回归测试**。
 
@@ -203,6 +206,19 @@ Cherry Studio / Trae / VSCode / Kiro 各自 MCP 设置页 · Codex `~/.codex/con
 **Token 安全**：仅通过环境变量、Token 文件或 `--token` 参数提供；绝不写入仓库文件、
 绝不出现在日志中；泄露后立即到 open.mcd.cn/mcp 重新申请。
 
+## 项目结构
+
+```
+scripts/     核心实现：MCP 客户端、CLI、券组合优化器、沉默成本体检、版本与发布工具
+references/  方法论手册：工具目录、省钱策略、团购比价、场景工作流、MCP 踩坑、排错
+docs/        在线试算页与品牌资源（demo.html / index.html / banner.svg）
+tests/       185 项单元测试 + 规范一致性校验
+fixtures/    离线回归数据（菜单、券、订单、积分、商城、团购）
+releases/    发布产物：每版英文压缩包 + 中文说明 + 索引
+```
+
+完整文件级目录树见 [`SKILL.md`](SKILL.md#目录结构)。
+
 ## 工具能力总览
 
 | 业务域 | 工具 |
@@ -275,6 +291,19 @@ Cherry Studio / Trae / VSCode / Kiro 各自 MCP 设置页 · Codex `~/.codex/con
 
 完整变更记录见 [CHANGELOG.md](CHANGELOG.md)，各版本下载见
 [Releases](https://github.com/yuxinlaile/McD-saver/releases)。
+
+## 发布产物与版本策略
+
+每个版本在 [`releases/`](releases/README.md) 与同名 GitHub Release 上各有一对产物，命名固定：
+
+| 类型 | 命名 | 形式 | 内容 |
+|---|---|---|---|
+| 英文名 | `mcd-saver-v<版本>.zip` | 压缩包 | 对应 tag 的完整源码，解压后根目录 `McD-Saver-v<版本>/` |
+| 中文名 | `麦麦省钱助手-v<版本>-发布说明.md` | 说明文档 | 版本信息、安装指引、该版变更记录、SHA-256 校验 |
+
+- 版本号遵循项目自定义 `z.x.y` 规则（修订号 ≤3、次版本号 ≤6，超限进位），由 `scripts/version.py` 递增并同步发布文件
+- 产物由 `scripts/build_releases.py` 生成与校验：`--all` 构建全部版本、`--verify` 校验命名、配对与压缩包完整性
+- 每个 tag 与同名 Release 一一对应，Release 挂载同名的压缩包与说明文档，形成「tag ↔ Release ↔ releases 目录」三方一致
 
 ## 参与贡献
 
