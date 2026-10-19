@@ -3,6 +3,22 @@
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 格式，
 版本号遵循语义化版本（SemVer）。
 
+## [2.1.0] - 2026-10-19
+
+### 新功能
+
+- **主动滑动窗口限速**（`scripts/mcd_client.py`，借鉴
+  [mcd-party-planner](https://github.com/zcbacxc/mcd-party-planner) 的限流设计，MIT License）：
+  默认 300 次/分钟（官方上限 600 的一半），批量比对场景不再触发 429 被动等待；
+  `rate_limit=0` 可禁用。新增 4 项测试（禁用/窗口满等待/窗口未满/滑出）
+- **方案排名场景标签**（借鉴 mcd-party-planner 的经济/均衡/丰盛输出）：
+  Top-N 方案自动标注「最经济 / 均衡 / 最丰盛」，排名可读性提升
+
+### 文档
+
+- README 新增 **dependencies stdlib-only 徽章** 与搜索关键词区
+- Pages 根路径新增索引页（原根路径 404，现自动进入在线试算）
+
 ## [2.0.3] - 2026-10-15
 
 ### 新功能
