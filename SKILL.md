@@ -280,6 +280,7 @@ maimai-saver/
 │   ├── demo.html                       # 在线试算页（四维约束滑杆 + 数值输入、Token 导入）
 │   ├── index.html                      # Pages 根路径索引页（自动进入试算页）
 │   ├── development-log.md              # 开发过程记录（WorkBuddy 专项奖励核验用）
+│   ├── sync-checklist.md               # 更新同步清单（漏项教训 + 每次更新必查项）
 │   └── assets/banner.svg               # 品牌横幅（版本与测试数随发版同步）
 ├── config/
 │   └── mcp.example.json                # MCP 客户端配置示例（占位符 Token）
@@ -292,6 +293,7 @@ maimai-saver/
 │   ├── silent_report.py                # HTML 体检报告渲染与省钱等级（silent_cost 再导出）
 │   ├── version.py                      # 版本号递增工具（自定义 z.x.y：y≤3、x≤6）
 │   ├── verify_run.py                   # 真实运行验证记录生成（自动脱敏）
+│   ├── check_toc.py                    # README 目录锚点与中英结构校验
 │   └── build_releases.py               # 发布产物构建与校验（英文 zip + 中文说明）
 ├── references/
 │   ├── tools.md                        # 35 个工具完整目录与使用要点
@@ -306,5 +308,5 @@ maimai-saver/
 │   └── verified-run.md                 # 真实环境验证记录（脱敏，可复现）
 ├── fixtures/                           # 7 份离线回归数据（菜单/券/订单/积分/团购等）
 ├── releases/                           # 发布产物：每版英文 zip + 中文说明 + 索引
-└── tests/                              # pytest 单元测试（196 个用例 + 一致性校验）
+└── tests/                              # pytest 单元测试（201 个用例 + 一致性校验）
 ```
