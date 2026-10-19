@@ -14,6 +14,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Internal materials must not be committed
+        run: |
+          # 推广方案、运营材料、对话记录属于仓库外材料，禁止进入公开仓库
+          hits=$(git ls-files | grep -Ei '(^|/)(promotion|internal|ops)(/|[-_.])' || true)
+          if [ -n "$hits" ]; then
+            echo "::error::检测到内部材料入库：$hits"
+            exit 1
+          fi
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:

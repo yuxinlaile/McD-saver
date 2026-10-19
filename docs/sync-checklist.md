@@ -88,3 +88,20 @@ python scripts/build_releases.py --verify
 - 版本号、测试数、产物命名等硬信息不得因改写而变化；
 - 自动守卫 `tests/test_consistency.py::TestNeutralWording` **只扫描更新说明类文件**，功能文档出现来源表述不会触发 CI；
 - 新增更新说明类文件时，需同步加入守卫的扫描列表。
+
+## 七、仓库边界：哪些内容不进公开仓库（2026-10-19 新增）
+
+公开仓库只放**用户可用的功能与文档**。以下内容一律留在本地 workspace，不入库、不推送：
+
+| 类别 | 示例 | 存放位置 |
+|---|---|---|
+| 推广 / 运营方案 | 渠道矩阵、发帖排期、Star 目标、话术 | `promotion/`（仓库外） |
+| 对话与协作记录 | 与 AI 的讨论、决策过程、未定稿草稿 | `.workbuddy/memory/` 或 `promotion/` |
+| 内部复盘 | 流量数据、竞品拆解、指标看板 | 本地 |
+| 素材原文件 | 海报、GIF、截图源文件 | `promotion/` |
+
+**CI 守卫**：`.github/workflows/ci.yml` 的 `Internal materials must not be committed`
+会在 `git ls-files` 中匹配 `promotion|internal|ops` 目录或文件名，命中即失败。
+
+**唯一的例外**：`docs/development-log.md` 与 `CONTEST_DECLARATION.md` 是赛事核验材料，
+按 2026-10-14 的约定保留在仓库中；大赛结束后如需移除，须单独确认。
