@@ -3,6 +3,52 @@
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 格式，
 版本号遵循语义化版本（SemVer）。
 
+## [2.1.2] - 2026-10-19
+
+### 新功能
+
+- **在线试算页四维约束滑杆**：预算 / 热量上限 / 蛋白质下限 / 钠上限四条滑杆，
+  31 项示例菜单全部补充营养数据（示例值，真实数据以官方 nutrition 接口为准）；
+  违规方案排后并标注差多少（与 CLI 同一语义，绝不静默剔除）
+- **真实运行验证记录**：新增 `scripts/verify_run.py` 一键生成脱敏验证记录写入
+  `examples/verified-run.md`——真实 Token 环境实测：35 工具连通、完整调用链跑通，
+  Token 与手机号自动排除
+
+### 改进
+
+- **CI 覆盖率门槛**：pytest-cov 接入，`--cov-fail-under=55`（当前 64%）
+- **Token 文件权限检查**：Unix 上 `~/.mcd_mcp_token` 权限过宽时提示 chmod 600
+- **代码拆分**：HTML 渲染与省钱等级抽离为 `silent_report.py`（silent_cost 保持
+  向后兼容再导出）
+- 版本工具补 pyproject.toml 同步（此前为覆盖盲区）
+
+### 修复
+
+- pyproject.toml 版本号长期滞后（1.6.0 → 2.1.1）已修正并纳入自动同步
+
+## [2.1.2] - 2026-10-19
+
+### 新功能
+
+- **在线试算页四维约束滑杆**：预算 / 热量上限 / 蛋白质下限 / 钠上限四条滑杆，
+  31 项示例菜单全部补充营养数据（示例值，真实数据以官方 nutrition 接口为准）；
+  违规方案排后并标注差多少（与 CLI 同一语义，绝不静默剔除）
+- **真实运行验证记录**：新增 `scripts/verify_run.py` 一键生成脱敏验证记录写入
+  `examples/verified-run.md`——真实 Token 环境实测：35 工具连通、完整调用链跑通，
+  Token 与手机号自动排除
+
+### 改进
+
+- **CI 覆盖率门槛**：pytest-cov 接入，`--cov-fail-under=55`（当前 64%）
+- **Token 文件权限检查**：Unix 上 `~/.mcd_mcp_token` 权限过宽时提示 chmod 600
+- **代码拆分**：HTML 渲染与省钱等级抽离为 `silent_report.py`（silent_cost 保持
+  向后兼容再导出）
+- 版本工具补 pyproject.toml 同步（此前为覆盖盲区）
+
+### 修复
+
+- pyproject.toml 版本号长期滞后（1.6.0 → 2.1.1）已修正并纳入自动同步
+
 ## [2.1.1] - 2026-10-19
 
 ### 改进
