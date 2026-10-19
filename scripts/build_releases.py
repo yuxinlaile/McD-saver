@@ -17,6 +17,7 @@
     python scripts/build_releases.py --current    # 只构建当前版本
     python scripts/build_releases.py --index      # 只重建索引
     python scripts/build_releases.py --verify     # 校验命名、配对与压缩包完整性
+    python scripts/build_releases.py --current --upload   # 构建并上传到同名 Release
 
 压缩包为二进制产物，不纳入版本库（见 .gitignore）；中文说明与索引随仓库分发。
 """
@@ -25,9 +26,12 @@ from __future__ import annotations
 import argparse
 import hashlib
 import io
+import json
 import re
 import subprocess
 import sys
+import urllib.parse
+import urllib.request
 import zipfile
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
@@ -253,6 +257,9 @@ def build_index(versions: Optional[List[str]] = None) -> Path:
 
 - 压缩包为二进制产物，**不纳入版本库**（见 `.gitignore`），由脚本重建后挂载到同名 GitHub Release。
 - 说明文档与索引随仓库分发，历史版本内容取自该 tag 当时的 `CHANGELOG.md`，不会被后续编辑覆盖。
+- GitHub Releases 的资产名只接受 ASCII：中文说明在 Release 附件中另存为
+  `mcd-saver-v<版本>-release-notes-zh.md`（内容与本目录中文文件完全一致）；
+  **中文原名以本目录为准**，附件别名仅为平台限制下的分发兼容。
 - 新版本发布：先 `python scripts/version.py --apply`，再 `python scripts/build_releases.py --current`，
   然后上传两个产物到 Release，最后 `python scripts/build_releases.py --verify` 校验。
 
@@ -277,6 +284,60 @@ python scripts/build_releases.py --verify    # 校验命名、配对、压缩包
         fh.write(content)
     return out
 
+
+
+def doc_asset_name(version: str) -> str:
+    """Release 附件里的中文说明别名（GitHub 资产名只接受 ASCII）。"""
+    return "mcd-saver-v{0}-release-notes-zh.md".format(version)
+
+
+def _gh_json(path: str) -> Dict[str, Any]:
+    result = subprocess.run(["gh", "api", path], capture_output=True, text=True, encoding="utf-8")
+    if result.returncode != 0:
+        raise RuntimeError("gh api {0} 失败：{1}".format(path, result.stderr.strip()[:160]))
+    return json.loads(result.stdout)
+
+
+def _gh_token() -> str:
+    result = subprocess.run(["gh", "auth", "token"], capture_output=True, text=True, encoding="utf-8")
+    if result.returncode != 0 or not result.stdout.strip():
+        raise RuntimeError("未找到 gh 登录令牌，请先执行 gh auth login")
+    return result.stdout.strip()
+
+
+def _upload_asset(repo: str, release_id: int, name: str, data: bytes, content_type: str, token: str) -> str:
+    url = "https://uploads.github.com/repos/{0}/releases/{1}/assets?name={2}".format(
+        repo, release_id, urllib.parse.quote(name))
+    request = urllib.request.Request(url, data=data, method="POST", headers={
+        "Authorization": "Bearer " + token,
+        "Content-Type": content_type,
+        "Content-Length": str(len(data)),
+        "User-Agent": "mcd-saver-release-bot",
+    })
+    with urllib.request.urlopen(request, timeout=90) as response:
+        return json.loads(response.read().decode("utf-8"))["name"]
+
+
+def upload_release(version: str, repo: str = "yuxinlaile/McD-saver") -> None:
+    """把某版本的两个产物挂到同名 Release（幂等：先删同名旧资产）。"""
+    folder = version_dir(version)
+    zip_path = folder / pkg_name(version)
+    doc_path = folder / doc_name(version)
+    if not zip_path.exists() or not doc_path.exists():
+        raise RuntimeError("v{0} 产物不完整，先执行 --current / --all 构建".format(version))
+
+    release = _gh_json("repos/{0}/releases/tags/v{1}".format(repo, version))
+    release_id = release["id"]
+    token = _gh_token()
+    remove = {zip_path.name, doc_asset_name(version)}
+    for asset in release.get("assets", []):
+        if asset["name"] in remove:
+            subprocess.run(
+                ["gh", "api", "-X", "DELETE",
+                 "repos/{0}/releases/assets/{1}".format(repo, asset["id"])],
+                capture_output=True)
+    _upload_asset(repo, release_id, zip_path.name, zip_path.read_bytes(), "application/zip", token)
+    _upload_asset(repo, release_id, doc_asset_name(version), doc_path.read_bytes(), "text/markdown", token)
 
 def verify(verbose: bool = True) -> List[str]:
     """校验产物：命名规范、两件套配对、压缩包完整性与索引覆盖。返回问题列表。"""
@@ -349,6 +410,8 @@ def main(argv: Optional[List[str]] = None) -> int:
     group.add_argument("--current", action="store_true", help="只构建当前版本（默认行为）")
     group.add_argument("--index", action="store_true", help="只重建索引")
     group.add_argument("--verify", action="store_true", help="只校验产物，不构建")
+    parser.add_argument("--upload", action="store_true",
+                        help="构建后上传到同名 GitHub Release（中文说明使用 ASCII 别名）")
     parser.add_argument("--version", help="指定版本号（如 2.1.3），覆盖默认当前版本")
     args = parser.parse_args(argv)
 
@@ -365,6 +428,9 @@ def main(argv: Optional[List[str]] = None) -> int:
         for version in versions:
             zip_path, doc_path = build_version(version)
             print("构建 v{0}：{1} · {2}".format(version, zip_path.name, doc_path.name))
+            if args.upload:
+                upload_release(version)
+                print("  已上传到 Release v{0}".format(version))
         path = build_index(versions)
         print("索引已更新：{0}（{1} 个版本）".format(path.relative_to(REPO_ROOT), len(versions)))
         return 0
@@ -372,6 +438,9 @@ def main(argv: Optional[List[str]] = None) -> int:
     version = args.version or current_version()
     zip_path, doc_path = build_version(version)
     print("构建 v{0}：{1} · {2}".format(version, zip_path.name, doc_path.name))
+    if args.upload:
+        upload_release(version)
+        print("已上传到 Release v{0}".format(version))
     build_index()
     return 0
 

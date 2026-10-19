@@ -343,6 +343,8 @@ Every version ships one pair of artifacts — in [`releases/`](releases/README.m
 - Versions follow the project's custom `z.x.y` scheme (patch ≤3, minor ≤6, carry on overflow), bumped and synced by `scripts/version.py`
 - `scripts/build_releases.py` builds and verifies artifacts: `--all` for every tag, `--verify` for naming, pairing and archive integrity
 - Each tag maps to exactly one release, and every release carries the same two files — tag ↔ release ↔ `releases/` stay in lockstep
+  (GitHub asset names reject non-ASCII, so the Chinese notes appear as `mcd-saver-v<version>-release-notes-zh.md`
+  with identical content; the original Chinese filename lives in `releases/`)
 
 ## Feedback
 

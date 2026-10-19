@@ -303,7 +303,9 @@ releases/    发布产物：每版英文压缩包 + 中文说明 + 索引
 
 - 版本号遵循项目自定义 `z.x.y` 规则（修订号 ≤3、次版本号 ≤6，超限进位），由 `scripts/version.py` 递增并同步发布文件
 - 产物由 `scripts/build_releases.py` 生成与校验：`--all` 构建全部版本、`--verify` 校验命名、配对与压缩包完整性
-- 每个 tag 与同名 Release 一一对应，Release 挂载同名的压缩包与说明文档，形成「tag ↔ Release ↔ releases 目录」三方一致
+- 每个 tag 与同名 Release 一一对应，Release 挂载同名压缩包与说明文档，形成「tag ↔ Release ↔ releases 目录」三方一致
+  （GitHub 资产名不支持非 ASCII：中文说明在 Release 附件中另存为 `mcd-saver-v<版本>-release-notes-zh.md`，
+  内容一致，**中文原名以 `releases/` 目录为准**）
 
 ## 参与贡献
 

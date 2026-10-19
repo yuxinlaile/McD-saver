@@ -72,10 +72,9 @@ python -m py_compile scripts/mcd_client.py scripts/mcd.py \
 ```bash
 python scripts/version.py                    # 1. 预览下一版本号
 python scripts/version.py --apply            # 2. 写回 CLIENT_INFO / pyproject / SKILL / README 徽章与「当前版本」
-python scripts/build_releases.py --current   # 3. 生成产物：releases/v<版本>/ 下的英文 zip + 中文说明
-#    4. 补 CHANGELOG 条目、推送、打 tag 并创建同名 Release，然后挂载两个产物：
-gh release upload v<版本> releases/v<版本>/* --clobber
-python scripts/build_releases.py --verify    # 5. 校验命名、配对、压缩包完整性与 SHA-256
+# 3. 补 CHANGELOG 条目、推送、打 tag 并创建同名 Release（gh release create）
+python scripts/build_releases.py --current --upload   # 4. 生成两个产物并挂到同名 Release（幂等，可重复执行）
+python scripts/build_releases.py --verify             # 5. 校验命名、配对、压缩包完整性与 SHA-256
 ```
 
 产物命名固定，不接受自定义：
