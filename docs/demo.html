@@ -35,8 +35,9 @@
   .chip.on { background:var(--red); border-color:var(--red); color:#fff; }
   .group-title { font-size:12px; color:var(--muted); margin:14px 0 8px; display:flex; align-items:center; gap:8px; }
   .group-title::after { content:""; flex:1; height:1px; background:var(--line); }
-  .items { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-  @media (max-width:560px) { .items { grid-template-columns:1fr; } }
+  .items { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:8px; }
+  .layout > * { min-width:0; }
+  @media (max-width:560px) { .items { grid-template-columns:minmax(0,1fr); } }
   /* ---- 移动端优化（触控友好 / iOS 输入缩放规避 / 密度） ---- */
   @media (max-width:640px) {
     .card { padding:14px; }
@@ -46,6 +47,10 @@
     .toolbar input { min-width:0; width:100%; }
     .desktop-flow { display:none !important; }
     .mobile-only { display:block !important; }
+    .cons-row { gap:8px; }
+    .cons-item { flex:1 1 100%; }
+    .cons-row .cons-item input[type=range] { flex:1; width:auto; min-width:0; }
+    .cons-row .num-cons { width:82px; text-align:center; min-height:40px; }
     #tokenBox, #storeBox { min-width:0; width:100%; flex:1 1 100%; }  /* 窄屏纵向堆叠，消除横向溢出 */
     #cmdBox, #importBox { width:100%; }
     .wrap { overflow-x:hidden; }
@@ -53,6 +58,17 @@
   }
   .sticky { position:static; }  /* 移动端结果卡保持在页面底部 */
   /* 悬浮计算按钮：仅移动端显示，贴右缘不遮挡勾选 */
+  /* 四维约束行：滑杆 + 数值输入双向同步（v2.1.3） */
+  .cons-row { display:flex; gap:14px; flex-wrap:wrap; align-items:center;
+              font-size:12px; color:var(--muted); margin-bottom:12px; }
+  .cons-item { display:flex; align-items:center; gap:6px; white-space:nowrap; }
+  .cons-item input[type=range] { width:70px; flex:none; accent-color:var(--red); }
+  .num-cons { width:66px; padding:3px 6px; border:1px solid var(--line); border-radius:6px;
+              font-size:12px; color:var(--text); background:#fff; text-align:right; }
+  .num-cons:focus { outline:none; border-color:var(--red); box-shadow:0 0 0 3px rgba(194,65,12,.12); }
+  .num-cons.bad { border-color:#dc2626; background:#fef2f2; }
+  .num-cons::placeholder { color:#a8a29e; }
+
   .fab-calc { display:none; position:fixed; right:14px; bottom:22px; z-index:8;
               width:56px; height:56px; border-radius:50%; border:none; cursor:pointer;
               background:#c2410c; color:#fff; font-size:24px;
@@ -198,19 +214,23 @@
           <input id="search" type="text" placeholder="🔍 搜索餐品名…">
         </div>
         <div class="toolbar" id="chips"></div>
-        <div class="toolbar" style="gap:14px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--muted);">
-          <label style="display:flex;align-items:center;gap:6px;">💰 预算
-            <input type="range" id="cBudget" min="20" max="80" value="80" oninput="updSlider('cBudget','budgetVal','¥')" style="width:72px;">
-            <b id="budgetVal" style="color:var(--red);">不限</b></label>
-          <label style="display:flex;align-items:center;gap:6px;">🔥 热量
-            <input type="range" id="cKcal" min="400" max="1600" step="50" value="1600" oninput="updSlider('cKcal','kcalVal',' kcal')" style="width:72px;">
-            <b id="kcalVal" style="color:var(--red);">不限</b></label>
-          <label style="display:flex;align-items:center;gap:6px;">💪 蛋白下限
-            <input type="range" id="cProtein" min="0" max="40" step="5" value="0" oninput="updSlider('cProtein','proteinVal',' g')" style="width:72px;">
-            <b id="proteinVal" style="color:var(--red);">不限</b></label>
-          <label style="display:flex;align-items:center;gap:6px;">🧂 钠上限
-            <input type="range" id="cSodium" min="600" max="3000" step="100" value="3000" oninput="updSlider('cSodium','sodiumVal',' mg')" style="width:72px;">
-            <b id="sodiumVal" style="color:var(--red);">不限</b></label>
+        <div class="cons-row">
+          <label class="cons-item" title="拖动滑杆或直接输入金额（留空 / 0 = 不限）">💰 预算¥
+            <input type="range" id="cBudget" min="20" max="80" step="0.5" value="80" oninput="onSlider('budget')">
+            <input type="number" id="nBudget" class="num-cons" onblur="normalizeConsNum('budget')" min="0" step="0.5" inputmode="decimal"
+                   placeholder="不限" oninput="onNumInput('budget')"></label>
+          <label class="cons-item" title="拖动滑杆或直接输入热量上限（留空 / 0 = 不限）">🔥 热量
+            <input type="range" id="cKcal" min="400" max="1600" step="10" value="1600" oninput="onSlider('kcal')">
+            <input type="number" id="nKcal" class="num-cons" onblur="normalizeConsNum('kcal')" min="0" step="10" inputmode="numeric"
+                   placeholder="不限" oninput="onNumInput('kcal')"></label>
+          <label class="cons-item" title="拖动滑杆或直接输入蛋白质下限（留空 / 0 = 不限）">💪 蛋白
+            <input type="range" id="cProtein" min="0" max="40" step="1" value="0" oninput="onSlider('protein')">
+            <input type="number" id="nProtein" class="num-cons" onblur="normalizeConsNum('protein')" min="0" step="1" inputmode="numeric"
+                   placeholder="不限" oninput="onNumInput('protein')"></label>
+          <label class="cons-item" title="拖动滑杆或直接输入钠上限（留空 / 0 = 不限）">🧂 钠
+            <input type="range" id="cSodium" min="600" max="3000" step="10" value="3000" oninput="onSlider('sodium')">
+            <input type="number" id="nSodium" class="num-cons" onblur="normalizeConsNum('sodium')" min="0" step="10" inputmode="numeric"
+                   placeholder="不限" oninput="onNumInput('sodium')"></label>
         </div>
         <div id="menu"></div>
         <div class="notice">示例菜单覆盖麦当劳 App 主流单品与套餐（31 项，价格为 2026-10 参考价；
@@ -337,29 +357,89 @@ const menuEl = document.getElementById("menu");
 const chipsEl = document.getElementById("chips");
 const searchEl = document.getElementById("search");
 const categories = [...new Set(MENU.map(m => m.category))];
-["cBudget","cKcal","cProtein","cSodium"].forEach(id => {
-  const el = document.getElementById(id);
-  if (el) el.dispatchEvent(new Event("input"));
-});
 let activeCat = "全部";
 let keyword = "";
 const state = {};
-// ---- 四维约束（v2.1.2，借鉴竞品的三档可玩交互；与 CLI 同语义：违规排后并标注）----
-function updSlider(id, labelId, unit) {
-  const v = +document.getElementById(id).value;
-  const el = document.getElementById(labelId);
-  const unlimited = (id === "cBudget" && v >= 80) || (id === "cKcal" && v >= 1600) ||
-                    (id === "cProtein" && v <= 0) || (id === "cSodium" && v >= 3000);
-  el.textContent = unlimited ? "不限" : (unit.trim() === "¥" ? "¥" + v : v + unit);
+// ---- 四维约束（v2.1.3：滑杆 + 数值框双向同步；null = 不限；与 CLI 同语义：违规排后并标注）----
+const CONS = { budget: null, kcal: null, protein: null, sodium: null };
+const CONS_CFG = {
+  budget:  { slider: "cBudget",  num: "nBudget",  unbounded: "max", step: 0.5, min: 20,  max: 80 },
+  kcal:    { slider: "cKcal",    num: "nKcal",    unbounded: "max", step: 10,  min: 400, max: 1600 },
+  protein: { slider: "cProtein", num: "nProtein", unbounded: "min", step: 1,   min: 0,   max: 40 },
+  sodium:  { slider: "cSodium",  num: "nSodium",  unbounded: "max", step: 10,  min: 600, max: 3000 },
+};
+let hasCalc = false;
+
+function consUnlimitedPos(cfg, slider) {
+  return cfg.unbounded === "max" ? +slider.max : +slider.min;
 }
-function activeConstraints() {
-  const b = +document.getElementById("cBudget").value;
-  const k = +document.getElementById("cKcal").value;
-  const pr = +document.getElementById("cProtein").value;
-  const s = +document.getElementById("cSodium").value;
-  return { budget: b >= 80 ? null : b, kcal: k >= 1600 ? null : k,
-           protein: pr <= 0 ? null : pr, sodium: s >= 3000 ? null : s };
+
+/** 把约束状态写回滑杆与数值框（正在键入的数值框不被覆盖，避免打断输入）。 */
+function syncCons(id) {
+  const cfg = CONS_CFG[id];
+  const slider = document.getElementById(cfg.slider);
+  const num = document.getElementById(cfg.num);
+  if (!slider || !num) return;
+  const v = CONS[id];
+  if (v == null) {
+    slider.min = cfg.min;   // 复原量程：上次输入撑大的上限不保留
+    slider.max = cfg.max;
+    slider.value = consUnlimitedPos(cfg, slider);
+    if (document.activeElement !== num) num.value = "";
+    num.classList.remove("bad");
+    return;
+  }
+  // 输入值超出滑杆量程时扩展量程，保证拇指标注与数值一致
+  if (v > +slider.max) slider.max = Math.ceil(v / cfg.step) * cfg.step;
+  if (v < +slider.min) slider.min = Math.floor(v / cfg.step) * cfg.step;
+  slider.value = v;
+  if (document.activeElement !== num) num.value = v;
+  num.classList.remove("bad");
 }
+
+/** 失焦归一化：把数值框显示回真实状态（0/非法输入不留在框里）。 */
+function normalizeConsNum(id) {
+  const num = document.getElementById(CONS_CFG[id].num);
+  if (!num) return;
+  const v = CONS[id];
+  num.value = (v == null) ? "" : v;
+  num.classList.remove("bad");
+}
+
+function consChanged() { if (hasCalc) calc(); }
+
+/** 拖动滑杆：拖到「不限」端点即清除该维约束。 */
+function onSlider(id) {
+  const cfg = CONS_CFG[id];
+  const slider = document.getElementById(cfg.slider);
+  const v = +slider.value;
+  CONS[id] = (v === consUnlimitedPos(cfg, slider)) ? null : v;
+  syncCons(id);
+  consChanged();
+}
+
+/** 键入数值：可超出滑杆原量程；留空或 0 = 不限；非法输入标红且不生效。 */
+function onNumInput(id) {
+  const num = document.getElementById(CONS_CFG[id].num);
+  const raw = (num.value || "").trim();
+  if (raw === "") {
+    CONS[id] = null;
+    num.classList.remove("bad");
+    syncCons(id);
+    consChanged();
+    return;
+  }
+  const v = Number(raw);
+  if (!isFinite(v) || v < 0) { num.classList.add("bad"); return; }
+  num.classList.remove("bad");
+  CONS[id] = (v === 0) ? null : v;
+  syncCons(id);
+  consChanged();
+}
+
+function activeConstraints() { return Object.assign({}, CONS); }
+
+["budget", "kcal", "protein", "sodium"].forEach(syncCons);
 function nutrientOf(entries) {
   let kc = 0, pr = 0, na = 0, known = true;
   entries.forEach(e => {
@@ -498,6 +578,7 @@ function calc() {
     resultEl.innerHTML = `<div class="empty">请先勾选想吃的餐品</div>`;
     return;
   }
+  hasCalc = true;
   const baseFace = faceOf(wants);
   const baseline = baseFace;
   baselineEl.innerHTML = `<div class="baseline"><span>购物车合计（无券直点）</span><b>¥${baseline.toFixed(2)}</b></div>`;

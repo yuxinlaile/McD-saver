@@ -7,7 +7,7 @@
 **让 AI 帮你用最少的钱吃麦当劳** —— Agent Skill + 独立 CLI 二合一
 
 [![在线试算](https://img.shields.io/badge/%F0%9F%8C%90_在线试算-免登录-FFC72C?style=flat-square)](https://yuxinlaile.github.io/McD-saver/demo.html)
-[![Release](https://img.shields.io/badge/Release-v2.1.2-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.1.2)
+[![Release](https://img.shields.io/badge/Release-v2.1.3-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.1.3)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Dependencies](https://img.shields.io/badge/Dependencies-None%20(stdlib)-green)
 ![Tests](https://img.shields.io/badge/Tests-171%20passed-brightgreen)
@@ -251,11 +251,11 @@ Cherry Studio / Trae / VSCode / Kiro 各自 MCP 设置页 · Codex `~/.codex/con
 
 ## 更新说明
 
-当前版本 **v2.0.3**。近期版本要点：
+当前版本 **v2.1.3**。近期版本要点：
 
 | 版本 | 亮点 |
 |---|---|
-| **v2.1.2** | 试算页四维约束滑杆 · 真实运行验证记录 · CI 覆盖率门槛 |
+| **v2.1.3** | 滑杆支持直接输入数值 · 移动端卡片裁切修复 |
 | **v2.1.2** | 试算页四维约束滑杆 · 真实运行验证记录 · CI 覆盖率门槛 |
 | **v2.1.1** | 真实计价两阶段优化（Top-K 预筛，调用次数 -60%）|
 | **v2.1.0** | 主动滑动窗口限速（300/min）· 方案排名场景标签 |

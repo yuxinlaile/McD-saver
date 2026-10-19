@@ -7,7 +7,7 @@
 **Let AI get you McDonald's for less** — Agent Skill + standalone CLI in one repo
 
 [![Live Demo](https://img.shields.io/badge/%F0%9F%8E%AE_Live_Demo-no_sign--in-FFC72C?style=flat-square)](https://yuxinlaile.github.io/McD-saver/demo.html)
-[![Release](https://img.shields.io/badge/Release-v2.1.2-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.1.2)
+[![Release](https://img.shields.io/badge/Release-v2.1.3-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.1.3)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Dependencies](https://img.shields.io/badge/Dependencies-None%20(stdlib)-green)
 ![Tests](https://img.shields.io/badge/Tests-171%20passed-brightgreen)
@@ -265,10 +265,10 @@ More troubleshooting: [`references/error-handling.md`](references/error-handling
 
 ## Release notes
 
-Current version **v2.0.3**. Recent highlights:/n
+Current version **v2.1.3**. Recent highlights:
 | Version | Highlights |
 |---|---|
-| **v2.1.2** | Demo 4D constraint sliders · verified-run record · CI coverage gate |
+| **v2.1.3** | Sliders accept typed values · mobile card clipping fixed |
 | **v2.1.2** | Demo 4D constraint sliders · verified-run record · CI coverage gate |
 | **v2.1.1** | Two-phase real pricing (Top-K prefilter, -60% calls) |
 | **v2.1.0** | Proactive rate limiting (300/min) · scene labels for plan ranking |
