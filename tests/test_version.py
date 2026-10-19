@@ -119,3 +119,18 @@ class TestApplyVersion:
         self._make_repo(tmp_path)
         monkeypatch.setattr(vmod, "REPO_ROOT", tmp_path)
         assert vmod.current_repo_version() == "2.1.1"
+
+    def test_main_dry_run_prints_next_version(self, capsys):
+        import version as vmod
+        assert vmod.main(["2.1.3"]) == 0
+        assert "2.1.3 → 2.2.0" in capsys.readouterr().out
+
+    def test_main_apply_prints_release_steps(self, tmp_path, monkeypatch, capsys):
+        """--apply 收尾提示曾因未定义变量抛 NameError，此处锁定退出码与输出。"""
+        import version as vmod
+        self._make_repo(tmp_path)
+        monkeypatch.setattr(vmod, "REPO_ROOT", tmp_path)
+        assert vmod.main(["--apply"]) == 0
+        out = capsys.readouterr().out
+        assert "2.1.1 → 2.1.2" in out
+        assert "gh release upload v2.1.2" in out

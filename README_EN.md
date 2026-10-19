@@ -7,10 +7,10 @@
 **Let AI get you McDonald's for less** — Agent Skill + standalone CLI in one repo
 
 [![Live Demo](https://img.shields.io/badge/%F0%9F%8E%AE_Live_Demo-no_sign--in-FFC72C?style=flat-square)](https://yuxinlaile.github.io/McD-saver/demo.html)
-[![Release](https://img.shields.io/badge/Release-v2.1.3-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.1.3)
+[![Release](https://img.shields.io/badge/Release-v2.2.0-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.2.0)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Dependencies](https://img.shields.io/badge/Dependencies-None%20(stdlib)-green)
-![Tests](https://img.shields.io/badge/Tests-243%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/Tests-245%20passed-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![MCP](https://img.shields.io/badge/MCP-Streamable%20HTTP-purple)
 
@@ -108,7 +108,7 @@ order created ≠ paid — payment always happens on McDonald's official page.
 - 401 fails fast; 429 exponential backoff honoring `Retry-After`; 5xx/network auto-retry
 - Scope boundary: focused on pre-order savings decisions — no scraping, auto-ordering or unattended scheduling capabilities
 
-**🧪 Tested**: 243 unit tests covering SSE parsing, token resolution, backoff math,
+**🧪 Tested**: 245 unit tests covering SSE parsing, token resolution, backoff math,
 comparison decisions, combination optimization and CLI exit codes; the full
 `demo.py` pipeline is asserted by `tests/test_demo_pipeline.py` — **the demo
 doubles as a regression test**.
@@ -222,7 +222,7 @@ never commit it, never let it appear in logs. If leaked, re-apply at open.mcd.cn
 scripts/     Core: MCP client, CLI, coupon optimizer, silent-cost audit, version & release tooling
 references/  Playbooks: tool catalog, savings strategies, group-buy comparison, workflows, pitfalls
 docs/        Online calculator and brand assets (demo.html / index.html / banner.svg)
-tests/       243 unit tests plus repository-consistency checks
+tests/       245 unit tests plus repository-consistency checks
 fixtures/    Offline regression data (menu, coupons, orders, points, mall, deals)
 releases/    Release artifacts: English zip + Chinese notes + index per version
 ```
@@ -280,9 +280,10 @@ More troubleshooting: [`references/error-handling.md`](references/error-handling
 
 ## Release notes
 
-Current version **v2.1.3**. Recent highlights:
+Current version **v2.2.0**. Recent highlights:
 | Version | Highlights |
 |---|---|
+| **v2.2.0** | 171→245 tests · 76% coverage · docs consistency in CI · JSON-RPC error-code fix |
 | **v2.1.3** | Sliders accept typed values · mobile card clipping fixed |
 | **v2.1.2** | Demo 4D constraint sliders · verified-run record · CI coverage gate |
 | **v2.1.1** | Two-phase real pricing (Top-K prefilter, -60% calls) |
@@ -293,7 +294,6 @@ Current version **v2.1.3**. Recent highlights:
 | **v2.0.0** | Auto version-bump tool (custom z.x.y scheme: y≤3, x≤6) |
 | **v1.7.4** | Mobile optimization (44px touch targets / iOS zoom fix / result card on top) |
 | **v1.7.3** | Demo token-import card pinned to top · group-buy samples 6→11 |
-| **v1.7.2** | Coupon scheduling upgraded to net-value model · avg-ticket basis fix |
 | **v1.7.1** | Savings grade (S/A/B/C/D) · parameter-chaining guide |
 | **v1.7.0** | Swap suggestions ordered by kcal cost · taste memory · MCP pitfalls guide · capability status disclosure |
 | v1.6.0 | Coupon scheduling (realizable vs doomed) · coupon-value probing · shareable HTML report · offline full-pipeline demo |

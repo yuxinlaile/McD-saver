@@ -188,7 +188,7 @@ def main(argv: list[str] | None = None) -> int:
         print("  并在 CHANGELOG 增加新版本条目、于 #275 同步版本进展。")
         print("随后构建并挂载发布产物（英文 zip + 中文说明），最后校验 tags 与 releases 一致：")
         print("  python scripts/build_releases.py --current")
-        print("  gh release upload v{0} releases/v{0}/* --clobber".format(new_version))
+        print("  gh release upload v{0} releases/v{0}/* --clobber".format(nxt))
         print("  python scripts/build_releases.py --verify")
     return 0
 
