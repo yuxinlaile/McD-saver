@@ -159,7 +159,7 @@ class TestRepositoryLayout:
 
 
 class TestDocumentationSync:
-    """2026-10-19 审计漏项：目录漏章节、目录树漏文件、清单未链接。
+    """2026-10-19 审计漏项：目录漏章节、目录树漏文件、参赛材料缺失。
 
     这三类问题此前完全靠人眼，现在全部变成断言。
     """
@@ -179,19 +179,19 @@ class TestDocumentationSync:
 
     def test_skill_tree_lists_site_docs_and_tooling(self):
         skill = read("SKILL.md")
-        expected = ["demo.html", "index.html", "sync-checklist.md",
+        expected = ["demo.html", "index.html", "workbuddy.md",
                     "assets/banner.svg", "check_toc.py", "build_releases.py"]
         missing = [name for name in expected if name not in skill]
         assert not missing, "SKILL.md 目录树缺少：{0}".format(sorted(missing))
 
-    def test_contributing_links_sync_checklist(self):
-        assert "docs/sync-checklist.md" in read("CONTRIBUTING.md")
+    def test_contributing_documents_release_flow(self):
+        assert "python scripts/version.py" in read("CONTRIBUTING.md")
 
-    def test_sync_checklist_records_known_misses(self):
-        """清单必须保留审计出的漏项记录，避免「文档一改就丢历史」。"""
-        text = read("docs/sync-checklist.md")
-        for item in ("CHANGELOG", "SKILL.md 目录树", "README.md` 目录", "pyproject.toml", "releases/"):
-            assert item.replace("`", "") in text.replace("`", ""), "清单缺少漏项：{0}".format(item)
+    def test_contest_required_files_present(self):
+        """赛事要求的参赛文件必须齐全（报名 Issue 中亦作此声明）。"""
+        for name in ("README.md", "CONTEST_DECLARATION.md", "MCP_INTEGRATION.md",
+                     "mcp-config.example.json", "workbuddy.md"):
+            assert (ROOT / name).exists(), "缺少参赛要求文件：{0}".format(name)
 
 
 class TestNeutralWording:
@@ -218,7 +218,9 @@ class TestNeutralWording:
                 offenders.append("{0}: {1}".format(path.relative_to(ROOT), "、".join(hits)))
         assert not offenders, "更新说明类文件仍含来源表述：{0}".format(offenders)
 
-    def test_rule_scope_is_documented(self):
-        checklist = read("docs/sync-checklist.md")
-        assert "仅限「更新说明类」" in checklist
-        assert "不受此限制" in checklist
+    def test_workbuddy_md_is_contest_ready(self):
+        """workbuddy.md 只含开发上下文，不出现运营类内部表述。"""
+        text = read("workbuddy.md")
+        assert "WorkBuddy" in text and "麦当劳" in text
+        for marker in ("promotion/", "Star 目标", "渠道矩阵"):
+            assert marker not in text, "workbuddy.md 含内部运营表述：{0}".format(marker)

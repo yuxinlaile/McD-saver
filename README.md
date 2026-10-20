@@ -18,7 +18,7 @@
 
 **[🎮 30 秒在线试算（免登录）](https://yuxinlaile.github.io/McD-saver/demo.html) · [📦 快速开始](#快速开始) · [💬 讨论区](https://github.com/yuxinlaile/McD-saver/discussions) · [🛍️ Also on Agensi](https://www.agensi.io/creators/creator-571) · [English](README_EN.md)**
 
-<img src="docs/assets/demo-screenshot.png" alt="在线试算页：勾选餐品后自动对比官方券与团购券，并标注每单省多少" width="860" />
+<img src="docs/assets/share-card.png" alt="一键分享卡：试算后导出 1080×1350 省钱账单图——无券直点、最优方案、省下金额一目了然" width="520" />
 
 </div>
 
@@ -320,7 +320,7 @@ releases/    发布产物：每版英文压缩包 + 中文说明 + 索引
 
 欢迎 Issue / PR / Discussions：工作流文档、中英校对、工具目录更新（以 `tools`
 子命令实时结果为准）。完整流程见 [CONTRIBUTING.md](CONTRIBUTING.md)；
-真实运行留档见 [examples/verified-run.md](examples/verified-run.md)。
+真实运行留档见 [examples/verified-run.md](examples/verified-run.md)；离线算例见 [examples/three-ways.md](examples/three-ways.md)（一单三种买法）与 [examples/silent-cost-example.md](examples/silent-cost-example.md)（沉默成本体检读法）。
 
 提交前确认：pytest 全过 · 无 Token 等敏感信息 · `references/` 与 `SKILL.md` 同步 ·
 CHANGELOG 补充 · **README 中英同步**。

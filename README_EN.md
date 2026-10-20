@@ -18,7 +18,7 @@
 
 **[🎮 30-sec online demo (no sign-in)](https://yuxinlaile.github.io/McD-saver/demo.html) · [📦 Quick start](#quick-start) · [💬 Discussions](https://github.com/yuxinlaile/McD-saver/discussions) · [🛍️ Also on Agensi](https://www.agensi.io/creators/creator-571) · [简体中文](README.md)**
 
-<img src="docs/assets/demo-screenshot.png" alt="Live demo: pick items and the tool ranks coupon plans with savings per order" width="860" />
+<img src="docs/assets/share-card.png" alt="One-tap share card: a 1080x1350 savings bill with baseline, best plan and total saved" width="520" />
 
 </div>
 
@@ -317,7 +317,10 @@ Full history in [CHANGELOG.md](CHANGELOG.md); downloads on the
 Issues / PRs / Discussions welcome: workflow docs, translation proofreading,
 tool catalog updates (the `tools` subcommand output is authoritative). Full
 process in [CONTRIBUTING.md](CONTRIBUTING.md); real-run evidence template in
-[examples/verified-run.md](examples/verified-run.md).
+[examples/verified-run.md](examples/verified-run.md). Offline worked examples:
+[examples/three-ways.md](examples/three-ways.md) (one order, three ways to pay)
+and [examples/silent-cost-example.md](examples/silent-cost-example.md)
+(how to read the silent-cost checkup).
 
 Before submitting: pytest passes · no tokens or credentials · `references/` and
 `SKILL.md` updated · CHANGELOG noted · **README zh & en in sync**.

@@ -268,6 +268,7 @@ maimai-saver/
 ├── CONTEST_DECLARATION.md              # 参赛声明（官方原文，未改动）
 ├── MCP_INTEGRATION.md                  # MCP 集成说明（参赛要求文件）
 ├── mcp-config.example.json             # 脱敏 MCP 配置（参赛要求文件，与 config/ 版内容一致）
+├── workbuddy.md                      # WorkBuddy 开发上下文（WorkBuddy 专项核验用）
 ├── pyproject.toml                      # 打包元数据与 pytest 配置（版本号随发版同步）
 ├── requirements-dev.txt                # 开发依赖（pytest / pytest-cov）
 ├── install.ps1                         # Windows WorkBuddy 一键安装脚本
@@ -280,7 +281,6 @@ maimai-saver/
 │   ├── demo.html                       # 在线试算页（四维约束滑杆 + 数值输入、Token 导入）
 │   ├── index.html                      # Pages 根路径索引页（自动进入试算页）
 │   ├── development-log.md              # 开发过程记录（WorkBuddy 专项奖励核验用）
-│   ├── sync-checklist.md               # 更新同步清单（漏项教训 + 每次更新必查项）
 │   ├── coverage-report.md              # 覆盖率报告（--cov=scripts 口径与补测路线）
 │   └── assets/banner.svg               # 品牌横幅（版本与测试数随发版同步）
 ├── config/
@@ -306,6 +306,8 @@ maimai-saver/
 │   └── error-handling.md               # 错误码、重试策略与排查指南
 ├── examples/
 │   ├── order-flow-example.md           # 一次完整省钱点餐的示例会话
+│   ├── three-ways.md                   # 一单三种买法的可复现算例（离线可跑）
+│   ├── silent-cost-example.md          # 沉默成本体检离线示例与读法
 │   └── verified-run.md                 # 真实环境验证记录（脱敏，可复现）
 ├── fixtures/                           # 7 份离线回归数据（菜单/券/订单/积分/团购等）
 ├── releases/                           # 发布产物：每版英文 zip + 中文说明 + 索引
