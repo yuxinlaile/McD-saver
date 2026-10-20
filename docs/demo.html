@@ -687,15 +687,42 @@ function _money(text) {
 }
 
 function _drawCard() {
-  const base = _money(document.getElementById("baseline").innerText);
-  const resultText = document.getElementById("result").innerText;
-  const best = _money(resultText);
-  if (!base || !best) return null;
-  const saveMatch = resultText.match(/省\s*¥([\d.]+)（(\d+)%）/);
-  const save = saveMatch ? parseFloat(saveMatch[1]) : (base - best);
-  const pct = saveMatch ? parseInt(saveMatch[2], 10) : Math.round((save / base) * 100);
-  const planName = (resultText.split("\n")[0] || "")
-    .replace(/^\d+\.\s*/, "").replace(/★.*$/, "").trim();
+  // 真实核价模式：外部可注入 window.MCD_CARD（base/best/save/pct/rows/extra/source/store/date）；
+  // 未注入时回退到页面自身这次试算的结果（访客点「生成分享卡」时的正常路径）。
+  const override = (typeof window !== "undefined" && window.MCD_CARD) || null;
+  let base, best, save, pct, planName, rows, extra, source, store, dateText, headline;
+
+  if (override) {
+    base = Number(override.base); best = Number(override.best);
+    save = Number(override.save); pct = Number(override.pct);
+    planName = override.planName || "";
+    rows = override.rows || [];
+    extra = override.extra || "";
+    source = override.source || "";
+    store = override.store || "";
+    dateText = override.date || "";
+    headline = override.headline || "这一单，其实可以更便宜";
+  } else {
+    const baseText = document.getElementById("baseline").innerText;
+    const resultText = document.getElementById("result").innerText;
+    base = _money(baseText);
+    best = _money(resultText);
+    if (!base || !best) return null;
+    const saveMatch = resultText.match(/省\s*¥([\d.]+)（(\d+)%）/);
+    save = saveMatch ? parseFloat(saveMatch[1]) : (base - best);
+    pct = saveMatch ? parseInt(saveMatch[2], 10) : Math.round((save / base) * 100);
+    planName = (resultText.split("\n")[0] || "").replace(/^\d+\.\s*/, "").replace(/★.*$/, "").trim();
+    rows = [
+      ["无券直点", `¥${base.toFixed(2)}`],
+      [planName ? `最优方案：${planName}` : "最优方案实付", `¥${best.toFixed(2)}`],
+      ["这一单省下", `¥${save.toFixed(2)}`],
+    ];
+    extra = "";
+    source = "示例数据来自本地 fixtures，实际价格以下单前官方接口为准";
+    store = "";
+    dateText = new Date().toLocaleDateString("zh-CN");
+    headline = "这一单，我算出来的结果是：";
+  }
 
   const W = 1080, H = 1350;
   const c = document.createElement("canvas");
@@ -707,47 +734,64 @@ function _drawCard() {
   g.fillStyle = "#c2410c"; g.fillRect(0, 0, W, 16);
 
   g.fillStyle = "#9a3412"; g.font = `700 34px ${SANS}`;
-  g.fillText("McD Saver · 麦麦省钱助手", 80, 120);
-  g.fillStyle = "#78716c"; g.font = `400 26px ${SANS}`;
-  g.fillText("下单前先算一遍", 80, 164);
+  g.fillText("McD Saver · 麦麦省钱助手", 80, 110);
+  g.fillStyle = "#78716c"; g.font = `400 24px ${SANS}`;
+  g.fillText("下单前先算一遍 · 官方 calculate-price 实时核价", 80, 152);
   g.fillStyle = "#a8a29e"; g.font = `400 24px ${SANS}`;
-  g.textAlign = "right"; g.fillText(new Date().toLocaleDateString("zh-CN"), W - 80, 120);
+  g.textAlign = "right"; g.fillText(dateText, W - 80, 110);
   g.textAlign = "left";
 
-  g.fillStyle = "#57534e"; g.font = `400 30px ${SANS}`;
-  g.fillText("这一单，我算出来的结果是：", 80, 300);
+  g.fillStyle = "#292524"; g.font = `700 46px ${SANS}`;
+  g.fillText(headline, 80, 250);
 
-  g.fillStyle = "#15803d"; g.font = `800 120px ${SANS}`;
-  g.fillText(`省 ¥${save.toFixed(2)}`, 80, 440);
-
+  g.fillStyle = "#15803d"; g.font = `800 112px ${SANS}`;
+  g.fillText(`省 ¥${save.toFixed(2)}`, 80, 390);
   g.fillStyle = "#292524"; g.font = `600 34px ${SANS}`;
-  g.fillText(`比无券直点便宜 ${pct}%`, 84, 500);
+  g.fillText(`比直点便宜 ${pct}%`, 84, 448);
 
-  const rows = [
-    ["无券直点", `¥${base.toFixed(2)}`],
-    [planName ? `最优方案：${planName}` : "最优方案实付", `¥${best.toFixed(2)}`],
-    ["这一单省下", `¥${save.toFixed(2)}`],
-  ];
-  let y = 600;
+  let y = 520;
   rows.forEach(([k, v], i) => {
-    g.fillStyle = i === 2 ? "#f0fdf4" : "#ffffff";
+    const last = i === rows.length - 1;
+    g.fillStyle = last ? "#f0fdf4" : "#ffffff";
     g.fillRect(80, y, W - 160, 110);
-    g.strokeStyle = i === 2 ? "#86efac" : "#e7e5e4";
+    g.strokeStyle = last ? "#86efac" : "#e7e5e4";
     g.lineWidth = 2; g.strokeRect(80, y, W - 160, 110);
     g.fillStyle = "#57534e"; g.font = `500 30px ${SANS}`;
     g.fillText(k, 116, y + 68);
-    g.fillStyle = i === 2 ? "#15803d" : "#292524"; g.font = `700 40px ${SANS}`;
+    g.fillStyle = last ? "#15803d" : "#292524"; g.font = `700 40px ${SANS}`;
     g.textAlign = "right"; g.fillText(v, W - 116, y + 70); g.textAlign = "left";
     y += 130;
   });
 
-  g.fillStyle = "#a8a29e"; g.font = `400 24px ${SANS}`;
-  g.fillText("示例数据来自本地 fixtures，实际价格以下单前官方接口为准", 80, 1120);
+  if (extra) {
+    g.fillStyle = "#57534e"; g.font = `600 26px ${SANS}`;
+    g.fillText(extra, 80, y + 18);
+    y += 46;
+  }
+  if (source) {
+    g.fillStyle = "#a8a29e"; g.font = `400 22px ${SANS}`;
+    g.fillText(source, 80, y + 18);
+    y += 38;
+  }
+  if (store) {
+    g.fillStyle = "#a8a29e"; g.font = `400 22px ${SANS}`;
+    g.fillText(store, 80, y + 18);
+    y += 38;
+  }
+
+  // CTA 区块位置随内容自适应，避免内容行与分隔线之间留大片空白
+  const dividerY = Math.min(Math.max(y + 56, 1000), 1130);
+  g.strokeStyle = "#e7e5e4"; g.lineWidth = 2;
+  g.beginPath(); g.moveTo(80, dividerY); g.lineTo(W - 80, dividerY); g.stroke();
 
   g.fillStyle = "#c2410c"; g.font = `700 30px ${SANS}`;
-  g.fillText("yuxinlaile.github.io/McD-saver/demo.html", 80, 1215);
+  g.fillText("yuxinlaile.github.io/McD-saver/demo.html", 80, dividerY + 55);
   g.fillStyle = "#78716c"; g.font = `400 24px ${SANS}`;
-  g.fillText("免登录试算 · 社区开源，非麦当劳官方产品", 80, 1262);
+  g.fillText("免登录试算 · 社区开源，非麦当劳官方产品", 80, dividerY + 100);
+
+  g.fillStyle = "#fed7aa"; g.fillRect(0, H - 70, W, 70);
+  g.fillStyle = "#9a3412"; g.font = `600 24px ${SANS}`;
+  g.fillText("官方券 + 团购券 + 积分 · 四渠道同口径算终局", 80, H - 26);
 
   return c;
 }

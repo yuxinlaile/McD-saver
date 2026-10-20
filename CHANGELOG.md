@@ -3,6 +3,51 @@
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 格式，
 版本号遵循项目自定义 `z.x.y` 规则（修订号 ≤3、次版本号 ≤6，超限进位），由 `scripts/version.py` 递增并同步发布文件。
 
+## [2.2.1] - 2026-10-20
+
+本版把「真实计价」这条主链路修到可用，并用真实门店数据重做了分享卡；另附一次全仓巡检的整改（24 条）。
+
+### 新增
+
+- **一键分享卡（真实核价版）**：卡片改为数据驱动（外部可注入 `window.MCD_CARD`），
+  版式重排为大字钩子 + 三行明细 + 券与积分 + 核价门店 + CTA + 底栏；
+  仓库首屏图已换成官方 `calculate-price` 实时核价的真实结果
+  （同店两种买法：直点 ¥50.50 → 官方套餐 ¥37.50，省 ¥13.00 / 26%）。
+- **`mcd_client.tool_json(result)`**：统一从 tools/call 结果里提取 JSON 载荷
+  （官方返回常是「Markdown 字段说明 + `## Original Response` 之后的真实 JSON」，
+  且 JSON 之后可能还跟着展示说明文字），取不到时返回 None，绝不臆测。
+- **回归测试 254 → 265**：新增 `tests/test_real_pricing.py`（11 项）与
+  `tests/test_regressions.py`（8 项）。
+
+### 修复
+
+- **真实计价模式此前在真实环境下完全不可用**（用真实 Token 实测定位到三个根因）：
+  - 请求体字段应为 `items`（原为 `products`），且必填 `beType` / `needTableware` / `withOrder`；
+  - 金额字段是 `price`（原只找 payable / payAmount / total 等，永远取不到值）；
+  - **金额单位是「分」**——`query-meals` 的 `currentPrice` 是元（"26.5"），
+    而 `calculate-price` 的 `price` 是分（¥50.50 → 5050），不换算会放大 100 倍。
+    现统一按分折算为元，并以同一购物车的本地估算做交叉校验，防止上游改单位。
+- **全仓巡检整改 24 条**（三项 P0 全部修复）：
+  - `verify_run.py` 传 `date` 而非 `datetime` → 真实账户必崩；积分余额键名修正；
+  - `silent_cost._unwrap` 不支持 `{"data":{"list":[...]}}` → 真实响应被静默丢成空列表；
+    content 壳里的中文空态文案不再被当成一条记录；`report` 缺文件改为中文错误 + 退出码；
+  - 另修：`savings_grade` 重复定义、模块导入兜底、`check` 地址回显脱敏、错误体截断、
+    `list_tools` 兜底、菜单缺 `mealCode` 兜底、`compare_deals` 改抛 `ValueError`、
+    `clear` 未确认改用退出码 1、试算页 Token 改走环境变量并加字符白名单校验。
+
+### 文档
+
+- **README 中英正文顺序对齐**，并新增「目录顺序 == 正文顺序」CI 守卫
+  （此前只校验章节存在性与数量，顺序漂移测不出来）。
+- `references/mcp-pitfalls.md` 第 3 条按实测更正（此前声称「已在读取金额处统一 ÷100」，
+  实际并不成立），并补充 `## Original Response` 包裹的解析说明。
+- `docs/development-log.md` 更正两处失准表述（「72 分钟完成全部开发」与旧仓库地址）。
+- `SECURITY.md` 与 README 补充 `MAIMAI_DEALS_PROVIDER` 风险说明：
+  该 `.py` 文件会被本机执行，仅应在完全信任时设置。
+- 其余事实性偏差一并修正：CHANGELOG 的 SemVer 声明、`docs/index.html` 与
+  `MCP_INTEGRATION.md` 的测试计数、examples 算例与脚本真实输出的冒号与路径、
+  `install.ps1` 补拷 `docs/` 与 `LICENSE`、`SKILL.md` 目录树补 `SECURITY.md` 与分享卡。
+
 ## [2.2.0] - 2026-10-19
 
 本版不发新功能，把"结论可复现"这件事补齐：测试、覆盖率、文档一致性守卫，

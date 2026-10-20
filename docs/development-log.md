@@ -1,9 +1,11 @@
 # WorkBuddy 对话上下文（开发过程记录）
 
 本项目（麦麦省钱助手 MaiMai Saver）由作者于 2026 年 10 月 10 日
-14:28 — 15:40（北京时间）在腾讯 WorkBuddy 智能体对话环境中完成设计、开发、
-测试与发布。本文件为该次开发对话的上下文要点记录，按实际时间顺序整理，
-用于麦当劳程序员创意开发大赛 WorkBuddy 专项奖励核验。
+14:28 — 15:40（北京时间）在腾讯 WorkBuddy 智能体对话环境中完成**首轮设计**，
+此后在 WorkBuddy 中持续迭代至 2026-10-20（累计 220 次提交、254 项单元测试、
+22 个发布版本）。本文件为**首轮开发对话**的上下文要点记录，按实际时间顺序整理，
+用于麦当劳程序员创意开发大赛 WorkBuddy 专项奖励核验；各版本的阶段细节见
+`workbuddy.md` 的版本里程碑表与仓库 `CHANGELOG.md`。
 
 > 说明：本记录为对话上下文的要点整理版；对话中出现的 MCP Token 等敏感凭证
 > 已按《参赛声明》信息安全要求脱敏，以下不包含任何真实凭证。
@@ -75,5 +77,6 @@
   `CONTEST_DECLARATION.md`（官方原文）、`MCP_INTEGRATION.md`、
   `mcp-config.example.json`（仅环境变量占位符）与本文件；
 - 提交前经 Token 泄漏扫描（本地与远程仓库内容均不含真实凭证）；
-- 通过 gh CLI 将项目发布至公开仓库 github.com/yuxinlaile/maimai-saver，
+- 通过 gh CLI 将项目发布至公开仓库 github.com/yuxinlaile/McD-saver
+  （仓库后由 `maimai-saver` 改名为 `McD-saver`，旧名仍自动重定向），
   并向活动仓库提交参赛 Issue。

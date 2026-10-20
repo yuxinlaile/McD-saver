@@ -7,11 +7,11 @@
 **让 AI 帮你用最少的钱吃麦当劳** —— Agent Skill + 独立 CLI 二合一
 
 [![在线试算](https://img.shields.io/badge/%F0%9F%8C%90_在线试算-免登录-FFC72C?style=flat-square)](https://yuxinlaile.github.io/McD-saver/demo.html)
-[![Release](https://img.shields.io/badge/Release-v2.2.0-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.2.0)
+[![Release](https://img.shields.io/badge/Release-v2.2.1-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.2.1)
 [![CI](https://github.com/yuxinlaile/McD-saver/actions/workflows/ci.yml/badge.svg)](https://github.com/yuxinlaile/McD-saver/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Dependencies](https://img.shields.io/badge/Dependencies-None%20(stdlib)-green)
-![Tests](https://img.shields.io/badge/Tests-254%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/Tests-265%20passed-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![Agent Skills](https://img.shields.io/badge/Works%20with-Agent%20Skills%20standard-0A7A72)
 ![MCP](https://img.shields.io/badge/MCP-Streamable%20HTTP-purple)
@@ -112,7 +112,7 @@
 - 401 快速失败、429 指数退避尊重 `Retry-After`、5xx/网络错误自动重试
 - 范围边界：聚焦下单前的省钱决策——不包含爬虫、自动下单、无人值守定时领券等自动化能力
 
-**🧪 测试保障**：254 个单元测试覆盖 SSE 解析、Token 解析、退避计算、比价决策、
+**🧪 测试保障**：265 个单元测试覆盖 SSE 解析、Token 解析、退避计算、比价决策、
 组合优化与 CLI 退出码；`demo.py` 全链路输出被 `tests/test_demo_pipeline.py`
 断言——**demo 即回归测试**。
 
@@ -206,7 +206,7 @@ python scripts/deal_compare.py compare --mcd-face 48.5 --mcd-price 38.5
 | `MCD_MCP_TOKEN_FILE` | Token 文件路径，默认 `~/.mcd_mcp_token` |
 | `MCD_MCP_URL` | MCP Server 地址，默认 `https://mcp.mcd.cn` |
 | `MAIMAI_DEALS_FILE` | 团购券库路径，默认 `~/.maimai_saver/deals.json` |
-| `MAIMAI_DEALS_PROVIDER` | 外部数据源模块路径（实现 `load_deals()`），可选 |
+| `MAIMAI_DEALS_PROVIDER` | 外部数据源模块路径（需实现 `load_deals()`），可选；**该 .py 文件会被本机执行**，仅在你完全信任时设置 |
 
 **MCP 客户端配置位置**：WorkBuddy `~/.workbuddy/mcp.json` · Cursor 设置 → Tools & MCP ·
 Cherry Studio / Trae / VSCode / Kiro 各自 MCP 设置页 · Codex `~/.codex/config.toml` 的
@@ -221,7 +221,7 @@ Cherry Studio / Trae / VSCode / Kiro 各自 MCP 设置页 · Codex `~/.codex/con
 scripts/     核心实现：MCP 客户端、CLI、券组合优化器、沉默成本体检、版本与发布工具
 references/  方法论手册：工具目录、省钱策略、团购比价、场景工作流、MCP 踩坑、排错
 docs/        在线试算页与品牌资源（demo.html / index.html / banner.svg）
-tests/       254 项单元测试 + 规范一致性校验
+tests/       265 项单元测试 + 规范一致性校验
 fixtures/    离线回归数据（菜单、券、订单、积分、商城、团购）
 releases/    发布产物：每版英文压缩包 + 中文说明 + 索引
 ```
@@ -276,7 +276,7 @@ releases/    发布产物：每版英文压缩包 + 中文说明 + 索引
 
 ## 更新说明
 
-当前版本 **v2.2.0**。近期版本要点：
+当前版本 **v2.2.1**。近期版本要点：
 
 | 版本 | 亮点 |
 |---|---|

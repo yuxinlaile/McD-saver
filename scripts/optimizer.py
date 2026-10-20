@@ -45,6 +45,12 @@ import sys
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
+try:  # 兼容“直接运行脚本”与“作为模块运行”两种方式
+    from mcd_client import tool_json
+except ImportError:  # pragma: no cover - 以模块方式导入时补脚本目录
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from mcd_client import tool_json
+
 EXIT_OK = 0
 EXIT_USAGE = 1
 
@@ -129,23 +135,81 @@ def make_local_pricer(menu: Dict[str, Any]) -> Callable[[Cart, Optional[Dict[str
     return price
 
 
-def make_mcp_pricer(client: Any) -> Callable[[Cart, Optional[Dict[str, Any]]], Optional[float]]:
-    """真实计价模式：调用官方 calculate-price（含配送费等全部官方规则）。"""
+def _to_yuan(raw: float, hint: Optional[float] = None) -> float:
+    """把 calculate-price 返回的金额折算为「元」。
+
+    实测（2026-10-20，官方 mcp.mcd.cn，storeCode=1990232）：
+    ``calculate-price`` 的金额单位是**分**——巨无霸+中薯条+可乐（菜单合计 ¥50.50）
+    返回 ``price=5050``、巨无霸三件套返回 ``3750``、精选超值随心配返回 ``1390``；
+    而 ``query-meals`` 的 ``currentPrice`` 却是**元**（"26.5"）。两个接口单位不一致，
+    不换算就会把实付金额放大 100 倍。
+
+    为防上游改单位：当能拿到同一购物车的本地估算（hint，元）时，取更接近 hint 的那种解释。
+    """
+    if hint and hint > 0:
+        as_yuan = raw / 100.0
+        return as_yuan if abs(as_yuan - hint) <= abs(raw - hint) else raw
+    return raw / 100.0
+
+
+def make_mcp_pricer(
+    client: Any,
+    local_fn: Optional[Callable[[Cart, Optional[Dict[str, Any]]], Optional[float]]] = None,
+) -> Callable[[Cart, Optional[Dict[str, Any]]], Optional[float]]:
+    """真实计价模式：调用官方 calculate-price（含官方促销与配送费规则）。
+
+    2026-10-20 按真实响应修正：
+    - 请求体字段是 ``items``（不是 ``products``），且必填 ``beType`` / ``needTableware`` /
+      ``withOrder``；漏字段服务端直接拒收；
+    - 金额字段是 ``price``（旧实现只找 payable/payAmount/total 等，永远取不到值）；
+    - 金额单位是分，见 :func:`_to_yuan`；
+    - 券按 ``couponCode`` / ``couponId`` 挂在**商品条目**上，不是顶层参数。
+    """
 
     def price(cart: Cart, coupon: Optional[Dict[str, Any]]) -> Optional[float]:
+        items = [{"productCode": entry.get("mealCode"),
+                  "quantity": max(1, int(entry.get("quantity", 1) or 1))}
+                 for entry in cart.entries]
+        if coupon and items:
+            coupon_code = str(coupon.get("couponCode") or "")
+            coupon_id = str(coupon.get("couponId") or "")
+            if coupon_code or coupon_id:
+                scope = {p.get("productCode") for p in (coupon.get("products") or [])
+                         if isinstance(p, dict)}
+                field = "couponCode" if coupon_code else "couponId"
+                value = coupon_code or coupon_id
+                attached = False
+                for item in items:
+                    if not scope or item["productCode"] in scope:
+                        item[field] = value
+                        attached = True
+                        if scope:
+                            break
+                if not attached:
+                    items[0][field] = value
+        order_type = getattr(client, "_order_type", 1) or 1
         args: Dict[str, Any] = {
             "storeCode": getattr(client, "_store_code", ""),
-            "orderType": getattr(client, "_order_type", 1),
-            "products": [dict(e) for e in cart.entries],
+            "orderType": order_type,
+            "beType": getattr(client, "_be_type", None) or (2 if int(order_type) == 2 else 1),
+            "needTableware": False,
+            "withOrder": {},
+            "items": items,
         }
-        if coupon and coupon.get("couponId"):
-            args["couponId"] = coupon["couponId"]
         result = client.call_tool("calculate-price", args)
-        data = result.get("data", result) if isinstance(result, dict) else {}
-        for key in ("payable", "totalPay", "payAmount", "payPrice", "total", "totalPrice"):
+        payload = tool_json(result)
+        data = payload.get("data", payload) if isinstance(payload, dict) else {}
+        for key in ("price", "payable", "totalPay", "payAmount", "payPrice",
+                    "total", "totalPrice", "productPrice"):
             value = _dig(data, key)
-            if isinstance(value, (int, float)):
-                return float(value)
+            if isinstance(value, (int, float)) and not isinstance(value, bool):
+                hint = None
+                if local_fn is not None:
+                    try:
+                        hint = local_fn(cart, coupon)
+                    except Exception:  # noqa: BLE001 - 估算失败不影响真实价
+                        hint = None
+                return _to_yuan(float(value), hint)
         return None  # 解析不到应付金额时视为无效方案，绝不虚构
 
     return price
@@ -535,7 +599,9 @@ def run_plan(args: argparse.Namespace) -> int:
         client = McdMcpClient(token=token)
         client._store_code = args.store_code or menu.get("storeCode", "")
         client._order_type = args.order_type or menu.get("orderType", 1)
-        price_fn = make_mcp_pricer(client)
+        client._be_type = 2 if int(client._order_type) == 2 else 1
+        # 传入本地估算函数：用于判定官方返回的金额单位是「分」还是「元」
+        price_fn = make_mcp_pricer(client, local_fn=make_local_pricer(menu))
         mode_label = "真实计价模式（官方 calculate-price）"
     else:
         price_fn = make_local_pricer(menu)

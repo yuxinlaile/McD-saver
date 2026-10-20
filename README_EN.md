@@ -7,11 +7,11 @@
 **Let AI get you McDonald's for less** — Agent Skill + standalone CLI in one repo
 
 [![Live Demo](https://img.shields.io/badge/%F0%9F%8E%AE_Live_Demo-no_sign--in-FFC72C?style=flat-square)](https://yuxinlaile.github.io/McD-saver/demo.html)
-[![Release](https://img.shields.io/badge/Release-v2.2.0-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.2.0)
+[![Release](https://img.shields.io/badge/Release-v2.2.1-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.2.1)
 [![CI](https://github.com/yuxinlaile/McD-saver/actions/workflows/ci.yml/badge.svg)](https://github.com/yuxinlaile/McD-saver/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Dependencies](https://img.shields.io/badge/Dependencies-None%20(stdlib)-green)
-![Tests](https://img.shields.io/badge/Tests-254%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/Tests-265%20passed-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![Agent Skills](https://img.shields.io/badge/Works%20with-Agent%20Skills%20standard-0A7A72)
 ![MCP](https://img.shields.io/badge/MCP-Streamable%20HTTP-purple)
@@ -117,7 +117,7 @@ order created ≠ paid — payment always happens on McDonald's official page.
 - 401 fails fast; 429 exponential backoff honoring `Retry-After`; 5xx/network auto-retry
 - Scope boundary: focused on pre-order savings decisions — no scraping, auto-ordering or unattended scheduling capabilities
 
-**🧪 Tested**: 254 unit tests covering SSE parsing, token resolution, backoff math,
+**🧪 Tested**: 265 unit tests covering SSE parsing, token resolution, backoff math,
 comparison decisions, combination optimization and CLI exit codes; the full
 `demo.py` pipeline is asserted by `tests/test_demo_pipeline.py` — **the demo
 doubles as a regression test**.
@@ -216,7 +216,7 @@ python scripts/deal_compare.py compare --mcd-face 48.5 --mcd-price 38.5
 | `MCD_MCP_TOKEN_FILE` | Token file path, default `~/.mcd_mcp_token` |
 | `MCD_MCP_URL` | MCP Server URL, default `https://mcp.mcd.cn` |
 | `MAIMAI_DEALS_FILE` | Deal library path, default `~/.maimai_saver/deals.json` |
-| `MAIMAI_DEALS_PROVIDER` | External data-source module path (implements `load_deals()`), optional |
+| `MAIMAI_DEALS_PROVIDER` | External data-source module path (implements `load_deals()`), optional; **the .py file is executed on your machine** — only set it if you fully trust it |
 
 **MCP client locations**: WorkBuddy `~/.workbuddy/mcp.json` · Cursor Settings → Tools & MCP ·
 Cherry Studio / Trae / VSCode / Kiro own MCP settings pages · Codex `[mcp_servers.mcd-mcp]`
@@ -231,7 +231,7 @@ never commit it, never let it appear in logs. If leaked, re-apply at open.mcd.cn
 scripts/     Core: MCP client, CLI, coupon optimizer, silent-cost audit, version & release tooling
 references/  Playbooks: tool catalog, savings strategies, group-buy comparison, workflows, pitfalls
 docs/        Online calculator and brand assets (demo.html / index.html / banner.svg)
-tests/       254 unit tests plus repository-consistency checks
+tests/       265 unit tests plus repository-consistency checks
 fixtures/    Offline regression data (menu, coupons, orders, points, mall, deals)
 releases/    Release artifacts: English zip + Chinese notes + index per version
 ```
@@ -289,7 +289,7 @@ More troubleshooting: [`references/error-handling.md`](references/error-handling
 
 ## Release notes
 
-Current version **v2.2.0**. Recent highlights:
+Current version **v2.2.1**. Recent highlights:
 | Version | Highlights |
 |---|---|
 | **v2.2.0** | 171→245 tests · 76% coverage · docs consistency in CI · JSON-RPC error-code fix |

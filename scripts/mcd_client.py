@@ -68,8 +68,8 @@ DEFAULT_TOKEN_FILE = "~/.mcd_mcp_token"
 # MCP 协议版本（Streamable HTTP 传输规范）
 PROTOCOL_VERSION = "2025-03-26"
 
-CLIENT_INFO = {"name": "maimai-saver", "version": "2.2.0"}
-USER_AGENT = "maimai-saver/2.2.0"
+CLIENT_INFO = {"name": "maimai-saver", "version": "2.2.1"}
+USER_AGENT = "maimai-saver/2.2.1"
 
 
 # ---------------------------------------------------------------------------
@@ -217,6 +217,73 @@ def result_to_text(result: Any) -> str:
         if parts:
             return "\n".join(parts)
     return json.dumps(result, ensure_ascii=False, indent=2)
+
+
+def _extract_json_object(text: str) -> Any:
+    """从一段文本里取出第一个完整的 JSON 对象（花括号配对，跳过字符串内的括号）。"""
+    start = text.find("{")
+    if start < 0:
+        return None
+    depth = 0
+    in_string = False
+    escaped = False
+    for index in range(start, len(text)):
+        char = text[index]
+        if in_string:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == '"':
+                in_string = False
+            continue
+        if char == '"':
+            in_string = True
+        elif char == "{":
+            depth += 1
+        elif char == "}":
+            depth -= 1
+            if depth == 0:
+                try:
+                    return json.loads(text[start:index + 1])
+                except (ValueError, TypeError):
+                    return None
+    return None
+
+
+def _json_from_text(text: str) -> Any:
+    """从文本中解析 JSON：整段 JSON → `## Original Response` 之后的 JSON → 内嵌 JSON 对象。"""
+    candidate = text.strip()
+    if "## Original Response" in candidate:
+        candidate = candidate.rsplit("## Original Response", 1)[-1].strip()
+    try:
+        return json.loads(candidate)
+    except (ValueError, TypeError):
+        pass
+    return _extract_json_object(candidate)
+
+
+def tool_json(result: Any) -> Any:
+    """从 tools/call 的结果里取出 JSON 载荷（取不到时返回 None）。
+
+    官方 MCP 的工具返回常见形态是「Markdown 字段说明 + `## Original Response` 后的真实 JSON」，
+    且 JSON 之后可能还跟着展示说明文字。调用方要拿结构化数据时应使用本函数，
+    不要直接对 ``result["data"]`` 取值。
+    """
+    if isinstance(result, dict):
+        content = result.get("content")
+        if isinstance(content, list):
+            for item in content:
+                if not isinstance(item, dict) or item.get("type") != "text":
+                    continue
+                parsed = _json_from_text(str(item.get("text", "")))
+                if parsed is not None:
+                    return parsed
+            return None
+        return result
+    if isinstance(result, str):
+        return _json_from_text(result)
+    return None
 
 
 # ---------------------------------------------------------------------------

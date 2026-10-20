@@ -81,6 +81,11 @@ def _load_deals(path: str) -> List[Dict[str, Any]]:
     """
     provider_path = os.environ.get("MAIMAI_DEALS_PROVIDER")
     if provider_path:
+        print(
+            "警告: 正在执行外部数据源模块 {0}——该 .py 文件的代码会在本机执行，"
+            "请仅在完全信任它时设置 MAIMAI_DEALS_PROVIDER。".format(provider_path),
+            file=sys.stderr,
+        )
         try:
             import importlib.util
 
