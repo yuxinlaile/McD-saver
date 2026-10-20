@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#c2410c">
+<meta name="description" content="免登录的麦当劳点餐省钱试算：官方券、团购券、积分放在一起算，下单前看清这一单能省多少。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="麦麦省钱助手 · 在线试算">
+<meta property="og:description" content="同一单，三种买法：单点、官方券、团购券，算完再下单。">
+<meta property="og:image" content="https://yuxinlaile.github.io/McD-saver/assets/demo-screenshot.png">
+<meta property="og:url" content="https://yuxinlaile.github.io/McD-saver/demo.html">
+<meta name="twitter:card" content="summary_large_image">
 <title>麦麦省钱助手 · 在线试算</title>
 <style>
   :root {
@@ -115,6 +122,9 @@
   button.reset { padding:12px 18px; font-size:14px; color:var(--muted); background:#fff;
                  border:1px solid var(--line); border-radius:10px; cursor:pointer; }
   button.reset:hover { border-color:var(--muted); }
+  button.cardbtn { padding:12px 14px; font-size:14px; font-weight:bold; color:#fff;
+                   background:#b45309; border:none; border-radius:10px; cursor:pointer; }
+  button.cardbtn:hover { background:#92400e; }
   .baseline { display:flex; justify-content:space-between; font-size:13px; color:var(--muted);
               background:#fafaf9; border-radius:8px; padding:8px 12px; margin-bottom:12px; }
   .plan { border:1px solid var(--line); border-radius:12px; padding:14px; margin-top:10px; font-size:13px;
@@ -256,6 +266,7 @@
         <h2>④ 优化结果</h2>
         <div class="actions">
           <button class="calc" onclick="calc()">🧮 计算最优方案</button>
+          <button class="cardbtn" onclick="makeShareCard()" title="生成可分享的省钱账单">📸</button>
           <button class="share" onclick="share()" title="复制本页链接">🔗</button>
           <button class="reset" onclick="reset()">重置</button>
         </div>
@@ -667,6 +678,91 @@ function share() {
   } else {
     fallbackCopy(url, done);
   }
+}
+
+// ---- 分享卡：把本次结果画成 1080×1350 的图（无第三方依赖） ----
+function _money(text) {
+  const m = String(text).match(/¥\s*([\d.]+)/);
+  return m ? parseFloat(m[1]) : null;
+}
+
+function _drawCard() {
+  const base = _money(document.getElementById("baseline").innerText);
+  const resultText = document.getElementById("result").innerText;
+  const best = _money(resultText);
+  if (!base || !best) return null;
+  const saveMatch = resultText.match(/省\s*¥([\d.]+)（(\d+)%）/);
+  const save = saveMatch ? parseFloat(saveMatch[1]) : (base - best);
+  const pct = saveMatch ? parseInt(saveMatch[2], 10) : Math.round((save / base) * 100);
+  const planName = (resultText.split("\n")[0] || "")
+    .replace(/^\d+\.\s*/, "").replace(/★.*$/, "").trim();
+
+  const W = 1080, H = 1350;
+  const c = document.createElement("canvas");
+  c.width = W; c.height = H;
+  const g = c.getContext("2d");
+  const SANS = '"PingFang SC","Microsoft YaHei",system-ui,sans-serif';
+
+  g.fillStyle = "#fff7ed"; g.fillRect(0, 0, W, H);
+  g.fillStyle = "#c2410c"; g.fillRect(0, 0, W, 16);
+
+  g.fillStyle = "#9a3412"; g.font = `700 34px ${SANS}`;
+  g.fillText("McD Saver · 麦麦省钱助手", 80, 120);
+  g.fillStyle = "#78716c"; g.font = `400 26px ${SANS}`;
+  g.fillText("下单前先算一遍", 80, 164);
+  g.fillStyle = "#a8a29e"; g.font = `400 24px ${SANS}`;
+  g.textAlign = "right"; g.fillText(new Date().toLocaleDateString("zh-CN"), W - 80, 120);
+  g.textAlign = "left";
+
+  g.fillStyle = "#57534e"; g.font = `400 30px ${SANS}`;
+  g.fillText("这一单，我算出来的结果是：", 80, 300);
+
+  g.fillStyle = "#15803d"; g.font = `800 120px ${SANS}`;
+  g.fillText(`省 ¥${save.toFixed(2)}`, 80, 440);
+
+  g.fillStyle = "#292524"; g.font = `600 34px ${SANS}`;
+  g.fillText(`比无券直点便宜 ${pct}%`, 84, 500);
+
+  const rows = [
+    ["无券直点", `¥${base.toFixed(2)}`],
+    [planName ? `最优方案：${planName}` : "最优方案实付", `¥${best.toFixed(2)}`],
+    ["这一单省下", `¥${save.toFixed(2)}`],
+  ];
+  let y = 600;
+  rows.forEach(([k, v], i) => {
+    g.fillStyle = i === 2 ? "#f0fdf4" : "#ffffff";
+    g.fillRect(80, y, W - 160, 110);
+    g.strokeStyle = i === 2 ? "#86efac" : "#e7e5e4";
+    g.lineWidth = 2; g.strokeRect(80, y, W - 160, 110);
+    g.fillStyle = "#57534e"; g.font = `500 30px ${SANS}`;
+    g.fillText(k, 116, y + 68);
+    g.fillStyle = i === 2 ? "#15803d" : "#292524"; g.font = `700 40px ${SANS}`;
+    g.textAlign = "right"; g.fillText(v, W - 116, y + 70); g.textAlign = "left";
+    y += 130;
+  });
+
+  g.fillStyle = "#a8a29e"; g.font = `400 24px ${SANS}`;
+  g.fillText("示例数据来自本地 fixtures，实际价格以下单前官方接口为准", 80, 1120);
+
+  g.fillStyle = "#c2410c"; g.font = `700 30px ${SANS}`;
+  g.fillText("yuxinlaile.github.io/McD-saver/demo.html", 80, 1215);
+  g.fillStyle = "#78716c"; g.font = `400 24px ${SANS}`;
+  g.fillText("免登录试算 · 社区开源，非麦当劳官方产品", 80, 1262);
+
+  return c;
+}
+
+function makeShareCard(preview) {
+  const c = _drawCard();
+  if (!c) { toast("先点「计算最优方案」，再生成分享卡"); return null; }
+  const dataUrl = c.toDataURL("image/png");
+  if (preview) return dataUrl;   // 测试用：直接返回 dataURL
+  const a = document.createElement("a");
+  a.href = dataUrl;
+  a.download = "maimai-savings-card.png";
+  document.body.appendChild(a); a.click(); a.remove();
+  toast("分享卡已生成，发出去吧 🍟");
+  return dataUrl;
 }
 function fallbackCopy(text, done) {
   const ta = document.createElement("textarea");

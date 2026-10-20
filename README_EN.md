@@ -106,6 +106,11 @@ order created ≠ paid — payment always happens on McDonald's official page.
 - Order-history profile (avg ticket / repeat items) + points shadow price
 - Faceless coupons probed via `--probe`; `--html` generates a shareable single-file report
 
+**📸 One-tap share card** (live demo)
+
+- After a calculation, tap the camera button to export a 1080×1350 "savings bill" image (Canvas, no third-party deps)
+- Shows list price, best plan, final price and amount saved — clearer than a raw screenshot
+
 **🛡️ Security & compliance**
 
 - Token resolved from env var / file / CLI arg, never logged
