@@ -8,13 +8,17 @@
 
 [![在线试算](https://img.shields.io/badge/%F0%9F%8C%90_在线试算-免登录-FFC72C?style=flat-square)](https://yuxinlaile.github.io/McD-saver/demo.html)
 [![Release](https://img.shields.io/badge/Release-v2.2.0-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.2.0)
+[![CI](https://github.com/yuxinlaile/McD-saver/actions/workflows/ci.yml/badge.svg)](https://github.com/yuxinlaile/McD-saver/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Dependencies](https://img.shields.io/badge/Dependencies-None%20(stdlib)-green)
 ![Tests](https://img.shields.io/badge/Tests-245%20passed-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-orange)
+![Agent Skills](https://img.shields.io/badge/Works%20with-Agent%20Skills%20standard-0A7A72)
 ![MCP](https://img.shields.io/badge/MCP-Streamable%20HTTP-purple)
 
 **[🎮 30 秒在线试算（免登录）](https://yuxinlaile.github.io/McD-saver/demo.html) · [📦 快速开始](#快速开始) · [💬 讨论区](https://github.com/yuxinlaile/McD-saver/discussions) · [🛍️ Also on Agensi](https://www.agensi.io/creators/creator-571) · [English](README_EN.md)**
+
+<img src="docs/assets/demo-screenshot.png" alt="在线试算页：勾选餐品后自动对比官方券与团购券，并标注每单省多少" width="860" />
 
 </div>
 

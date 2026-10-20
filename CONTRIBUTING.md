@@ -16,6 +16,7 @@
 | 分享美团/抖音团购价格 | Discussions（General） | 贴出券面值/售价/限制，可充实券库示例 |
 | 提交代码 | Fork + PR | 见下方流程与自检清单 |
 | 改进文档 / 翻译校对 | Fork + PR | README 中英同步是硬要求（见自检清单） |
+| 第一次参与 | [`good first issue`](https://github.com/yuxinlaile/McD-saver/labels/good%20first%20issue) | 范围小、有验收标准、不需要 Token；认领直接在该 Issue 回复 |
 
 ## 行为准则
 
@@ -32,9 +33,9 @@ cd maimai-saver
 
 # 运行时零依赖（Python 3.9+ 标准库），仅测试需要 pytest
 pip install -r requirements-dev.txt
-python -m pytest tests/ -v          # 当前 89 个用例
+python -m pytest tests/ -v          # 当前 245 个用例，覆盖率门槛 70%
 
-# 语法检查（与 CI 一致，覆盖全部 5 个脚本）
+# 语法检查（与 CI 一致，覆盖 scripts/ 下全部模块与 demo.py）
 python -m py_compile scripts/mcd_client.py scripts/mcd.py \
     scripts/deal_compare.py scripts/optimizer.py scripts/silent_cost.py
 ```
