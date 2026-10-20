@@ -59,7 +59,7 @@ __all__ = [
 DEFAULT_BASE_URL = os.environ.get("MCD_MCP_URL", "https://mcp.mcd.cn")
 DEFAULT_TIMEOUT = 30.0          # 单次请求超时（秒）
 DEFAULT_MAX_RETRIES = 3         # 可重试错误的最大自动重试次数
-DEFAULT_RATE_LIMIT = 300        # 主动滑动窗口限速（次/分钟，官方上限 600 的一半）         # 可重试错误的最大自动重试次数
+DEFAULT_RATE_LIMIT = 300        # 主动滑动窗口限速（次/分钟，官方上限 600 的一半）
 MAX_BACKOFF_SECONDS = 30.0      # 单次退避等待上限（秒）
 TOKEN_ENV_VAR = "MCD_MCP_TOKEN"
 TOKEN_FILE_ENV_VAR = "MCD_MCP_TOKEN_FILE"
@@ -380,7 +380,7 @@ class McdMcpClient:
             except urllib.error.HTTPError as exc:
                 detail = ""
                 try:
-                    detail = exc.read().decode("utf-8", errors="replace")[:500]
+                    detail = exc.read().decode("utf-8", errors="replace")[:160]
                 except Exception:  # noqa: BLE001 - 读取错误详情失败不应中断流程
                     pass
 
@@ -479,7 +479,8 @@ class McdMcpClient:
         """获取 MCP Server 支持的全部工具（含名称、描述与入参 schema）。"""
         self._ensure_initialized()
         message = self._jsonrpc("tools/list")
-        tools = message["result"].get("tools", []) if message else []
+        result = message.get("result") if isinstance(message, dict) else None
+        tools = result.get("tools", []) if isinstance(result, dict) else []
         return tools if isinstance(tools, list) else []
 
     def get_tool_schema(self, name: str) -> Optional[Dict[str, Any]]:

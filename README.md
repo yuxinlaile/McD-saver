@@ -11,7 +11,7 @@
 [![CI](https://github.com/yuxinlaile/McD-saver/actions/workflows/ci.yml/badge.svg)](https://github.com/yuxinlaile/McD-saver/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Dependencies](https://img.shields.io/badge/Dependencies-None%20(stdlib)-green)
-![Tests](https://img.shields.io/badge/Tests-245%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/Tests-254%20passed-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![Agent Skills](https://img.shields.io/badge/Works%20with-Agent%20Skills%20standard-0A7A72)
 ![MCP](https://img.shields.io/badge/MCP-Streamable%20HTTP-purple)
@@ -112,7 +112,7 @@
 - 401 快速失败、429 指数退避尊重 `Retry-After`、5xx/网络错误自动重试
 - 范围边界：聚焦下单前的省钱决策——不包含爬虫、自动下单、无人值守定时领券等自动化能力
 
-**🧪 测试保障**：245 个单元测试覆盖 SSE 解析、Token 解析、退避计算、比价决策、
+**🧪 测试保障**：254 个单元测试覆盖 SSE 解析、Token 解析、退避计算、比价决策、
 组合优化与 CLI 退出码；`demo.py` 全链路输出被 `tests/test_demo_pipeline.py`
 断言——**demo 即回归测试**。
 
@@ -221,7 +221,7 @@ Cherry Studio / Trae / VSCode / Kiro 各自 MCP 设置页 · Codex `~/.codex/con
 scripts/     核心实现：MCP 客户端、CLI、券组合优化器、沉默成本体检、版本与发布工具
 references/  方法论手册：工具目录、省钱策略、团购比价、场景工作流、MCP 踩坑、排错
 docs/        在线试算页与品牌资源（demo.html / index.html / banner.svg）
-tests/       245 项单元测试 + 规范一致性校验
+tests/       254 项单元测试 + 规范一致性校验
 fixtures/    离线回归数据（菜单、券、订单、积分、商城、团购）
 releases/    发布产物：每版英文压缩包 + 中文说明 + 索引
 ```
@@ -316,6 +316,14 @@ releases/    发布产物：每版英文压缩包 + 中文说明 + 索引
   （GitHub 资产名不支持非 ASCII：中文说明在 Release 附件中另存为 `mcd-saver-v<版本>-release-notes-zh.md`，
   内容一致，**中文原名以 `releases/` 目录为准**）
 
+## 反馈与支持
+
+如有问题或建议，欢迎在 [讨论区留言](https://github.com/yuxinlaile/McD-saver/discussions)，
+或按场景选择：🐛 [提交 Bug 报告](https://github.com/yuxinlaile/McD-saver/issues/new?template=bug_report.md) ·
+💡 [提出功能建议](https://github.com/yuxinlaile/McD-saver/issues/new?template=feature_request.md) ·
+🤝 [分享团购券数据](https://github.com/yuxinlaile/McD-saver/discussions)（助力比价库更全）。
+每一条反馈都会认真查看——这也是试算页持续按真实使用场景优化的依据。
+
 ## 参与贡献
 
 欢迎 Issue / PR / Discussions：工作流文档、中英校对、工具目录更新（以 `tools`
@@ -338,14 +346,6 @@ CHANGELOG 补充 · **README 中英同步**。
 本项目代码以 [MIT](LICENSE) 许可证发布；运行依赖麦当劳中国 MCP 服务及上游
 集成指南仓库（[M-China/mcd-mcp-server](https://github.com/M-China/mcd-mcp-server)），
 相关使用须遵守其服务条款与上游限制。
-
-## 反馈与支持
-
-如有问题或建议，欢迎在 [讨论区留言](https://github.com/yuxinlaile/McD-saver/discussions)，
-或按场景选择：🐛 [提交 Bug 报告](https://github.com/yuxinlaile/McD-saver/issues/new?template=bug_report.md) ·
-💡 [提出功能建议](https://github.com/yuxinlaile/McD-saver/issues/new?template=feature_request.md) ·
-🤝 [分享团购券数据](https://github.com/yuxinlaile/McD-saver/discussions)（助力比价库更全）。
-每一条反馈都会认真查看——这也是试算页持续按真实使用场景优化的依据。
 
 ## Star History
 

@@ -218,7 +218,11 @@ def cmd_check(client: McdMcpClient) -> int:
     server_version = server_info.get("serverInfo", {}).get("version", "unknown")
     print("[OK] 连接成功")
     print("  服务器: {0} v{1}".format(server_name, server_version))
-    print("  地址: {0}".format(client.base_url))
+    # 地址回显时去掉可能内嵌的凭据（https://user:pass@host 形态）
+    safe_url = client.base_url
+    if "@" in safe_url:
+        safe_url = safe_url.split("//", 1)[0] + "//***@" + safe_url.split("@", 1)[1]
+    print("  地址: {0}".format(safe_url))
     print("  可用工具数: {0}".format(len(tools)))
     return EXIT_OK
 

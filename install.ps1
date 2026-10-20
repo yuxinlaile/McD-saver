@@ -29,7 +29,7 @@ $targetRoot = @{
     codex     = Join-Path $HOME '.agents\skills'
 }[$Target]
 
-$items = @('SKILL.md', 'scripts', 'references', 'config', 'examples')
+$items = @('SKILL.md', 'scripts', 'references', 'config', 'examples', 'docs', 'LICENSE')
 $missing = $items | Where-Object { -not (Test-Path (Join-Path $sourceDir $_)) }
 if ($missing) {
     Write-Error "仓库文件不完整，缺少：$($missing -join ', ')。请重新克隆仓库。"

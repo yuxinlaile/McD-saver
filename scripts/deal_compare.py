@@ -168,7 +168,7 @@ def compare_deals(
     """
     today = today or date.today()
     if mcd_face <= 0 or mcd_price < 0:
-        raise SystemExit("错误: --mcd-face 必须大于 0，--mcd-price 不能为负。")
+        raise ValueError("--mcd-face 必须大于 0，--mcd-price 不能为负。")
 
     entries: List[Dict[str, Any]] = []
     for deal in deals:
@@ -371,8 +371,8 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     if args.command == "clear":
         if not args.yes:
-            print("此操作将清空券库，请追加 --yes 确认。")
-            return EXIT_OK
+            print("此操作将清空券库，请追加 --yes 确认。", file=sys.stderr)
+            return EXIT_USAGE
         _save_deals(args.file, [])
         print("券库已清空。")
         return EXIT_OK

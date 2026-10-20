@@ -815,16 +815,22 @@ function importMenuFile(input) {
 
 // ---- Token 快速导入：命令生成与复制（Token 仅存在于浏览器内存）----
 function genCmd(platform) {
-  const token = (document.getElementById("tokenBox").value || "").trim().replace(/"/g, "");
+  const token = (document.getElementById("tokenBox").value || "").trim();
   const store = (document.getElementById("storeBox").value || "").trim().replace(/["']/g, "");
   const box = document.getElementById("cmdBox");
   if (!token) { box.value = "请先粘贴你的 MCP Token（open.mcd.cn/mcp 申请）。"; return; }
+  if (!/^[A-Za-z0-9._-]{8,}$/.test(token)) {
+    // Token 含特殊字符：不内联到命令行（避免命令注入与 shell 历史泄露），改用环境变量占位
+    box.value = "Token 含非安全字符，已不内联到命令。请先设置环境变量 MCD_MCP_TOKEN，再执行："
+      + "python scripts/mcd.py call query-meals --raw > menu.json && cat menu.json";
+    return;
+  }
   const args = store ? ` --args '{"storeCode":"${store}"}'` : "";
-  const tok = ` --token "${token}"`;  // Token 内嵌命令，终端无需预设环境变量
+  // Token 走环境变量：不进入进程参数表（ps 不可见），也不再被当作命令参数拼接
   if (platform === "ps") {
-    box.value = `python scripts/mcd.py call query-meals${args}${tok} --raw | Set-Content -Encoding UTF8 menu.json; Get-Content menu.json`;
+    box.value = `$env:MCD_MCP_TOKEN="${token}"; python scripts/mcd.py call query-meals${args} --raw | Set-Content -Encoding UTF8 menu.json; Get-Content menu.json`;
   } else {
-    box.value = `python scripts/mcd.py call query-meals${args}${tok} --raw > menu.json && cat menu.json`;
+    box.value = `MCD_MCP_TOKEN="${token}" python scripts/mcd.py call query-meals${args} --raw > menu.json && cat menu.json`;
   }
 }
 function copyCmd() {

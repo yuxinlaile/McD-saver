@@ -17,7 +17,7 @@
 - [ ] `python -m pytest tests/ -v` 通过
 - [ ] 未包含任何真实 Token、密码或个人凭证
 - [ ] 涉及工具目录/工作流的变更已同步更新 `references/` 与 `SKILL.md`
-- [ ] 如为用户可见变更，已在 `CHANGELOG.md` 的 Unreleased 段补充说明
+- [ ] 如为用户可见变更，已在 `CHANGELOG.md` 顶部新增本次变更条目（版本号用 `python scripts/version.py` 递增）
 
 ## 补充
 

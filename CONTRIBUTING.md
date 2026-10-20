@@ -33,11 +33,10 @@ cd maimai-saver
 
 # 运行时零依赖（Python 3.9+ 标准库），仅测试需要 pytest
 pip install -r requirements-dev.txt
-python -m pytest tests/ -v          # 当前 245 个用例，覆盖率门槛 70%
+python -m pytest tests/ -v          # 当前 254 个用例，覆盖率门槛 70%
 
 # 语法检查（与 CI 一致，覆盖 scripts/ 下全部模块与 demo.py）
-python -m py_compile scripts/mcd_client.py scripts/mcd.py \
-    scripts/deal_compare.py scripts/optimizer.py scripts/silent_cost.py
+python -m py_compile scripts/*.py demo.py
 ```
 
 代码约定：

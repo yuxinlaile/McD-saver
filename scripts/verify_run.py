@@ -43,7 +43,7 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     client = McdMcpClient(token=token, verbose=False)
-    today = dt.date.today()
+    today = dt.datetime.now()  # analyze_coupons / analyze_orders 需要 datetime（内部取 .date() 并做日期相减）
 
     # 1) 连通性（等价 mcd.py check：initialize + tools/list）
     try:
@@ -108,7 +108,7 @@ def main(argv: list[str] | None = None) -> int:
         "| 客单价（消费口径） | {0} |".format(
             "{0:.2f} 元".format(orders["avg_ticket"]) if orders.get("avg_ticket") else "—"),
         "| 0 元订单数 | {0} |".format(orders.get("free_order_count", 0)),
-        "| 积分余额 | {0} |".format(points.get("balance", "—") if isinstance(points, dict) else "—"),
+        "| 积分余额 | {0} |".format(points.get("available", "—") if isinstance(points, dict) else "—"),
         "",
     ]
     if schedule:

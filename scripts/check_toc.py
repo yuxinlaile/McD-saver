@@ -106,6 +106,24 @@ def check(md_path: Path, name: str) -> Tuple[bool, List[str]]:
     return ok, headings
 
 
+def _h2_titles(md_path: Path) -> List[str]:
+    """返回二级标题（##）的顺序列表（不含目录标题）。"""
+    out: List[str] = []
+    for line in md_path.read_text(encoding="utf-8").splitlines():
+        match = re.match(r"^##\s+(.*)$", line)
+        if match:
+            title = match.group(1).strip()
+            if title not in TOC_TITLES:
+                out.append(title)
+    return out
+
+
+def _toc_titles(md_path: Path, all_titles: List[str]) -> List[str]:
+    """返回目录条目按目录顺序排列的标题列表。"""
+    by_slug = {github_slug(title): title for title in all_titles}
+    return [by_slug.get(slug, slug) for slug in extract(md_path)[1]]
+
+
 def main(argv: List[str] | None = None) -> int:
     args = list(sys.argv[1:] if argv is None else argv)
     zh_path = Path(args[0]) if args else ROOT / "README.md"
@@ -124,7 +142,36 @@ def main(argv: List[str] | None = None) -> int:
     if missing:
         print("英文缺失章节: {0}".format(missing))
         return 1
-    print("[结构] 中英章节一一对应，共 {0} 个二级/三级标题: OK".format(len(zh)))
+
+    zh_h2 = _h2_titles(zh_path)
+    en_h2 = _h2_titles(en_path)
+    zh_toc = _toc_titles(zh_path, zh)
+    en_toc = _toc_titles(en_path, en)
+
+    # 1) 每份 README 自身：目录中的二级章节顺序必须与正文出现顺序一致
+    for name, h2, toc in (("中文", zh_h2, zh_toc), ("英文", en_h2, en_toc)):
+        h2_set = set(h2)
+        toc_h2 = [t for t in toc if t in h2_set]
+        if toc_h2 != h2:
+            print("[{0}] 目录顺序与正文顺序不一致".format(name))
+            print("  目录: {0}".format(" > ".join(toc_h2)))
+            print("  正文: {0}".format(" > ".join(h2)))
+            return 1
+
+    # 2) 中英之间：正文与目录的章节顺序都要逐位对应
+    en_to_zh = {en_title: zh_title for zh_title, en_title in PAIRS}
+    if [en_to_zh.get(t, t) for t in en_h2] != zh_h2:
+        print("中英正文章节顺序不一致：")
+        print("  中文: {0}".format(" > ".join(zh_h2)))
+        print("  英文: {0}".format(" > ".join(en_h2)))
+        return 1
+    if [en_to_zh.get(t, t) for t in en_toc] != zh_toc:
+        print("中英目录顺序不一致：")
+        print("  中文: {0}".format(" > ".join(zh_toc)))
+        print("  英文: {0}".format(" > ".join(en_toc)))
+        return 1
+
+    print("[结构] 中英章节一一对应、目录与正文顺序一致，共 {0} 个二级/三级标题: OK".format(len(zh)))
     return 0 if ok_zh and ok_en else 1
 
 

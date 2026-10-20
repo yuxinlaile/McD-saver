@@ -114,7 +114,7 @@ class Plan:
 # ---------------------------------------------------------------------------
 def make_local_pricer(menu: Dict[str, Any]) -> Callable[[Cart, Optional[Dict[str, Any]]], Optional[float]]:
     """估算模式：本地价格表 + 券 threshold/discount 字段。"""
-    price_table = {i["mealCode"]: float(i.get("price", 0) or 0) for i in menu.get("items", [])}
+    price_table = {i.get("mealCode"): float(i.get("price", 0) or 0) for i in menu.get("items", []) if i.get("mealCode")}
 
     def price(cart: Cart, coupon: Optional[Dict[str, Any]]) -> Optional[float]:
         face = sum(price_table.get(e["mealCode"], 0.0) * e["quantity"] for e in cart.entries)
@@ -201,7 +201,7 @@ def build_candidates(
     """生成候选方案：无券直点 + 每券一方案（未达门槛则尝试最便宜凑单品）
     + 套餐替换（套餐 contains 覆盖全部想吃单品且更省时才会在排名中胜出）。"""
     base = Cart(wants)
-    price_table = {i["mealCode"]: float(i.get("price", 0) or 0) for i in menu.get("items", [])}
+    price_table = {i.get("mealCode"): float(i.get("price", 0) or 0) for i in menu.get("items", []) if i.get("mealCode")}
     face = sum(price_table.get(e["mealCode"], 0.0) * e["quantity"] for e in base.entries)
     wants_codes = {e["mealCode"] for e in base.entries}
 

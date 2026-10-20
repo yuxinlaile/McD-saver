@@ -27,7 +27,7 @@ x 超过 6 时进位到主版本号 z 加 1，并将 x、y 重置为 0。
 
     python scripts/version.py                # 读取仓库当前版本，输出下一个版本
     python scripts/version.py 1.6.3          # 对指定版本递增
-    python scripts/version.py --apply        # 递增并写回仓库四件套（CLIENT_INFO /
+    python scripts/version.py --apply        # 递增并写回仓库五件套（CLIENT_INFO /
                                              # SKILL.md / README×2 Release 徽章）
                                              # CHANGELOG 需人工撰写，不自动生成
 
@@ -120,7 +120,7 @@ def current_repo_version() -> str:
 
 
 def apply_version(new_version: str) -> list[str]:
-    """把新版本写回发布四件套（CHANGELOG 由人工撰写，不在此列）。
+    """把新版本写回发布五件套（CHANGELOG 由人工撰写，不在此列）。
 
     返回已更新的文件相对路径列表。写入前校验 new_version 合法。
     """
@@ -174,7 +174,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("current", nargs="?", default=None,
                         help="当前版本号（缺省时自动读取仓库 CLIENT_INFO）")
     parser.add_argument("--apply", action="store_true",
-                        help="递增并把新版本写回四件套（CLIENT_INFO/SKILL.md/README×2）")
+                        help="递增并把新版本写回五件套（CLIENT_INFO/SKILL.md/README×2）")
     args = parser.parse_args(argv)
 
     current = args.current if args.current else current_repo_version()

@@ -265,6 +265,7 @@ maimai-saver/
 ├── CHANGELOG.md                        # 版本变更记录（Keep a Changelog 格式）
 ├── CONTRIBUTING.md                     # 贡献指南与发布流程
 ├── LICENSE                             # MIT 许可证 + 第三方条款声明
+├── SECURITY.md                         # 漏洞报告与安全边界（对外披露入口）
 ├── CONTEST_DECLARATION.md              # 参赛声明（官方原文，未改动）
 ├── MCP_INTEGRATION.md                  # MCP 集成说明（参赛要求文件）
 ├── mcp-config.example.json             # 脱敏 MCP 配置（参赛要求文件，与 config/ 版内容一致）
@@ -282,7 +283,8 @@ maimai-saver/
 │   ├── index.html                      # Pages 根路径索引页（自动进入试算页）
 │   ├── development-log.md              # 开发过程记录（WorkBuddy 专项奖励核验用）
 │   ├── coverage-report.md              # 覆盖率报告（--cov=scripts 口径与补测路线）
-│   └── assets/banner.svg               # 品牌横幅（版本与测试数随发版同步）
+│   ├── assets/banner.svg               # 品牌横幅（版本与测试数随发版同步）
+│   └── assets/share-card.png           # 一键分享卡成品图（README 首屏与社交预览 og:image）
 ├── config/
 │   └── mcp.example.json                # MCP 客户端配置示例（占位符 Token）
 ├── scripts/
@@ -311,5 +313,5 @@ maimai-saver/
 │   └── verified-run.md                 # 真实环境验证记录（脱敏，可复现）
 ├── fixtures/                           # 7 份离线回归数据（菜单/券/订单/积分/团购等）
 ├── releases/                           # 发布产物：每版英文 zip + 中文说明 + 索引
-└── tests/                              # pytest 单元测试（245 个用例 + 一致性校验）
+└── tests/                              # pytest 单元测试（254 个用例 + 一致性校验）
 ```

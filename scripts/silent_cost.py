@@ -71,22 +71,50 @@ def _first_key(obj: Dict[str, Any], keys: List[str]) -> Any:
     return None
 
 
+def _parse_json_payload(text: str) -> Any:
+    """从一段文本里取 JSON：支持纯 JSON，也支持 Markdown 包裹（``## Original Response`` 之后的真实 JSON）。"""
+    candidate = text.strip()
+    if "## Original Response" in candidate:
+        candidate = candidate.rsplit("## Original Response", 1)[-1].strip()
+    if candidate.startswith("```"):
+        candidate = candidate.strip("`")
+        if "\n" in candidate:
+            candidate = candidate.split("\n", 1)[-1].strip()
+    try:
+        return json.loads(candidate)
+    except (ValueError, TypeError):
+        return None
+
+
 def _unwrap(raw: Any) -> List[Dict[str, Any]]:
-    """从工具原始响应中提取记录数组：兼容 {"data": [...]} / {"data": {"list": [...]}} / [...]。"""
+    """从工具原始响应中提取记录数组。
+
+    兼容形态：``{"data": [...]}`` / ``{"data": {"list": [...]}}`` / ``{"coupons": [...]}`` /
+    ``[...]`` / tools/call 的 ``{"content": [{"type": "text", "text": "..."}]}``（文本可能是纯 JSON，
+    也可能是 ``## Original Response`` 包裹的 Markdown）。
+
+    空数据的中文文案（如「暂无可用优惠券」）会被识别为**空列表**，而不是被当成一条记录。
+    """
     data = raw
-    if isinstance(raw, dict) and "content" in raw:  # tools/call 标准响应壳
+    if isinstance(raw, dict) and "content" in raw:
         texts = [c.get("text", "") for c in raw["content"] if isinstance(c, dict) and c.get("type") == "text"]
         for text in texts:
-            try:
-                data = json.loads(text)
+            parsed = _parse_json_payload(text)
+            if parsed is not None:
+                data = parsed
                 break
-            except (ValueError, TypeError):
-                continue
+        else:
+            return []  # 空态文案或非 JSON 文本：没有记录
     if isinstance(data, dict):
         for key in ("data", "coupons", "orders", "list", "records", "items"):
-            if isinstance(data.get(key), list):
-                return [x for x in data[key] if isinstance(x, dict)]
-        for value in data.values():
+            value = data.get(key)
+            if isinstance(value, list):
+                return [x for x in value if isinstance(x, dict)]
+            if isinstance(value, dict) and isinstance(value.get("list"), list):
+                return [x for x in value["list"] if isinstance(x, dict)]
+        for key, value in data.items():
+            if key == "content":
+                continue
             if isinstance(value, list) and value and isinstance(value[0], dict):
                 return value
         return []
@@ -478,29 +506,14 @@ def render_report(coupons: Dict[str, Any], orders: Dict[str, Any],
 # ---------------------------------------------------------------------------
 # 单文件 HTML 报告（v1.6）：零 CDN、双击打开即可截图分享
 # ---------------------------------------------------------------------------
-# HTML 渲染与等级逻辑已抽离至 silent_report.py（v2.1.2 拆分，保持向后兼容再导出）
-from silent_report import render_html, savings_grade  # noqa: E402,F401
-
-# ---------------------------------------------------------------------------
-# 省钱等级（v1.7.1）：确定性分档，基于排程可实现金额，供分享卡片展示
-# ---------------------------------------------------------------------------
-def savings_grade(schedule: Optional[Dict[str, Any]]) -> Tuple[str, str]:
-    """按排程「可实现金额」确定性分档：S≥30 / A≥15 / B≥5 / C≥1 / D<1。
-
-    返回 (等级, 一句话说明)；无排程数据返回 ("—", "")。
-    """
-    if not schedule or schedule.get("realizable") is None:
-        return ("—", "")
-    value = float(schedule["realizable"])
-    if value >= 30:
-        return ("S", "本期可实现节省 ¥{0:.2f}，稳稳拿捏".format(value))
-    if value >= 15:
-        return ("A", "本期可实现节省 ¥{0:.2f}".format(value))
-    if value >= 5:
-        return ("B", "本期可实现节省 ¥{0:.2f}".format(value))
-    if value >= 1:
-        return ("C", "本期可实现节省 ¥{0:.2f}".format(value))
-    return ("D", "本期可实现节省 ¥{0:.2f}——下期记得提前排程用券".format(value))
+# HTML 渲染与等级逻辑已抽离至 silent_report.py（v2.1.2 拆分，保持向后兼容再导出）。
+# 本模块只做再导出：不再重复定义 savings_grade，避免两份逻辑各自漂移。
+try:  # 兼容“直接运行脚本”与“作为模块运行”两种方式
+    from silent_report import render_html, savings_grade  # noqa: F401
+except ImportError:  # pragma: no cover - 以模块方式导入时补脚本目录
+    import os
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from silent_report import render_html, savings_grade  # noqa: F401
 
 
 # ---------------------------------------------------------------------------
@@ -603,10 +616,15 @@ def main(argv: Optional[List[str]] = None) -> int:
         return EXIT_OK
 
     if args.command == "report":
-        coupons = analyze_coupons(_load_json(args.coupons) if args.coupons else {})
-        orders = analyze_orders(_load_json(args.orders) if args.orders else {})
-        points = analyze_points(_load_json(args.points) if args.points else {})
-        mall = _load_json(args.mall) if args.mall else None
+        try:
+            coupons = analyze_coupons(_load_json(args.coupons) if args.coupons else {})
+            orders = analyze_orders(_load_json(args.orders) if args.orders else {})
+            points = analyze_points(_load_json(args.points) if args.points else {})
+            mall = _load_json(args.mall) if args.mall else None
+        except (OSError, ValueError) as exc:
+            print("错误: 无法读取输入文件（{0}）：{1}".format(
+                getattr(exc, "filename", "") or "输入文件", exc), file=sys.stderr)
+            return EXIT_USAGE
         if getattr(args, "probe", None):
             code = _run_probe(coupons, getattr(args, "store_code", ""))
             if code != EXIT_OK:

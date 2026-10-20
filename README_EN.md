@@ -11,7 +11,7 @@
 [![CI](https://github.com/yuxinlaile/McD-saver/actions/workflows/ci.yml/badge.svg)](https://github.com/yuxinlaile/McD-saver/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Dependencies](https://img.shields.io/badge/Dependencies-None%20(stdlib)-green)
-![Tests](https://img.shields.io/badge/Tests-245%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/Tests-254%20passed-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![Agent Skills](https://img.shields.io/badge/Works%20with-Agent%20Skills%20standard-0A7A72)
 ![MCP](https://img.shields.io/badge/MCP-Streamable%20HTTP-purple)
@@ -117,7 +117,7 @@ order created ≠ paid — payment always happens on McDonald's official page.
 - 401 fails fast; 429 exponential backoff honoring `Retry-After`; 5xx/network auto-retry
 - Scope boundary: focused on pre-order savings decisions — no scraping, auto-ordering or unattended scheduling capabilities
 
-**🧪 Tested**: 245 unit tests covering SSE parsing, token resolution, backoff math,
+**🧪 Tested**: 254 unit tests covering SSE parsing, token resolution, backoff math,
 comparison decisions, combination optimization and CLI exit codes; the full
 `demo.py` pipeline is asserted by `tests/test_demo_pipeline.py` — **the demo
 doubles as a regression test**.
@@ -231,7 +231,7 @@ never commit it, never let it appear in logs. If leaked, re-apply at open.mcd.cn
 scripts/     Core: MCP client, CLI, coupon optimizer, silent-cost audit, version & release tooling
 references/  Playbooks: tool catalog, savings strategies, group-buy comparison, workflows, pitfalls
 docs/        Online calculator and brand assets (demo.html / index.html / banner.svg)
-tests/       245 unit tests plus repository-consistency checks
+tests/       254 unit tests plus repository-consistency checks
 fixtures/    Offline regression data (menu, coupons, orders, points, mall, deals)
 releases/    Release artifacts: English zip + Chinese notes + index per version
 ```
@@ -312,6 +312,29 @@ Current version **v2.2.0**. Recent highlights:
 Full history in [CHANGELOG.md](CHANGELOG.md); downloads on the
 [Releases](https://github.com/yuxinlaile/McD-saver/releases) page.
 
+## Release artifacts
+
+Every version ships one pair of artifacts — in [`releases/`](releases/README.md) and on the matching GitHub Release:
+
+| Type | Naming | Form | Contents |
+|---|---|---|---|
+| English | `mcd-saver-v<version>.zip` | Archive | Full source at that tag; extracts to `McD-Saver-v<version>/` |
+| Chinese | `麦麦省钱助手-v<version>-发布说明.md` | Notes | Version info, install steps, changes for that version, SHA-256 |
+
+- Versions follow the project's custom `z.x.y` scheme (patch ≤3, minor ≤6, carry on overflow), bumped and synced by `scripts/version.py`
+- `scripts/build_releases.py` builds and verifies artifacts: `--all` for every tag, `--verify` for naming, pairing and archive integrity
+- Each tag maps to exactly one release, and every release carries the same two files — tag ↔ release ↔ `releases/` stay in lockstep
+  (GitHub asset names reject non-ASCII, so the Chinese notes appear as `mcd-saver-v<version>-release-notes-zh.md`
+  with identical content; the original Chinese filename lives in `releases/`)
+
+## Feedback
+
+Questions or suggestions? Leave a note in [Discussions](https://github.com/yuxinlaile/McD-saver/discussions),
+or pick by scenario: 🐛 [Bug report](https://github.com/yuxinlaile/McD-saver/issues/new?template=bug_report.md) ·
+💡 [Feature request](https://github.com/yuxinlaile/McD-saver/issues/new?template=feature_request.md) ·
+🤝 [Share group-buy deals](https://github.com/yuxinlaile/McD-saver/discussions) (help the deal library grow).
+Every piece of feedback gets read — it is exactly how the calculator keeps improving for real-world use.
+
 ## Contributing
 
 Issues / PRs / Discussions welcome: workflow docs, translation proofreading,
@@ -342,29 +365,6 @@ This project's code is released under the [MIT](LICENSE) license; running it
 relies on the McDonald's China MCP service and the upstream integration guide
 ([M-China/mcd-mcp-server](https://github.com/M-China/mcd-mcp-server)) — using
 those services is subject to their terms and upstream restrictions.
-
-## Release artifacts
-
-Every version ships one pair of artifacts — in [`releases/`](releases/README.md) and on the matching GitHub Release:
-
-| Type | Naming | Form | Contents |
-|---|---|---|---|
-| English | `mcd-saver-v<version>.zip` | Archive | Full source at that tag; extracts to `McD-Saver-v<version>/` |
-| Chinese | `麦麦省钱助手-v<version>-发布说明.md` | Notes | Version info, install steps, changes for that version, SHA-256 |
-
-- Versions follow the project's custom `z.x.y` scheme (patch ≤3, minor ≤6, carry on overflow), bumped and synced by `scripts/version.py`
-- `scripts/build_releases.py` builds and verifies artifacts: `--all` for every tag, `--verify` for naming, pairing and archive integrity
-- Each tag maps to exactly one release, and every release carries the same two files — tag ↔ release ↔ `releases/` stay in lockstep
-  (GitHub asset names reject non-ASCII, so the Chinese notes appear as `mcd-saver-v<version>-release-notes-zh.md`
-  with identical content; the original Chinese filename lives in `releases/`)
-
-## Feedback
-
-Questions or suggestions? Leave a note in [Discussions](https://github.com/yuxinlaile/McD-saver/discussions),
-or pick by scenario: 🐛 [Bug report](https://github.com/yuxinlaile/McD-saver/issues/new?template=bug_report.md) ·
-💡 [Feature request](https://github.com/yuxinlaile/McD-saver/issues/new?template=feature_request.md) ·
-🤝 [Share group-buy deals](https://github.com/yuxinlaile/McD-saver/discussions) (help the deal library grow).
-Every piece of feedback gets read — it is exactly how the calculator keeps improving for real-world use.
 
 ## Star History
 

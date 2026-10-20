@@ -77,7 +77,8 @@ class TestCompareDeals:
         assert report["mcd_discount_rate"] == pytest.approx(0.8)
 
     def test_invalid_mcd_face_raises(self):
-        with pytest.raises(SystemExit):
+        # 2026-10-20 巡检整改：库函数改抛 ValueError，不再用 SystemExit 终止宿主进程
+        with pytest.raises(ValueError):
             compare_deals([_deal()], mcd_face=0, mcd_price=10.0)
 
     def test_invalid_deal_rows_skipped(self):
