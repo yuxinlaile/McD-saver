@@ -10,9 +10,11 @@
 ### 新增
 
 - **一键分享卡（真实核价版）**：卡片改为数据驱动（外部可注入 `window.MCD_CARD`），
-  版式重排为大字钩子 + 三行明细 + 券与积分 + 核价门店 + CTA + 底栏；
-  仓库首屏图已换成官方 `calculate-price` 实时核价的真实结果
+  版式重排为大字钩子 + 三行明细 + 可领券 + 核价门店 + CTA + 底栏，
+  可直接渲染官方 `calculate-price` 实时核价的真实结果
   （同店两种买法：直点 ¥50.50 → 官方套餐 ¥37.50，省 ¥13.00 / 26%）。
+  卡片是**试算页的运行时导出功能**，图片文件不入库（投放用素材留在仓库外），
+  README 首屏不再内嵌某一张门店快照。
 - **`mcd_client.tool_json(result)`**：统一从 tools/call 结果里提取 JSON 载荷
   （官方返回常是「Markdown 字段说明 + `## Original Response` 之后的真实 JSON」，
   且 JSON 之后可能还跟着展示说明文字），取不到时返回 None，绝不臆测。
@@ -46,7 +48,8 @@
   该 `.py` 文件会被本机执行，仅应在完全信任时设置。
 - 其余事实性偏差一并修正：CHANGELOG 的 SemVer 声明、`docs/index.html` 与
   `MCP_INTEGRATION.md` 的测试计数、examples 算例与脚本真实输出的冒号与路径、
-  `install.ps1` 补拷 `docs/` 与 `LICENSE`、`SKILL.md` 目录树补 `SECURITY.md` 与分享卡。
+  `install.ps1` 补拷 `docs/` 与 `LICENSE`、`SKILL.md` 目录树补 `SECURITY.md`，
+  并移除一次性快照图片（分享卡图片不入库）。
 
 ## [2.2.0] - 2026-10-19
 

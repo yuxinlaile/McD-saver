@@ -283,8 +283,7 @@ maimai-saver/
 │   ├── index.html                      # Pages 根路径索引页（自动进入试算页）
 │   ├── development-log.md              # 开发过程记录（WorkBuddy 专项奖励核验用）
 │   ├── coverage-report.md              # 覆盖率报告（--cov=scripts 口径与补测路线）
-│   ├── assets/banner.svg               # 品牌横幅（版本与测试数随发版同步）
-│   └── assets/share-card.png           # 一键分享卡成品图（README 首屏与社交预览 og:image）
+│   └── assets/banner.svg               # 品牌横幅（版本与测试数随发版同步）
 ├── config/
 │   └── mcp.example.json                # MCP 客户端配置示例（占位符 Token）
 ├── scripts/

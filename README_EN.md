@@ -18,8 +18,6 @@
 
 **[🎮 30-sec online demo (no sign-in)](https://yuxinlaile.github.io/McD-saver/demo.html) · [📦 Quick start](#quick-start) · [💬 Discussions](https://github.com/yuxinlaile/McD-saver/discussions) · [🛍️ Also on Agensi](https://www.agensi.io/creators/creator-571) · [简体中文](README.md)**
 
-<img src="docs/assets/share-card.png" alt="One-tap share card: a 1080x1350 savings bill with baseline, best plan and total saved" width="520" />
-
 </div>
 
 ---

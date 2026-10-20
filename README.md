@@ -18,8 +18,6 @@
 
 **[🎮 30 秒在线试算（免登录）](https://yuxinlaile.github.io/McD-saver/demo.html) · [📦 快速开始](#快速开始) · [💬 讨论区](https://github.com/yuxinlaile/McD-saver/discussions) · [🛍️ Also on Agensi](https://www.agensi.io/creators/creator-571) · [English](README_EN.md)**
 
-<img src="docs/assets/share-card.png" alt="一键分享卡：试算后导出 1080×1350 省钱账单图——无券直点、最优方案、省下金额一目了然" width="520" />
-
 </div>
 
 ---
