@@ -7,12 +7,12 @@
 **Let AI get you McDonald's for less** — Agent Skill + standalone CLI in one repo
 
 [![Live Demo](https://img.shields.io/badge/%F0%9F%8E%AE_Live_Demo-no_sign--in-FFC72C?style=flat-square)](https://yuxinlaile.github.io/McD-saver/demo.html)
-[![Release](https://img.shields.io/badge/Release-v2.3.1-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.3.1)
+[![Release](https://img.shields.io/badge/Release-v2.3.2-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.3.2)
 [![Stars](https://img.shields.io/github/stars/yuxinlaile/McD-saver?style=flat-square&label=Stars)](https://github.com/yuxinlaile/McD-saver/stargazers)
 [![CI](https://github.com/yuxinlaile/McD-saver/actions/workflows/ci.yml/badge.svg)](https://github.com/yuxinlaile/McD-saver/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Dependencies](https://img.shields.io/badge/Dependencies-None%20(stdlib)-green)
-![Tests](https://img.shields.io/badge/Tests-300%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/Tests-309%20passed-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![Agent Skills](https://img.shields.io/badge/Works%20with-Agent%20Skills%20standard-0A7A72)
 ![MCP](https://img.shields.io/badge/MCP-Streamable%20HTTP-purple)
@@ -115,7 +115,7 @@ order created ≠ paid — payment always happens on McDonald's official page.
 - 401 fails fast; 429 exponential backoff honoring `Retry-After`; 5xx/network auto-retry
 - Scope boundary: focused on pre-order savings decisions — no scraping, auto-ordering or unattended scheduling capabilities
 
-**🧪 Tested**: 300 unit tests covering SSE parsing, token resolution, backoff math,
+**🧪 Tested**: 309 unit tests covering SSE parsing, token resolution, backoff math,
 comparison decisions, combination optimization and CLI exit codes; the full
 `demo.py` pipeline is asserted by `tests/test_demo_pipeline.py` — **the demo
 doubles as a regression test**.
@@ -230,7 +230,7 @@ never commit it, never let it appear in logs. If leaked, re-apply at open.mcd.cn
 scripts/     Core: MCP client, CLI, coupon optimizer, silent-cost audit, version & release tooling
 references/  Playbooks: tool catalog, savings strategies, group-buy comparison, workflows, pitfalls
 docs/        Online calculator and brand assets (demo.html / index.html / banner.svg)
-tests/       300 unit tests plus repository-consistency checks
+tests/       309 unit tests plus repository-consistency checks
 fixtures/    Offline regression data (menu, coupons, orders, points, mall, deals)
 releases/    Release artifacts: English zip + Chinese notes + index per version
 ```
@@ -288,10 +288,10 @@ More troubleshooting: [`references/error-handling.md`](references/error-handling
 
 ## Release notes
 
-Current version **v2.3.1**. The three most recent releases (auto-generated from CHANGELOG):
+Current version **v2.3.2**. The three most recent releases (auto-generated from CHANGELOG):
 
 <!-- release-highlights:start -->
-Recent releases: **v2.3.1** · **v2.3.0** · **v2.2.3**
+Recent releases: **v2.3.2** · **v2.3.1** · **v2.3.0**
 <!-- release-highlights:end -->
 
 Full history in [CHANGELOG.md](CHANGELOG.md); downloads on the
@@ -307,16 +307,22 @@ Every piece of feedback gets read — it is exactly how the calculator keeps imp
 
 ## Contributing
 
-Issues / PRs / Discussions welcome: workflow docs, translation proofreading,
-tool catalog updates (the `tools` subcommand output is authoritative). Full
-process in [CONTRIBUTING.md](CONTRIBUTING.md); real-run evidence template in
-[examples/verified-run.md](examples/verified-run.md). Offline worked examples:
+Issues / PRs / Discussions are all welcome. Three easy ways in:
+
+| Area | Where to start |
+|---|---|
+| **Workflows & docs** | Add a real scenario to `references/workflows.md`; the tool catalog follows the live output of `python scripts/mcd.py tools` |
+| **zh/en proofreading** | Keep README / `SKILL.md` / `references/` aligned; run `python scripts/check_toc.py` afterwards |
+| **Tests & examples** | Add cases under `tests/`; add offline worked examples under `examples/` (one order, three ways to pay; how to read the silent-cost checkup) |
+
+**Before submitting**: `python -m pytest tests/` passes · no tokens or credentials ·
+`references/` and `SKILL.md` updated · CHANGELOG noted · **README zh & en in sync**.
+
+Full process in [CONTRIBUTING.md](CONTRIBUTING.md); real-run evidence template in
+[examples/verified-run.md](examples/verified-run.md); offline worked examples:
 [examples/three-ways.md](examples/three-ways.md) (one order, three ways to pay)
 and [examples/silent-cost-example.md](examples/silent-cost-example.md)
 (how to read the silent-cost checkup).
-
-Before submitting: pytest passes · no tokens or credentials · `references/` and
-`SKILL.md` updated · CHANGELOG noted · **README zh & en in sync**.
 
 ## Disclaimer
 
@@ -342,11 +348,11 @@ If you find this useful, a ⭐ helps more McDonald's regulars discover it:
 
 <div align="center">
 
-[![Star History Chart](https://api.star-history.com/svg?repos=yuxinlaile/McD-saver&type=Date)](https://star-history.com/#yuxinlaile/McD-saver&Date)
+![Star History](docs/assets/star-history.svg)
 
-> The curve is rendered by star-history.com: their service fetches and caches the data
-> periodically, so it can lag the live badge above by hours to a day.
-> **For the current count, trust the Stars badge at the top.**
+> The curve is generated in this repo: `scripts/gen_star_chart.py` renders GitHub star
+> timestamps into an SVG — re-run `python scripts/gen_star_chart.py` any time (needs
+> `GITHUB_TOKEN` or a logged-in `gh` CLI). The Stars badge at the top is the live count.
 
 </div>
 

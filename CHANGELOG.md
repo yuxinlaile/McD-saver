@@ -3,6 +3,22 @@
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 格式，
 版本号遵循项目自定义 `z.x.y` 规则（修订号 ≤3、次版本号 ≤6，超限进位），由 `scripts/version.py` 递增并同步发布文件。
 
+## [2.3.2] - 2026-10-21
+
+Star 曲线改为仓库内自绘，参与贡献段落重写。
+
+### 改进
+
+- **Star 曲线改为自绘**：新增 `scripts/gen_star_chart.py`，从 GitHub API 的打星时间渲染
+  `docs/assets/star-history.svg`（纯标准库，无第三方依赖），README 的 Star History 段落改用该本地图，
+  不再依赖第三方 star-history.com 的服务端缓存。随时可用 `python scripts/gen_star_chart.py` 重算。
+- **参与贡献段落重写**（中英各一处）：改为三类可直接上手的方向（工作流与文档 / 中英校对 / 测试与算例），
+  每项给出具体入口与命令，并保留提交前自查清单。
+
+### 质量
+
+- 300 → 309 项测试全过（新增 9 项：按天累计序列、SVG 渲染、仓库内图表资产与 README 引用守卫）
+
 ## [2.3.1] - 2026-10-21
 
 README 精简与同步守卫。
