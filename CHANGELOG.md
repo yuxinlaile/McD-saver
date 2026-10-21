@@ -20,7 +20,7 @@
 - **`verify_run.py` 覆写入库样例**：默认输出改为 `examples/verified-run.local.md`（`.gitignore` 已覆盖），
   更新入库样例需显式 `--out examples/verified-run.md`；`examples/verified-run.md` 中不可达的 HTML 引用
   改为「本地生成，不入库」。
-- **覆盖率报告数字过期**：按实测（317 项测试 / 79% / 495 行未覆盖）重写 `docs/coverage-report.md`。
+- **覆盖率报告数字过期**：按实测（317 项测试 / 79% / 497 行未覆盖）重写 `docs/coverage-report.md`。
 
 ### 改进
 
