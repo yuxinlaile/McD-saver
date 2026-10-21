@@ -13,7 +13,7 @@
 | 项 | 内容 |
 |---|---|
 | 开发工具 | 腾讯 WorkBuddy（智能体） |
-| 工作目录 | `~/WorkBuddy/<工作区>/maimai-saver`（本机绝对路径，提交前已脱敏） |
+| 工作目录 | `~/Documents/WorkBuddy/<工作区>/mcd-saver`（本机绝对路径，提交前已脱敏） |
 | 运行时 | Python 3.9+，纯标准库、零第三方依赖；前端为单文件 `docs/demo.html`（无 CDN、无构建） |
 | MCP 依赖 | 麦当劳中国官方 MCP Server（`https://mcp.mcd.cn`，Streamable HTTP，Bearer Token 鉴权，限流 600 次/分钟/Token，错误码 401/429） |
 | 赛事 | 麦当劳程序员创意开发大赛（报名 Issue #275） |
