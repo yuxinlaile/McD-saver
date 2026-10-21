@@ -52,7 +52,8 @@ EXPIRING_DAYS = 7
 
 # 常见字段命名变体（按优先级）
 FACE_KEYS = ["parValue", "faceValue", "worth", "face", "discountValue"]
-EXPIRE_KEYS = ["validityEndTime", "validUntil", "endTime", "expireTime", "expireDate"]
+EXPIRE_KEYS = ["validityEndTime", "validUntil", "endTime", "expireTime", "expireDate",
+               "tradeEndDateTime", "tradeDateTime"]
 AMOUNT_KEYS = ["totalAmount", "payable", "payAmount", "amount", "totalPrice", "total"]
 TIME_KEYS = ["createTime", "orderTime", "ctime", "time", "orderDate"]
 NAME_KEYS = ["name", "title", "dishName", "productName"]
@@ -96,16 +97,26 @@ def _unwrap(raw: Any) -> List[Dict[str, Any]]:
     空数据的中文文案（如「暂无可用优惠券」）会被识别为**空列表**，而不是被当成一条记录。
     """
     data = raw
-    if isinstance(raw, dict) and "content" in raw:
-        texts = [c.get("text", "") for c in raw["content"] if isinstance(c, dict) and c.get("type") == "text"]
-        for text in texts:
-            parsed = _parse_json_payload(text)
-            if parsed is not None:
-                data = parsed
-                break
-        else:
-            return []  # 空态文案或非 JSON 文本：没有记录
+    if isinstance(raw, dict):
+        # 官方 MCP 的结构化载荷优先：券的 couponId/couponCode 只在 structuredContent 里，
+        # 文本 content 是给人看的 Markdown 表格（不含这些字段）。
+        structured = raw.get("structuredContent")
+        if isinstance(structured, dict) and structured.get("data") is not None:
+            data = structured
+        elif "content" in raw:
+            texts = [c.get("text", "") for c in raw["content"] if isinstance(c, dict) and c.get("type") == "text"]
+            for text in texts:
+                parsed = _parse_json_payload(text)
+                if parsed is not None:
+                    data = parsed
+                    break
+            else:
+                return []  # 空态文案或非 JSON 文本：没有记录
     if isinstance(data, dict):
+        # 下探一层：官方常把记录放在 data.coupons / data.list 之类的一层嵌套里
+        inner = data.get("data")
+        if isinstance(inner, dict):
+            data = inner
         for key in ("data", "coupons", "orders", "list", "records", "items"):
             value = data.get(key)
             if isinstance(value, list):
@@ -174,6 +185,12 @@ def _coupon_threshold(coupon: Dict[str, Any]) -> Optional[float]:
 
 def _coupon_face(coupon: Dict[str, Any]) -> Optional[float]:
     face = _parse_amount(_first_key(coupon, FACE_KEYS))
+    if face is None:
+        # 官方 query-my-coupons 的结构：{"discountInfo": {"discountValue": "9.9", ...}}
+        # discountValue 是「用券价格」（元），不是面额
+        info = coupon.get("discountInfo")
+        if isinstance(info, dict):
+            face = _parse_amount(info.get("discountValue"))
     if face is not None:
         return face
     title = str(coupon.get("title") or coupon.get("couponName") or "")

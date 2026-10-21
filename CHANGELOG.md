@@ -3,6 +3,43 @@
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 格式，
 版本号遵循项目自定义 `z.x.y` 规则（修订号 ≤3、次版本号 ≤6，超限进位），由 `scripts/version.py` 递增并同步发布文件。
 
+## [2.2.3] - 2026-10-21
+
+真实 Token 实测打通带券核价，收紧 Token 外发边界，并修正 Agensi 链接。
+
+### 修复
+
+- **带券核价此前从未真正生效**（用真实 Token + 已领取的券实测定位）：
+  - 券必须**同时**给出 `couponId` 与 `couponCode`，且挂在 `items[].productCode` 对应条目上
+    （只给其一 → 服务端 code 600010「使用优惠券需要couponId和couponCode」；
+    挂在顶层 → 返回成功但**券被静默忽略**，价格不变）；
+  - 实测：麦咖啡™冰美式中杯 无券 ¥11.90 → 用券 **¥9.90**（与券面价一致）；
+  - 券的结构化字段只在 MCP 响应的 `structuredContent` 里（`id`/`code`/`tradeEndDateTime`/
+    `discountInfo.discountValue`），文本 content 是给人看的 Markdown 表格、不含这些字段；
+    `tool_json()` 与 `_unwrap()` 改为**优先读 structuredContent**（并支持 `data.coupons` 一层嵌套）。
+- **Token 外发边界收紧**：非官方 MCP 地址默认被拒绝（`--url` / `MCD_MCP_URL`），
+  需显式 `--allow-non-official-url` 才会放行并打印告警；官方地址 `mcp.mcd.cn` 放行。
+  此前一次误配置即可把 Bearer Token 发往任意主机。
+- `deal_compare clear --yes` 只允许作用于本工具创建的券库（含 id 的券记录数组），
+  否则拒绝执行并说明原因——避免路径写错把任意 JSON 覆写成空数组；确认时打印绝对路径。
+
+### 新增
+
+- `optimizer plan` 新增 `--be-code` / `--need-tableware` / `--with-order`：
+  外送与得来速场景必须带 beCode，餐具与随单购不再写死默认值。
+- 外送场景实测结论写入 `references/mcp-pitfalls.md`：同一门店到店菜单 99 项、外送仅 60 项，
+  商品编码也不同——用错菜单会得到「商品已售罄或不可售」。
+
+### 文档
+
+- Agensi 链接修正为 `https://www.agensi.io/skills/mcd-saver-mcdonald-s-china-order-savings-check`
+  （README 中英各一处，原链接指向错误的创作者页）；
+- README 的语言切换链接前置：中文版首行以 [English] 开头，英文版以 [简体中文] 开头。
+
+### 质量
+
+- 267 → 283 项测试全过（新增 16 项：地址白名单、带券契约、结构化载荷优先、clear 保护）
+
 ## [2.2.2] - 2026-10-21
 
 核验材料合并、外部数据源入口改造、试算页真实菜单导入修复。

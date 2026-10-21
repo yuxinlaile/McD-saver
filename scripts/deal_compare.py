@@ -109,6 +109,26 @@ def _load_from_provider(provider_path: str) -> Optional[List[Dict[str, Any]]]:
     return None
 
 
+def _is_deal_library(path: str) -> bool:
+    """判断文件是否是本工具创建的券库（JSON 数组，且每条记录都有 id）。
+
+    用于保护破坏性操作：``clear`` 只允许作用于券库，避免路径写错时把任意
+    JSON 文件覆写成空数组。
+    """
+    if not os.path.isfile(path):
+        return False
+    try:
+        with open(path, "r", encoding="utf-8") as fh:
+            data = json.load(fh)
+    except (json.JSONDecodeError, OSError):
+        return False
+    if not isinstance(data, list):
+        return False
+    if not data:
+        return True  # 空券库
+    return all(isinstance(item, dict) and "id" in item for item in data)
+
+
 def _load_deals(path: str, provider_path: Optional[str] = None) -> List[Dict[str, Any]]:
     """加载团购券数据。
 
@@ -411,6 +431,17 @@ def main(argv: Optional[List[str]] = None) -> int:
         if not args.yes:
             print("此操作将清空券库，请追加 --yes 确认。", file=sys.stderr)
             return EXIT_USAGE
+        # 清空是破坏性操作：只允许作用于「本工具创建的券库」，
+        # 避免路径写错时把任意 JSON 文件覆写成空数组
+        target = os.path.abspath(os.path.expanduser(args.file))
+        if not _is_deal_library(target):
+            print(
+                "错误: {0} 不是本工具的券库（应为含 id 字段的券记录 JSON 数组），已拒绝清空。"
+                "如确需清空该文件，请自行删除。".format(target),
+                file=sys.stderr,
+            )
+            return EXIT_USAGE
+        print("即将清空券库：{0}（{1} 条记录）".format(target, len(deals)))
         _save_deals(args.file, [])
         print("券库已清空。")
         return EXIT_OK

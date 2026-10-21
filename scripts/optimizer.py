@@ -155,15 +155,21 @@ def _to_yuan(raw: float, hint: Optional[float] = None) -> float:
 def make_mcp_pricer(
     client: Any,
     local_fn: Optional[Callable[[Cart, Optional[Dict[str, Any]]], Optional[float]]] = None,
+    need_tableware: bool = False,
+    with_order: Optional[Dict[str, Any]] = None,
+    be_code: str = "",
 ) -> Callable[[Cart, Optional[Dict[str, Any]]], Optional[float]]:
     """真实计价模式：调用官方 calculate-price（含官方促销与配送费规则）。
 
-    2026-10-20 按真实响应修正：
+    2026-10-20 / 10-21 按真实响应修正：
     - 请求体字段是 ``items``（不是 ``products``），且必填 ``beType`` / ``needTableware`` /
       ``withOrder``；漏字段服务端直接拒收；
     - 金额字段是 ``price``（旧实现只找 payable/payAmount/total 等，永远取不到值）；
     - 金额单位是分，见 :func:`_to_yuan`；
-    - 券按 ``couponCode`` / ``couponId`` 挂在**商品条目**上，不是顶层参数。
+    - 券必须**同时**给出 ``couponId`` 与 ``couponCode`` 并挂在**商品条目**上
+      （只给其一 → code 600010；挂在顶层 → 服务端静默忽略，券不生效）；
+    - **外送（orderType=2）需 beType=2 + beCode，且菜单与到店不同**
+      （实测同一门店：到店 99 项、外送 60 项，商品编码也不相同）。
     """
 
     def price(cart: Cart, coupon: Optional[Dict[str, Any]]) -> Optional[float]:
@@ -171,31 +177,37 @@ def make_mcp_pricer(
                   "quantity": max(1, int(entry.get("quantity", 1) or 1))}
                  for entry in cart.entries]
         if coupon and items:
-            coupon_code = str(coupon.get("couponCode") or "")
-            coupon_id = str(coupon.get("couponId") or "")
+            # 券必须**同时**给出 couponId 与 couponCode，并挂在**商品条目**上——
+            # 2026-10-21 实测：只给其一或挂在顶层都会被服务端拒收（code 600010），
+            # 顶层挂载虽然返回成功但券被忽略（价格不变）。
+            coupon_code = str(coupon.get("couponCode") or coupon.get("code") or "")
+            coupon_id = str(coupon.get("couponId") or coupon.get("id") or "")
             if coupon_code or coupon_id:
                 scope = {p.get("productCode") for p in (coupon.get("products") or [])
                          if isinstance(p, dict)}
-                field = "couponCode" if coupon_code else "couponId"
-                value = coupon_code or coupon_id
-                attached = False
+                target = None
                 for item in items:
                     if not scope or item["productCode"] in scope:
-                        item[field] = value
-                        attached = True
-                        if scope:
-                            break
-                if not attached:
-                    items[0][field] = value
+                        target = item
+                        break
+                if target is None:
+                    target = items[0]
+                if coupon_id:
+                    target["couponId"] = coupon_id
+                if coupon_code:
+                    target["couponCode"] = coupon_code
         order_type = getattr(client, "_order_type", 1) or 1
         args: Dict[str, Any] = {
             "storeCode": getattr(client, "_store_code", ""),
             "orderType": order_type,
             "beType": getattr(client, "_be_type", None) or (2 if int(order_type) == 2 else 1),
-            "needTableware": False,
-            "withOrder": {},
+            "needTableware": bool(need_tableware),
+            "withOrder": with_order if isinstance(with_order, dict) else {},
             "items": items,
         }
+        if be_code:
+            # 外送（orderType=2）与得来速（beType=5）必须带 beCode
+            args["beCode"] = be_code
         result = client.call_tool("calculate-price", args)
         payload = tool_json(result)
         data = payload.get("data", payload) if isinstance(payload, dict) else {}
@@ -555,6 +567,14 @@ def build_parser() -> argparse.ArgumentParser:
                       help="真实计价模式：调用官方 calculate-price（需要 MCP Token）")
     plan.add_argument("--store-code", default="", help="真实计价模式必填：门店编码")
     plan.add_argument("--order-type", type=int, default=1, help="1=到店(默认) 2=外送")
+    plan.add_argument("--be-code", default="",
+                      help="外送/得来速场景的业务编码（由 query-nearby-stores / "
+                           "delivery-query-stores 返回；到店自取不需要）")
+    plan.add_argument("--need-tableware", action="store_true",
+                      help="需要餐具（默认不需要，官方计价结果按此计算）")
+    plan.add_argument("--with-order", default="",
+                      help="随单购参数（JSON 原文，如 "
+                           "'{\"cardType\":2,\"cardId\":\"...\"}'）")
     plan.add_argument("--top", type=int, default=3, help="输出前 N 个方案（默认 3）")
     plan.add_argument("--no-deals", action="store_true",
                       help="不自动衔接团购终局建议（默认：本地券库非空时自动输出）")
@@ -600,8 +620,22 @@ def run_plan(args: argparse.Namespace) -> int:
         client._store_code = args.store_code or menu.get("storeCode", "")
         client._order_type = args.order_type or menu.get("orderType", 1)
         client._be_type = 2 if int(client._order_type) == 2 else 1
+        # 随单购参数：用户给 JSON 原文，非法则明确报错（不静默忽略）
+        with_order = {}
+        if getattr(args, "with_order", ""):
+            try:
+                with_order = json.loads(args.with_order)
+            except (ValueError, TypeError):
+                print("错误: --with-order 需为合法 JSON。", file=sys.stderr)
+                return EXIT_USAGE
         # 传入本地估算函数：用于判定官方返回的金额单位是「分」还是「元」
-        price_fn = make_mcp_pricer(client, local_fn=make_local_pricer(menu))
+        price_fn = make_mcp_pricer(
+            client,
+            local_fn=make_local_pricer(menu),
+            need_tableware=bool(getattr(args, "need_tableware", False)),
+            with_order=with_order,
+            be_code=str(getattr(args, "be_code", "") or ""),
+        )
         mode_label = "真实计价模式（官方 calculate-price）"
     else:
         price_fn = make_local_pricer(menu)

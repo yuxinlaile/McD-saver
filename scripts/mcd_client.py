@@ -68,8 +68,8 @@ DEFAULT_TOKEN_FILE = "~/.mcd_mcp_token"
 # MCP 协议版本（Streamable HTTP 传输规范）
 PROTOCOL_VERSION = "2025-03-26"
 
-CLIENT_INFO = {"name": "maimai-saver", "version": "2.2.2"}
-USER_AGENT = "maimai-saver/2.2.2"
+CLIENT_INFO = {"name": "maimai-saver", "version": "2.2.3"}
+USER_AGENT = "maimai-saver/2.2.3"
 
 
 # ---------------------------------------------------------------------------
@@ -108,6 +108,24 @@ class McpToolError(McpError):
     def __init__(self, message: str, data: Any = None):
         super().__init__(message)
         self.data = data
+
+
+class EndpointNotAllowedError(McpError):
+    """请求地址不在官方白名单内——防止带 MCP Token 的请求被发往任意主机。"""
+
+
+# 官方 MCP Server 主机白名单：默认只允许这些地址携带 Token 通信
+OFFICIAL_HOSTS = ("mcp.mcd.cn",)
+
+
+def endpoint_host(url: str) -> str:
+    """取 URL 的主机名（小写）；解析失败返回空串。"""
+    try:
+        import urllib.parse
+
+        return (urllib.parse.urlparse(url).hostname or "").lower()
+    except Exception:  # noqa: BLE001 - 解析失败按空串处理
+        return ""
 
 
 # ---------------------------------------------------------------------------
@@ -266,11 +284,18 @@ def _json_from_text(text: str) -> Any:
 def tool_json(result: Any) -> Any:
     """从 tools/call 的结果里取出 JSON 载荷（取不到时返回 None）。
 
-    官方 MCP 的工具返回常见形态是「Markdown 字段说明 + `## Original Response` 后的真实 JSON」，
-    且 JSON 之后可能还跟着展示说明文字。调用方要拿结构化数据时应使用本函数，
-    不要直接对 ``result["data"]`` 取值。
+    优先级：
+    1. ``structuredContent``——官方 MCP 的结构化载荷。**券的 couponId/couponCode
+       等关键字段只在这里**（文本 content 是给人看的 Markdown 表格，不含这些字段）；
+    2. 文本 content：常见形态是「Markdown 字段说明 + `## Original Response` 后的真实 JSON」，
+       且 JSON 之后可能还跟着展示说明文字。
+
+    调用方要拿结构化数据时应使用本函数，不要直接对 ``result["data"]`` 取值。
     """
     if isinstance(result, dict):
+        structured = result.get("structuredContent")
+        if isinstance(structured, dict) and structured.get("data") is not None:
+            return structured
         content = result.get("content")
         if isinstance(content, list):
             for item in content:
@@ -314,12 +339,28 @@ class McdMcpClient:
         max_retries: int = DEFAULT_MAX_RETRIES,
         verbose: bool = False,
         rate_limit: int = DEFAULT_RATE_LIMIT,
+        allow_non_official_url: bool = False,
     ) -> None:
         if not token:
             raise AuthError(
                 "缺少 MCP Token。请前往 https://open.mcd.cn/mcp 登录并申请 Token，"
                 "然后通过环境变量 MCD_MCP_TOKEN、Token 文件（~/.mcd_mcp_token）"
                 "或 --token 参数提供。"
+            )
+        # Token 只能发往官方主机：请求头里带着 Bearer Token，
+        # 一次误配置的 --url / MCD_MCP_URL 就可能把凭证送到第三方手里。
+        host = endpoint_host(base_url)
+        if host and host not in OFFICIAL_HOSTS:
+            if not allow_non_official_url:
+                raise EndpointNotAllowedError(
+                    "拒绝向非官方地址 {0} 发送请求：请求头中含 MCP Token。"
+                    "官方地址为 https://mcp.mcd.cn；确需自建代理或本地调试时，"
+                    "请显式加 --allow-non-official-url。".format(host)
+                )
+            print(
+                "警告: 正在向非官方 MCP 地址 {0} 发送请求——请求头中包含你的 MCP Token，"
+                "请确认该地址可信。".format(host),
+                file=sys.stderr,
             )
         self.token = token
         self.base_url = base_url.rstrip("/")

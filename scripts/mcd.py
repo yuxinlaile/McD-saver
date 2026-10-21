@@ -51,6 +51,7 @@ from typing import Any, Dict, List, Optional
 try:  # 兼容“直接运行脚本”与“作为模块运行”两种方式
     from mcd_client import (
         AuthError,
+        EndpointNotAllowedError,
         McpError,
         McpToolError,
         RateLimitError,
@@ -64,6 +65,7 @@ except ImportError:  # pragma: no cover - 直接以路径方式运行脚本时
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     from mcd_client import (
         AuthError,
+        EndpointNotAllowedError,
         McpError,
         McpToolError,
         RateLimitError,
@@ -133,7 +135,13 @@ def build_parser() -> argparse.ArgumentParser:
     common.add_argument(
         "--url",
         default=argparse.SUPPRESS,
-        help="MCP Server 地址（默认 https://mcp.mcd.cn）",
+        help="MCP Server 地址（默认 https://mcp.mcd.cn；非官方地址需加 --allow-non-official-url）",
+    )
+    common.add_argument(
+        "--allow-non-official-url",
+        action="store_true",
+        default=argparse.SUPPRESS,
+        help="允许向非官方 MCP 地址发送请求（请求头含 Token，请确认地址可信）",
     )
     common.add_argument(
         "--timeout",
@@ -325,6 +333,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         "timeout": getattr(args, "timeout", 30.0),
         "max_retries": getattr(args, "retries", 3),
         "verbose": getattr(args, "verbose", False),
+        "allow_non_official_url": bool(getattr(args, "allow_non_official_url", False)),
     }
     if getattr(args, "url", None):
         client_kwargs["base_url"] = args.url
@@ -334,6 +343,9 @@ def main(argv: Optional[List[str]] = None) -> int:
     except AuthError as exc:
         print("鉴权错误: {0}".format(exc), file=sys.stderr)
         return EXIT_AUTH
+    except EndpointNotAllowedError as exc:
+        print("地址校验失败: {0}".format(exc), file=sys.stderr)
+        return EXIT_TOOL_ERROR
 
     try:
         if args.command == "check":
