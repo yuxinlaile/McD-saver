@@ -802,7 +802,7 @@ function makeShareCard(preview) {
   if (preview) return dataUrl;   // 测试用：直接返回 dataURL
   const a = document.createElement("a");
   a.href = dataUrl;
-  a.download = "maimai-savings-card.png";
+  a.download = "mcd-savings-card.png";
   document.body.appendChild(a); a.click(); a.remove();
   toast("分享卡已生成，发出去吧 🍟");
   return dataUrl;

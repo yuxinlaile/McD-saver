@@ -20,7 +20,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-$skillName  = 'maimai-saver'
+$skillName  = 'mcd-saver'
 $sourceDir  = $PSScriptRoot
 $targetRoot = @{
     workbuddy = Join-Path $HOME '.workbuddy\skills'

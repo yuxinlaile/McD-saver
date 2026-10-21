@@ -85,7 +85,7 @@ class TestApplyVersion:
         import io as _io
         (tmp_path / "scripts").mkdir()
         (tmp_path / "scripts" / "mcd_client.py").write_text(
-            'CLIENT_INFO = {"name": "m", "version": "2.1.1"}\nUA = "maimai-saver/2.1.1"\n', encoding="utf-8")
+            'CLIENT_INFO = {"name": "m", "version": "2.1.1"}\nUA = "mcd-saver/2.1.1"\n', encoding="utf-8")
         (tmp_path / "SKILL.md").write_text("version: 2.1.1\n", encoding="utf-8")
         (tmp_path / "README.md").write_text(
             "Release-v2.1.1-9a3412 x releases/tag/v2.1.1 当前版本 **v2.1.1**\n", encoding="utf-8")

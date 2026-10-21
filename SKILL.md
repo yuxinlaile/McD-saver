@@ -1,7 +1,7 @@
 ---
-name: maimai-saver
+name: mcd-saver
 description: 麦麦省钱助手——基于麦当劳中国官方 MCP Server 的省钱点餐技能。当用户提到麦当劳、麦乐送、麦麦、点麦当劳、想省钱/薅羊毛/领券/优惠、查优惠怎么用、积分兑换、麦麦商城、积分抽奖、麦当劳活动，或询问"怎么点麦当劳最划算"时使用本技能。核心能力：在下单前自动完成"领券→选券→比价→积分抵扣评估"，用 35 个官方工具帮用户以最低价格吃到同样的麦当劳。
-version: 2.2.3
+version: 2.3.0
 license: MIT
 ---
 
@@ -20,8 +20,8 @@ Streamable HTTP 协议）为用户提供**以省钱为核心目标**的点餐、
 WorkBuddy（`~/.workbuddy/skills/`）、Claude Code（`~/.claude/skills/` 或
 `.claude/skills/`）、Cursor（`.cursor/skills/` 或 `~/.cursor/skills/`，
 兼容 `.agents/skills/`）、OpenAI Codex（`.agents/skills/` 或
-`~/.agents/skills/`）直接安装。各平台安装步骤、显式调用方式（`/maimai-saver`
-或 `$maimai-saver`）与 MCP 配置位置见 `references/agent-skill-installation.md`。
+`~/.agents/skills/`）直接安装。各平台安装步骤、显式调用方式（`/mcd-saver`
+或 `$mcd-saver`）与 MCP 配置位置见 `references/agent-skill-installation.md`。
 
 > ⚠️ 本技能为社区开源项目，与麦当劳公司无关联、无官方背书。
 > 使用麦当劳 MCP 服务须遵守麦当劳中国《使用条款》及《麦当劳 MCP 服务规则》，
@@ -259,7 +259,7 @@ python scripts/mcd.py call query-my-account --raw > points.json
 ## 目录结构
 
 ```
-maimai-saver/
+mcd-saver/
 ├── SKILL.md                            # 本文件：省钱顾问方法论与技能入口
 ├── README.md / README_EN.md            # 项目说明（中/英，结构与锚点逐位对齐）
 ├── CHANGELOG.md                        # 版本变更记录（Keep a Changelog 格式）
@@ -311,5 +311,5 @@ maimai-saver/
 │   └── verified-run.md                 # 真实环境验证记录（脱敏，可复现）
 ├── fixtures/                           # 7 份离线回归数据（菜单/券/订单/积分/团购等）
 ├── releases/                           # 发布产物：每版英文 zip + 中文说明 + 索引
-└── tests/                              # pytest 单元测试（283 个用例 + 一致性校验）
+└── tests/                              # pytest 单元测试（290 个用例 + 一致性校验）
 ```

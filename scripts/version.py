@@ -135,7 +135,7 @@ def apply_version(new_version: str) -> list[str]:
     t = p.read_text(encoding="utf-8")
     old_v = current_repo_version()
     t = t.replace(f'"version": "{old_v}"', f'"version": "{new_version}"')
-    t = t.replace(f"maimai-saver/{old_v}", f"maimai-saver/{new_version}")
+    t = t.replace(f"mcd-saver/{old_v}", f"mcd-saver/{new_version}")
     _write_text(p, t)
     updated.append("scripts/mcd_client.py")
 

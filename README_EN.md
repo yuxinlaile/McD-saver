@@ -7,11 +7,12 @@
 **Let AI get you McDonald's for less** — Agent Skill + standalone CLI in one repo
 
 [![Live Demo](https://img.shields.io/badge/%F0%9F%8E%AE_Live_Demo-no_sign--in-FFC72C?style=flat-square)](https://yuxinlaile.github.io/McD-saver/demo.html)
-[![Release](https://img.shields.io/badge/Release-v2.2.3-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.2.3)
+[![Release](https://img.shields.io/badge/Release-v2.3.0-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.3.0)
+[![Stars](https://img.shields.io/github/stars/yuxinlaile/McD-saver?style=flat-square&label=Stars)](https://github.com/yuxinlaile/McD-saver/stargazers)
 [![CI](https://github.com/yuxinlaile/McD-saver/actions/workflows/ci.yml/badge.svg)](https://github.com/yuxinlaile/McD-saver/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Dependencies](https://img.shields.io/badge/Dependencies-None%20(stdlib)-green)
-![Tests](https://img.shields.io/badge/Tests-283%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/Tests-290%20passed-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![Agent Skills](https://img.shields.io/badge/Works%20with-Agent%20Skills%20standard-0A7A72)
 ![MCP](https://img.shields.io/badge/MCP-Streamable%20HTTP-purple)
@@ -46,7 +47,7 @@
 
 ## Project overview
 
-McD Saver (package name `maimai-saver`) is a McDonald's China ordering assistant with one goal — saving money.
+McD Saver (package name `mcd-saver`) is a McDonald's China ordering assistant with one goal — saving money.
 **It does not order for you; it enforces a savings check before every order**:
 claim all claimable coupons, pick the best coupon for your cart, run a
 dual-price comparison via the official `calculate-price`, evaluate points
@@ -115,7 +116,7 @@ order created ≠ paid — payment always happens on McDonald's official page.
 - 401 fails fast; 429 exponential backoff honoring `Retry-After`; 5xx/network auto-retry
 - Scope boundary: focused on pre-order savings decisions — no scraping, auto-ordering or unattended scheduling capabilities
 
-**🧪 Tested**: 283 unit tests covering SSE parsing, token resolution, backoff math,
+**🧪 Tested**: 290 unit tests covering SSE parsing, token resolution, backoff math,
 comparison decisions, combination optimization and CLI exit codes; the full
 `demo.py` pipeline is asserted by `tests/test_demo_pipeline.py` — **the demo
 doubles as a regression test**.
@@ -148,7 +149,7 @@ online calculator don't need one)
 | Option | Best for | How |
 |---|---|---|
 | **Option 1 · MCP client** | WorkBuddy / Cursor / Claude Code users | Replace `${MCD_MCP_TOKEN}` in [`config/mcp.example.json`](config/mcp.example.json) with your token, paste into your client's MCP settings (locations under [Configuration](#configuration)), enable `mcd-mcp` |
-| **Option 2 · Agent Skill** | Agent-triggered savings checks | `git clone https://github.com/yuxinlaile/McD-saver.git ~/.claude/skills/maimai-saver` (Cursor: `~/.cursor/skills/` · Codex: `~/.agents/skills/` · WorkBuddy: `~/.workbuddy/skills/`, or run the bundled `install.ps1` on Windows), plus the MCP connection from option 1; per-platform details in [agent-skill-installation.md](references/agent-skill-installation.md) |
+| **Option 2 · Agent Skill** | Agent-triggered savings checks | `git clone https://github.com/yuxinlaile/McD-saver.git ~/.claude/skills/mcd-saver` (Cursor: `~/.cursor/skills/` · Codex: `~/.agents/skills/` · WorkBuddy: `~/.workbuddy/skills/`, or run the bundled `install.ps1` on Windows), plus the MCP connection from option 1; per-platform details in [agent-skill-installation.md](references/agent-skill-installation.md) |
 | **Option 3 · Standalone CLI** | Scripts and debugging, no client | `export MCD_MCP_TOKEN="your-token"` (or write it to `~/.mcd_mcp_token`), then `python scripts/mcd.py check` |
 
 Once installed, the agent follows `SKILL.md` and obeys four conduct rules:
@@ -214,7 +215,8 @@ python scripts/deal_compare.py compare --mcd-face 48.5 --mcd-price 38.5
 | `MCD_MCP_TOKEN` | MCP Token (highest priority) |
 | `MCD_MCP_TOKEN_FILE` | Token file path, default `~/.mcd_mcp_token` |
 | `MCD_MCP_URL` | MCP Server URL, default `https://mcp.mcd.cn`; **non-official hosts are rejected by default** (the request carries your Token) — pass `--allow-non-official-url` to override, which prints a warning |
-| `MAIMAI_DEALS_FILE` | Deal library path, default `~/.maimai_saver/deals.json` |
+| `MCD_DEALS_FILE` | Deal library path, default `~/.mcd_saver/deals.json` (legacy `MAIMAI_DEALS_FILE` still honored, lower priority) |
+| `MCD_DATA_DIR` | Deal library root, default `~/.mcd_saver` (legacy `MAIMAI_DATA_DIR` still honored) |
 
 **MCP client locations**: WorkBuddy `~/.workbuddy/mcp.json` · Cursor Settings → Tools & MCP ·
 Cherry Studio / Trae / VSCode / Kiro own MCP settings pages · Codex `[mcp_servers.mcd-mcp]`
@@ -229,7 +231,7 @@ never commit it, never let it appear in logs. If leaked, re-apply at open.mcd.cn
 scripts/     Core: MCP client, CLI, coupon optimizer, silent-cost audit, version & release tooling
 references/  Playbooks: tool catalog, savings strategies, group-buy comparison, workflows, pitfalls
 docs/        Online calculator and brand assets (demo.html / index.html / banner.svg)
-tests/       283 unit tests plus repository-consistency checks
+tests/       290 unit tests plus repository-consistency checks
 fixtures/    Offline regression data (menu, coupons, orders, points, mall, deals)
 releases/    Release artifacts: English zip + Chinese notes + index per version
 ```
@@ -287,7 +289,7 @@ More troubleshooting: [`references/error-handling.md`](references/error-handling
 
 ## Release notes
 
-Current version **v2.2.3**. Recent highlights:
+Current version **v2.3.0**. Recent highlights:
 | Version | Highlights |
 |---|---|
 | **v2.2.0** | 171→245 tests · 76% coverage · docs consistency in CI · JSON-RPC error-code fix |
@@ -371,6 +373,10 @@ If you find this useful, a ⭐ helps more McDonald's regulars discover it:
 <div align="center">
 
 [![Star History Chart](https://api.star-history.com/svg?repos=yuxinlaile/McD-saver&type=Date)](https://star-history.com/#yuxinlaile/McD-saver&Date)
+
+> The curve is rendered by star-history.com: their service fetches and caches the data
+> periodically, so it can lag the live badge above by hours to a day.
+> **For the current count, trust the Stars badge at the top.**
 
 </div>
 

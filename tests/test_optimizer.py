@@ -261,7 +261,7 @@ class TestCrossChannelSection:
                   "time": "limited", "valid_until": "2026-11-30", "notes": ""}]
         f = tmp_path / "deals.json"
         f.write_text(json.dumps(deals), encoding="utf-8")
-        monkeypatch.setenv("MAIMAI_DEALS_FILE", str(f))
+        monkeypatch.setenv("MCD_DEALS_FILE", str(f))
 
     def _result(self, baseline, payable):
         class P:
@@ -287,7 +287,7 @@ class TestCrossChannelSection:
                   "time": "limited", "valid_until": "2026-11-30", "notes": ""}]
         f = tmp_path / "deals.json"
         f.write_text(json.dumps(deals), encoding="utf-8")
-        monkeypatch.setenv("MAIMAI_DEALS_FILE", str(f))
+        monkeypatch.setenv("MCD_DEALS_FILE", str(f))
         text = cross_channel_section(self._result(43.5, 30.0))
         assert "官方渠道（含券）已更优" in text
 
@@ -295,12 +295,12 @@ class TestCrossChannelSection:
         from optimizer import cross_channel_section
         f = tmp_path / "deals.json"
         f.write_text('{"deals": []}', encoding="utf-8")
-        monkeypatch.setenv("MAIMAI_DEALS_FILE", str(f))
+        monkeypatch.setenv("MCD_DEALS_FILE", str(f))
         assert cross_channel_section(self._result(43.5, 33.5)) == ""
 
     def test_no_deals_file_returns_empty(self, tmp_path, monkeypatch):
         from optimizer import cross_channel_section
-        monkeypatch.setenv("MAIMAI_DEALS_FILE", str(tmp_path / "none.json"))
+        monkeypatch.setenv("MCD_DEALS_FILE", str(tmp_path / "none.json"))
         assert cross_channel_section(self._result(43.5, 33.5)) == ""
 
     def test_zero_baseline_returns_empty(self, tmp_path, monkeypatch):

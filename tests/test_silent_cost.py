@@ -226,7 +226,7 @@ class TestHtmlReport:
         html = render_html(coupons, orders, analyze_points(DEMO_POINTS_DATA),
                            analyze_mall(DEMO_MALL_DATA), schedule_coupons(coupons, orders))
         assert "【一】临期券" in html and "【二】消费画像" in html and "【三】积分体检" in html
-        assert "注定过期" in html and "maimai-saver" in html
+        assert "注定过期" in html and "mcd-saver" in html
         assert "http://" not in html.replace("http://www.w3.org", "")  # 零外部资源
         assert "<script" not in html  # 无脚本，纯静态
 

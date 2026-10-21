@@ -3,6 +3,25 @@
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 格式，
 版本号遵循项目自定义 `z.x.y` 规则（修订号 ≤3、次版本号 ≤6，超限进位），由 `scripts/version.py` 递增并同步发布文件。
 
+## [2.3.0] - 2026-10-21
+
+品牌统一与徽章调整。
+
+### 改进
+
+- **包名 / 技能名 / 客户端标识统一为 `mcd-saver`**：包名（`pyproject.toml`）、技能名
+  （`SKILL.md` frontmatter）、`mcd_client.CLIENT_INFO` 与 `USER_AGENT`、各平台安装路径示例
+  （`references/agent-skill-installation.md`）、试算页导出图文件名、报告页脚。
+- **数据目录与券库环境变量统一**：数据目录 `~/.mcd_saver`；环境变量 `MCD_DEALS_FILE`、
+  `MCD_DATA_DIR`。旧名 `MAIMAI_DEALS_FILE` / `MAIMAI_DATA_DIR` 仍然生效，优先级低于新名。
+- **README 顶部新增实时 Stars 徽章**（shields.io，每次读取为真值）；Star History 曲线由
+  star-history.com 服务端缓存生成、数据存在滞后，图表下方已注明。
+- 新增 `tests/test_brand_rename.py`（7 项）：身份字段用新名、新旧环境变量优先级、旧名扫描守卫。
+
+### 清理
+
+- 移除内部出图脚本与产物（分享卡图片不入库，投放素材不随源码分发）。
+
 ## [2.2.3] - 2026-10-21
 
 真实 Token 实测打通带券核价，收紧 Token 外发边界，并修正 Agensi 链接。

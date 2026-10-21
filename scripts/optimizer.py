@@ -402,7 +402,7 @@ def cross_channel_section(result: Dict[str, Any], deals_path: Optional[str] = No
     """官方最优方案自动衔接团购终局建议（v2.0.3）。
 
     复用 deal_compare.compare_deals 的同口径折算：以无券直点为原价口径、
-    最优实付为官方可比价基准；本地券库（MAIMAI_DEALS_FILE 或默认路径）
+    最优实付为官方可比价基准；本地券库（MCD_DEALS_FILE 或默认路径）
     存在且非空时输出「官方 vs 团购」结论，否则返回空串。估算标注不省略。
     """
     baseline = result.get("baseline")
@@ -415,7 +415,11 @@ def cross_channel_section(result: Dict[str, Any], deals_path: Optional[str] = No
     try:
         from deal_compare import _load_deals, compare_deals
         deals = _load_deals(deals_path) if deals_path else _load_deals(
-            os.environ.get("MAIMAI_DEALS_FILE", str(Path.home() / ".maimai_saver" / "deals.json")))
+            os.environ.get(
+                "MCD_DEALS_FILE",
+                os.environ.get(
+                    "MAIMAI_DEALS_FILE",
+                    str(Path.home() / ".mcd_saver" / "deals.json"))))
     except Exception:
         return ""
     if not deals:

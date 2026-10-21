@@ -17,7 +17,7 @@
 
 数据文件
 --------
-默认存储于 ``~/.maimai_saver/deals.json``，可用环境变量 ``MAIMAI_DEALS_FILE``
+默认存储于 ``~/.mcd_saver/deals.json``，可用环境变量 ``MCD_DEALS_FILE``
 或 ``--file`` 参数覆盖。
 
 子命令
@@ -57,7 +57,7 @@ EXIT_EMPTY = 2
 
 DEFAULT_DEALS_FILE = os.path.join(
     os.path.expanduser(
-        os.environ.get("MAIMAI_DATA_DIR", "~/.maimai_saver")
+        os.environ.get("MCD_DATA_DIR", os.environ.get("MAIMAI_DATA_DIR", "~/.mcd_saver"))
     ),
     "deals.json",
 )
@@ -88,7 +88,7 @@ def _load_from_provider(provider_path: str) -> Optional[List[Dict[str, Any]]]:
     try:
         import importlib.util
 
-        spec = importlib.util.spec_from_file_location("maimai_deals_provider", module_file)
+        spec = importlib.util.spec_from_file_location("mcd_deals_provider", module_file)
         if spec is None or spec.loader is None:
             print("警告: 无法加载外部数据源模块（{0}），已忽略。".format(module_file), file=sys.stderr)
             return None
@@ -137,7 +137,7 @@ def _load_deals(path: str, provider_path: Optional[str] = None) -> List[Dict[str
        ``load_deals() -> list[dict]``）——为未来美团/抖音等平台开放官方 API
        时的自动化接入预留；该文件会在本机被执行，只在完全信任时使用，
        provider 异常时自动回退本地券库；
-    2. 本地券库 JSON 文件（默认 ~/.maimai_saver/deals.json）。
+    2. 本地券库 JSON 文件（默认 ~/.mcd_saver/deals.json）。
 
     注：旧版的环境变量 ``MAIMAI_DEALS_PROVIDER`` 已不再生效（环境残留会让外部代码
     被静默执行），仅在检测到它被设置时打印一次迁移提示。
@@ -327,8 +327,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--file",
-        default=os.environ.get("MAIMAI_DEALS_FILE", DEFAULT_DEALS_FILE),
-        help="券库 JSON 文件路径（默认 ~/.maimai_saver/deals.json）",
+        default=os.environ.get("MCD_DEALS_FILE", os.environ.get("MAIMAI_DEALS_FILE", DEFAULT_DEALS_FILE)),
+        help="券库 JSON 文件路径（默认 ~/.mcd_saver/deals.json）",
     )
     parser.add_argument(
         "--provider",

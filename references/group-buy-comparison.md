@@ -12,7 +12,7 @@
 用户在美团/抖音 App 查询麦当劳团购券（代金券/套餐券）
         │  复制：标题、售价、面值、限制条件、有效期
         ▼
-deal_compare.py add（录入本地券库 ~/.maimai_saver/deals.json）
+deal_compare.py add（录入本地券库 ~/.mcd_saver/deals.json）
         │
         ▼
 deal_compare.py compare（与官方渠道 MCP 计算价格比价，输出推荐）
@@ -20,7 +20,7 @@ deal_compare.py compare（与官方渠道 MCP 计算价格比价，输出推荐�
 
 `scripts/deal_compare.py` 的数据层是插件化的：
 
-- **本地券库**（默认）：`~/.maimai_saver/deals.json`，通过 `add` 子命令录入；
+- **本地券库**（默认）：`~/.mcd_saver/deals.json`，通过 `add` 子命令录入；
 - **外部数据源 provider（显式可选）**：用命令行参数 `--provider <模块路径>`
   指向一个 Python 模块文件（需实现 `load_deals() -> list[dict]`，返回与券库
   JSON 相同结构的列表），即可在不改动决策逻辑的情况下接入自动化数据源；

@@ -50,13 +50,13 @@ class TestDealCompareCli:
         result = _run(
             "deal_compare.py",
             ["compare", "--mcd-face", "48.5", "--mcd-price", "38.5"],
-            {"MAIMAI_DEALS_FILE": str(deals_file)},
+            {"MCD_DEALS_FILE": str(deals_file)},
         )
         assert result.returncode == 2
 
     def test_full_flow_add_list_compare(self, tmp_path):
         deals_file = tmp_path / "deals.json"
-        env = {"MAIMAI_DEALS_FILE": str(deals_file)}
+        env = {"MCD_DEALS_FILE": str(deals_file)}
 
         added = _run(
             "deal_compare.py",
@@ -83,7 +83,7 @@ class TestDealCompareCli:
         assert "¥31.40" in report.stdout  # 48.5 × 25.9 / 40
 
     def test_remove_unknown_id_exits_1(self, tmp_path):
-        env = {"MAIMAI_DEALS_FILE": str(tmp_path / "deals.json")}
+        env = {"MCD_DEALS_FILE": str(tmp_path / "deals.json")}
         result = _run("deal_compare.py", ["remove", "zzzzzz"], env)
         assert result.returncode == 1
 
