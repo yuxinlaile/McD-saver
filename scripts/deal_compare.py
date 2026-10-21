@@ -70,43 +70,70 @@ TIME_MODES = ("any", "limited")  # 全时段可用 / 限时段可用
 # ---------------------------------------------------------------------------
 # 券库读写
 # ---------------------------------------------------------------------------
-def _load_deals(path: str) -> List[Dict[str, Any]]:
+def _load_from_provider(provider_path: str) -> Optional[List[Dict[str, Any]]]:
+    """执行外部数据源模块并取回券列表；任何异常都回退到本地券库。
+
+    ⚠️ 该 .py 文件的代码会在本机执行（与 ``pip install`` 运行安装脚本同级风险），
+    因此只接受**命令行显式指定**的路径，且执行前必定打印风险提示。
+    """
+    module_file = os.path.abspath(os.path.expanduser(provider_path))
+    if not os.path.isfile(module_file):
+        print("警告: 外部数据源模块不存在（{0}），已忽略。".format(module_file), file=sys.stderr)
+        return None
+    print(
+        "警告: 正在执行外部数据源模块 {0}——该 .py 文件的代码会在本机执行，"
+        "请仅在完全信任它时使用 --provider。".format(module_file),
+        file=sys.stderr,
+    )
+    try:
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location("maimai_deals_provider", module_file)
+        if spec is None or spec.loader is None:
+            print("警告: 无法加载外部数据源模块（{0}），已忽略。".format(module_file), file=sys.stderr)
+            return None
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        provided = module.load_deals()
+        if isinstance(provided, list):
+            return [item for item in provided if isinstance(item, dict)]
+        print(
+            "警告: 数据源 {0} 的 load_deals() 未返回列表，已忽略。".format(module_file),
+            file=sys.stderr,
+        )
+    except Exception as exc:  # noqa: BLE001 - 外部数据源失败不应中断本地券库
+        print(
+            "警告: 加载团购数据源 {0} 失败: {1}，回退到本地券库。".format(module_file, exc),
+            file=sys.stderr,
+        )
+    return None
+
+
+def _load_deals(path: str, provider_path: Optional[str] = None) -> List[Dict[str, Any]]:
     """加载团购券数据。
 
     数据源优先级：
-    1. ``MAIMAI_DEALS_PROVIDER`` 环境变量指定的 provider 模块（.py 文件，
-       需实现 ``load_deals() -> list[dict]``）——为未来美团/抖音等平台开放
-       官方 API 时的自动化接入预留的插件接口，provider 异常时自动回退；
+    1. ``--provider`` **命令行显式指定**的 provider 模块（.py 文件，需实现
+       ``load_deals() -> list[dict]``）——为未来美团/抖音等平台开放官方 API
+       时的自动化接入预留；该文件会在本机被执行，只在完全信任时使用，
+       provider 异常时自动回退本地券库；
     2. 本地券库 JSON 文件（默认 ~/.maimai_saver/deals.json）。
+
+    注：旧版的环境变量 ``MAIMAI_DEALS_PROVIDER`` 已不再生效（环境残留会让外部代码
+    被静默执行），仅在检测到它被设置时打印一次迁移提示。
     """
-    provider_path = os.environ.get("MAIMAI_DEALS_PROVIDER")
     if provider_path:
+        provided = _load_from_provider(provider_path)
+        if provided is not None:
+            return provided
+
+    legacy = os.environ.get("MAIMAI_DEALS_PROVIDER")
+    if legacy:
         print(
-            "警告: 正在执行外部数据源模块 {0}——该 .py 文件的代码会在本机执行，"
-            "请仅在完全信任它时设置 MAIMAI_DEALS_PROVIDER。".format(provider_path),
+            "提示: 环境变量 MAIMAI_DEALS_PROVIDER 已不再生效（避免外部代码被环境残留静默执行）。"
+            "请改用命令行参数：deal_compare.py --provider <模块路径> …",
             file=sys.stderr,
         )
-        try:
-            import importlib.util
-
-            spec = importlib.util.spec_from_file_location(
-                "maimai_deals_provider", provider_path
-            )
-            if spec is not None and spec.loader is not None:
-                module = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(module)
-                provided = module.load_deals()
-                if isinstance(provided, list):
-                    return provided
-                print(
-                    "警告: 数据源 {0} 的 load_deals() 未返回列表，已忽略。".format(provider_path),
-                    file=sys.stderr,
-                )
-        except Exception as exc:  # noqa: BLE001 - 外部数据源失败不应中断本地券库
-            print(
-                "警告: 加载团购数据源 {0} 失败: {1}，回退到本地券库。".format(provider_path, exc),
-                file=sys.stderr,
-            )
 
     if not os.path.isfile(path):
         return []
@@ -283,6 +310,12 @@ def build_parser() -> argparse.ArgumentParser:
         default=os.environ.get("MAIMAI_DEALS_FILE", DEFAULT_DEALS_FILE),
         help="券库 JSON 文件路径（默认 ~/.maimai_saver/deals.json）",
     )
+    parser.add_argument(
+        "--provider",
+        default=None,
+        help="外部数据源模块路径（.py，需实现 load_deals()）；"
+             "该文件会在本机执行，仅在完全信任时使用",
+    )
     sub = parser.add_subparsers(dest="command", metavar="<command>")
 
     add_p = sub.add_parser("add", help="录入一条团购券")
@@ -318,7 +351,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         parser.print_help()
         return EXIT_OK
 
-    deals = _load_deals(args.file)
+    deals = _load_deals(args.file, getattr(args, "provider", None))
 
     if args.command == "add":
         if args.price < 0 or args.face_value <= 0:

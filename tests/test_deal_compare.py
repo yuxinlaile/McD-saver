@@ -8,6 +8,7 @@ from deal_compare import (
     _load_deals,
     _save_deals,
     compare_deals,
+    main,
 )
 
 TODAY = date(2026, 10, 10)
@@ -104,31 +105,54 @@ class TestStorageAndProvider:
         path.write_text("{broken json", encoding="utf-8")
         assert _load_deals(str(path)) == []
 
-    def test_provider_hook(self, monkeypatch, tmp_path):
+    def test_provider_hook(self, tmp_path):
         provider = tmp_path / "provider.py"
         provider.write_text(
             "def load_deals():\n"
             "    return [{'id': 'p1', 'price': 20.0, 'face_value': 40.0}]\n",
             encoding="utf-8",
         )
-        monkeypatch.setenv("MAIMAI_DEALS_PROVIDER", str(provider))
-        deals = _load_deals(str(tmp_path / "deals.json"))
+        deals = _load_deals(str(tmp_path / "deals.json"), str(provider))
         assert [d["id"] for d in deals] == ["p1"]
 
-    def test_provider_failure_falls_back_to_file(self, monkeypatch, tmp_path):
+    def test_provider_failure_falls_back_to_file(self, tmp_path):
         provider = tmp_path / "bad_provider.py"
         provider.write_text("raise RuntimeError('boom')\n", encoding="utf-8")
         local_file = tmp_path / "deals.json"
         _save_deals(str(local_file), [_deal(id="local")])
-        monkeypatch.setenv("MAIMAI_DEALS_PROVIDER", str(provider))
-        deals = _load_deals(str(local_file))
+        deals = _load_deals(str(local_file), str(provider))
         assert [d["id"] for d in deals] == ["local"]
 
-    def test_provider_invalid_return_falls_back(self, monkeypatch, tmp_path):
+    def test_provider_invalid_return_falls_back(self, tmp_path):
         provider = tmp_path / "wrong_provider.py"
         provider.write_text("def load_deals():\n    return 'not-a-list'\n", encoding="utf-8")
+        local_file = tmp_path / "deals.json"
+        _save_deals(str(local_file), [_deal(id="local")])
+        deals = _load_deals(str(local_file), str(provider))
+        assert [d["id"] for d in deals] == ["local"]
+
+    def test_legacy_env_var_is_ignored(self, monkeypatch, tmp_path, capsys):
+        """环境变量不再触发外部代码执行（2026-10-21 改造）。"""
+        provider = tmp_path / "provider.py"
+        provider.write_text(
+            "def load_deals():\n"
+            "    return [{'id': 'p1', 'price': 20.0, 'face_value': 40.0}]\n",
+            encoding="utf-8",
+        )
         local_file = tmp_path / "deals.json"
         _save_deals(str(local_file), [_deal(id="local")])
         monkeypatch.setenv("MAIMAI_DEALS_PROVIDER", str(provider))
         deals = _load_deals(str(local_file))
         assert [d["id"] for d in deals] == ["local"]
+        assert "MAIMAI_DEALS_PROVIDER" in capsys.readouterr().err
+
+    def test_provider_flag_is_wired_to_cli(self, tmp_path, capsys):
+        provider = tmp_path / "provider.py"
+        provider.write_text(
+            "def load_deals():\n"
+            "    return [{'id': 'p1', 'title': '插件券', 'price': 20.0, 'face_value': 40.0}]\n",
+            encoding="utf-8",
+        )
+        code = main(["--provider", str(provider), "--file", str(tmp_path / "d.json"), "list"])
+        assert code == 0
+        assert "p1" in capsys.readouterr().out

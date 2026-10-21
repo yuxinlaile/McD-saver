@@ -816,15 +816,87 @@ function fallbackCopy(text, done) {
 }
 
 // ---- 导入真实菜单（宽容解析 MCP query-meals 输出）----
+// 从一段文本里取 JSON：整段 JSON → `## Original Response` 之后的 JSON →
+// 花括号配对扫描（官方返回的 JSON 之后常还跟着展示说明文字）
+function _jsonFromText(text) {
+  let candidate = String(text || "").trim();
+  const marker = "## Original Response";
+  if (candidate.indexOf(marker) >= 0) candidate = candidate.split(marker).pop().trim();
+  try { return JSON.parse(candidate); } catch (e) { /* 继续尝试配对扫描 */ }
+  const start = candidate.indexOf("{");
+  if (start < 0) return null;
+  let depth = 0, inStr = false, esc = false;
+  for (let i = start; i < candidate.length; i++) {
+    const ch = candidate[i];
+    if (inStr) {
+      if (esc) esc = false;
+      else if (ch === "\\") esc = true;
+      else if (ch === '"') inStr = false;
+      continue;
+    }
+    if (ch === '"') inStr = true;
+    else if (ch === "{") depth++;
+    else if (ch === "}") {
+      depth--;
+      if (depth === 0) {
+        try { return JSON.parse(candidate.slice(start, i + 1)); } catch (e) { return null; }
+      }
+    }
+  }
+  return null;
+}
+
+// 金额归一：数字或数字字符串都取成 number，取不到返回 null
+function _num(v) {
+  if (typeof v === "number" && isFinite(v)) return v;
+  if (typeof v === "string") {
+    const m = v.replace(/,/g, "").match(/-?\d+(?:\.\d+)?/);
+    if (m) return parseFloat(m[0]);
+  }
+  return null;
+}
+
+// 官方 query-meals 的真实形态：{categories:[{name, meals:[{code}]}], meals:{code:{name,currentPrice,...}}}
+// 摊平成页面使用的 {mealCode, name, price, category} 结构
+function _flattenRealMenu(data) {
+  if (!data || typeof data !== "object") return null;
+  const body = (data.data && typeof data.data === "object") ? data.data : data;
+  const detail = body.meals;
+  if (!detail || typeof detail !== "object" || Array.isArray(detail)) return null;
+  const catOf = {};
+  (Array.isArray(body.categories) ? body.categories : []).forEach(c => {
+    (c.meals || []).forEach(ref => { if (ref && ref.code) catOf[ref.code] = c.name || ""; });
+  });
+  const rows = [];
+  Object.keys(detail).forEach(code => {
+    const m = detail[code] || {};
+    const price = _num(m.currentPrice != null ? m.currentPrice : m.price);
+    if (!m.name || price === null) return;
+    rows.push({
+      mealCode: String(code),
+      name: String(m.name),
+      price: price,
+      category: catOf[code].replace(/\s*\n\s*/g, " / ") || "导入",
+    });
+  });
+  return rows.length ? rows : null;
+}
+
 function unwrapItems(raw) {
   let data = raw;
   if (data && typeof data === "object" && Array.isArray(data.content)) {
     for (const c of data.content) {
       if (c && c.type === "text" && c.text) {
-        try { data = JSON.parse(c.text); break; } catch (e) { /* 继续用原对象 */ }
+        const parsed = _jsonFromText(c.text);
+        if (parsed) { data = parsed; break; }
       }
     }
   }
+  if (data && typeof data === "object" && data.structuredContent) {
+    data = data.structuredContent;
+  }
+  const flat = _flattenRealMenu(data);
+  if (flat) return flat;
   if (data && typeof data === "object" && !Array.isArray(data)) {
     for (const key of ["data", "items", "list", "records", "foods", "menu", "meals"]) {
       if (Array.isArray(data[key])) { data = data[key]; break; }
@@ -895,11 +967,11 @@ function importMenu() {
   const rows = unwrapItems(raw);
   const items = [];
   const nameKeys = ["name", "title", "productName", "mealName", "foodName"];
-  const priceKeys = ["price", "price2", "salePrice", "amount", "totalPrice"];
+  const priceKeys = ["price", "currentPrice", "price2", "salePrice", "amount", "totalPrice"];
   const kcalKeys = ["kcal", "calories", "energy"];
   rows.forEach((r, idx) => {
     const name = nameKeys.map(k => r[k]).find(v => typeof v === "string" && v.trim());
-    const priceRaw = priceKeys.map(k => r[k]).find(v => typeof v === "number" && v > 0);
+    const priceRaw = priceKeys.map(k => _num(r[k])).find(v => v !== null && v > 0);
     if (!name || priceRaw === undefined) return;  // 无名或无价的行如实跳过
     const item = {
       mealCode: String(r.mealCode || r.code || r.productId || r.id || ("X" + (idx + 1))),

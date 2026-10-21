@@ -33,7 +33,7 @@ cd maimai-saver
 
 # 运行时零依赖（Python 3.9+ 标准库），仅测试需要 pytest
 pip install -r requirements-dev.txt
-python -m pytest tests/ -v          # 当前 265 个用例，覆盖率门槛 70%
+python -m pytest tests/ -v          # 当前 267 个用例，覆盖率门槛 70%
 
 # 语法检查（与 CI 一致，覆盖 scripts/ 下全部模块与 demo.py）
 python -m py_compile scripts/*.py demo.py
@@ -93,7 +93,7 @@ CI 变红时优先看它，而不是怀疑业务代码。
 
 以下内容无论以何种形式提交都会被拒绝：
 
-- 爬取美团/抖音等平台数据（比价数据只走手动录入或 `MAIMAI_DEALS_PROVIDER` 插件）；
+- 爬取美团/抖音等平台数据（比价数据只走手动录入，或用 `--provider` 显式接入你信任的数据源模块）；
 - 自动下单、无人值守定时领券、绕过交互确认的任何自动化；
 - 刷 Star、多账号、机器人等操纵排名的行为。
 

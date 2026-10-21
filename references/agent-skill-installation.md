@@ -48,8 +48,8 @@ mkdir -p .agents/skills && cp -R /tmp/maimai-saver .agents/skills/maimai-saver
 2. 在 WorkBuddy【连接器】中按 `config/mcp.example.json` 配置并启用 `mcd-mcp`
 3. 对话中说"帮我用最划算的方式点麦当劳"即可自动触发
 
-WorkBuddy 是麦当劳程序员创意开发大赛的官方合作伙伴，提交 `docs/development-log.md`
-可参与 WorkBuddy 专项积分奖励。
+本次开发全程在腾讯 WorkBuddy 智能体对话环境中完成，仓库根目录的 `workbuddy.md`
+记录了开发对话上下文、阶段产出与版本里程碑，可用于大赛 WorkBuddy 专项的核验。
 
 ## Claude Code
 
