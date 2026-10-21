@@ -1,7 +1,7 @@
 ---
 name: mcd-saver
 description: 麦麦省钱助手——基于麦当劳中国官方 MCP Server 的省钱点餐技能。当用户提到麦当劳、麦乐送、麦麦、点麦当劳、想省钱/薅羊毛/领券/优惠、查优惠怎么用、积分兑换、麦麦商城、积分抽奖、麦当劳活动，或询问"怎么点麦当劳最划算"时使用本技能。核心能力：在下单前自动完成"领券→选券→比价→积分抵扣评估"，用 35 个官方工具帮用户以最低价格吃到同样的麦当劳。
-version: 2.4.0
+version: 2.4.1
 license: MIT
 ---
 
@@ -277,7 +277,6 @@ mcd-saver/
 ├── demo.py                             # 离线全链路演示（内嵌 fixture，不联网）
 ├── .github/
 │   ├── workflows/ci.yml                # CI：3.9 / 3.11 / 3.13 矩阵 + 覆盖率门槛
-│   ├── workflows/star-chart.yml        # 每日重算 Star 曲线并按需提交
 │   ├── ISSUE_TEMPLATE/                 # Bug / 功能建议模板与讨论区入口
 │   └── PULL_REQUEST_TEMPLATE.md        # PR 检查清单
 ├── docs/
@@ -285,7 +284,6 @@ mcd-saver/
 │   ├── index.html                      # Pages 根路径索引页（自动进入试算页）
 │   ├── coverage-report.md              # 覆盖率报告（--cov=scripts 口径与补测路线）
 │   └── assets/banner.svg               # 品牌横幅（版本与测试数随发版同步）
-│   └── assets/star-history.svg         # Star 历史曲线（由 scripts/gen_star_chart.py 生成）
 ├── config/
 │   └── mcp.example.json                # MCP 客户端配置示例（占位符 Token）
 ├── scripts/
@@ -299,7 +297,6 @@ mcd-saver/
 │   ├── verify_run.py                   # 真实运行验证记录生成（自动脱敏）
 │   ├── check_toc.py                    # README 目录锚点与中英结构校验
 │   ├── sync_readme.py                  # README「近期版本」区块自动生成（源自 CHANGELOG）
-│   ├── gen_star_chart.py               # Star 历史曲线生成（GitHub API → SVG）
 │   ├── audit_readme.py                 # README 事实一致性审计（命令表/用例数/版本/许可证）
 │   └── build_releases.py               # 发布产物构建与校验（英文 zip + 中文说明）
 ├── references/
@@ -317,5 +314,5 @@ mcd-saver/
 │   └── verified-run.md                 # 真实环境验证记录（脱敏，可复现）
 ├── fixtures/                           # 7 份离线回归数据（菜单/券/订单/积分/团购等）
 ├── releases/                           # 发布产物：每版英文 zip + 中文说明 + 索引
-└── tests/                              # pytest 单元测试（319 个用例 + 一致性校验）
+└── tests/                              # pytest 单元测试（310 个用例 + 一致性校验）
 ```

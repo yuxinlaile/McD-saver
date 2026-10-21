@@ -7,12 +7,12 @@
 **让 AI 帮你用最少的钱吃麦当劳** —— Agent Skill + 独立 CLI 二合一
 
 [![在线试算](https://img.shields.io/badge/%F0%9F%8C%90_在线试算-免登录-FFC72C?style=flat-square)](https://yuxinlaile.github.io/McD-saver/demo.html)
-[![Release](https://img.shields.io/badge/Release-v2.4.0-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.4.0)
+[![Release](https://img.shields.io/badge/Release-v2.4.1-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.4.1)
 [![Stars](https://img.shields.io/github/stars/yuxinlaile/McD-saver?style=flat-square&label=Stars)](https://github.com/yuxinlaile/McD-saver/stargazers)
 [![CI](https://github.com/yuxinlaile/McD-saver/actions/workflows/ci.yml/badge.svg)](https://github.com/yuxinlaile/McD-saver/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Dependencies](https://img.shields.io/badge/Dependencies-None%20(stdlib)-green)
-![Tests](https://img.shields.io/badge/Tests-319%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/Tests-310%20passed-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![Agent Skills](https://img.shields.io/badge/Works%20with-Agent%20Skills%20standard-0A7A72)
 ![MCP](https://img.shields.io/badge/MCP-Streamable%20HTTP-purple)
@@ -110,7 +110,7 @@
 - 401 快速失败、429 指数退避尊重 `Retry-After`、5xx/网络错误自动重试
 - 范围边界：聚焦下单前的省钱决策——不包含爬虫、自动下单、无人值守定时领券等自动化能力
 
-**🧪 测试保障**：319 个单元测试覆盖 SSE 解析、Token 解析、退避计算、比价决策、
+**🧪 测试保障**：310 个单元测试覆盖 SSE 解析、Token 解析、退避计算、比价决策、
 组合优化与 CLI 退出码；`demo.py` 全链路输出被 `tests/test_demo_pipeline.py`
 断言——**demo 即回归测试**。
 
@@ -222,7 +222,7 @@ Cherry Studio / Trae / VSCode / Kiro 各自 MCP 设置页 · Codex `~/.codex/con
 scripts/     核心实现：MCP 客户端、CLI、券组合优化器、沉默成本体检、版本与发布工具
 references/  方法论手册：工具目录、省钱策略、团购比价、场景工作流、MCP 踩坑、排错
 docs/        在线试算页与品牌资源（demo.html / index.html / banner.svg）
-tests/       319 项单元测试 + 规范一致性校验
+tests/       310 项单元测试 + 规范一致性校验
 fixtures/    离线回归数据（菜单、券、订单、积分、商城、团购）
 releases/    发布产物：每版英文压缩包 + 中文说明 + 索引
 ```
@@ -277,14 +277,14 @@ releases/    发布产物：每版英文压缩包 + 中文说明 + 索引
 
 ## 更新说明
 
-当前版本 **v2.4.0**。最近 3 个版本（由 CHANGELOG 自动生成）：
+当前版本 **v2.4.1**。最近 3 个版本（由 CHANGELOG 自动生成）：
 
 <!-- release-highlights:start -->
 | 版本 | 亮点 |
 |---|---|
+| **v2.4.1** | Star History 图改回 star-history.com 渲染 |
 | **v2.4.0** | `CODE_OF_CONDUCT.md`（改编自 Contributor Covenant 2.1）；README「参与 |
 | **v2.3.3** | 新增 `.github/workflows/star-chart.yml`：每日 11:17（UTC+8）自动运行 `s |
-| **v2.3.2** | Star 曲线改为自绘 |
 <!-- release-highlights:end -->
 
 完整变更记录见 [CHANGELOG.md](CHANGELOG.md)，各版本下载见
@@ -337,12 +337,10 @@ releases/    发布产物：每版英文压缩包 + 中文说明 + 索引
 
 <div align="center">
 
-![Star History](docs/assets/star-history.svg)
+[![Star History Chart](https://api.star-history.com/svg?repos=yuxinlaile/McD-saver&type=Date)](https://star-history.com/#yuxinlaile/McD-saver&Date)
 
-> 曲线由本仓库自行生成：`scripts/gen_star_chart.py` 取 GitHub API 的打星时间渲染为 SVG，
-> **每日由 CI 自动重算**（也可本地 `python scripts/gen_star_chart.py` 立即刷新，需 `GITHUB_TOKEN`
-> 或已登录的 `gh` CLI）；顶部 Stars 徽章为实时值。想看第三方 star-history.com 的同款曲线，
-> 可点[这里](https://star-history.com/#yuxinlaile/McD-saver&Date)。
+> 曲线由 star-history.com 渲染：对方服务端定期抓取并缓存数据，可能比顶部的实时星数徽章
+> 滞后数小时到一天，**当前星数以顶部 Stars 徽章为准**。
 
 </div>
 

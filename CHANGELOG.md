@@ -3,6 +3,21 @@
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 格式，
 版本号遵循项目自定义 `z.x.y` 规则（修订号 ≤3、次版本号 ≤6，超限进位），由 `scripts/version.py` 递增并同步发布文件。
 
+## [2.4.1] - 2026-10-21
+
+Star History 图表改用第三方渲染，移除仓库内的自绘链路。
+
+### 变更
+
+- **Star History 图改回 star-history.com 渲染**：README 中英改用 `api.star-history.com/svg` 图表，
+  并注明该图由对方服务端定期抓取缓存、可能滞后数小时到一天，当前星数以顶部实时 Stars 徽章为准。
+- 移除自绘链路：`scripts/gen_star_chart.py`、`docs/assets/star-history.svg`、
+  `.github/workflows/star-chart.yml`、`tests/test_star_chart.py`。
+
+### 质量
+
+- 319 → 310 项测试全过
+
 ## [2.4.0] - 2026-10-21
 
 贡献流程标准化、README 事实核对、版本递增的重复执行保护。
