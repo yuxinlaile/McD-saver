@@ -40,6 +40,12 @@ jobs:
       - name: README anchors and structure
         run: python scripts/check_toc.py
 
+      - name: README fact audit
+        run: python scripts/audit_readme.py
+
+      - name: README release highlights in sync
+        run: python scripts/sync_readme.py --check
+
       - name: CLI smoke test
         run: |
           python scripts/mcd.py --help

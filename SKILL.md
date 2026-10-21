@@ -1,7 +1,7 @@
 ---
 name: mcd-saver
 description: 麦麦省钱助手——基于麦当劳中国官方 MCP Server 的省钱点餐技能。当用户提到麦当劳、麦乐送、麦麦、点麦当劳、想省钱/薅羊毛/领券/优惠、查优惠怎么用、积分兑换、麦麦商城、积分抽奖、麦当劳活动，或询问"怎么点麦当劳最划算"时使用本技能。核心能力：在下单前自动完成"领券→选券→比价→积分抵扣评估"，用 35 个官方工具帮用户以最低价格吃到同样的麦当劳。
-version: 2.3.3
+version: 2.4.0
 license: MIT
 ---
 
@@ -264,6 +264,7 @@ mcd-saver/
 ├── README.md / README_EN.md            # 项目说明（中/英，结构与锚点逐位对齐）
 ├── CHANGELOG.md                        # 版本变更记录（Keep a Changelog 格式）
 ├── CONTRIBUTING.md                     # 贡献指南与发布流程
+├── CODE_OF_CONDUCT.md                  # 贡献者行为准则（Contributor Covenant 2.1 改编）
 ├── LICENSE                             # MIT 许可证 + 第三方条款声明
 ├── SECURITY.md                         # 漏洞报告与安全边界（对外披露入口）
 ├── CONTEST_DECLARATION.md              # 参赛声明（官方原文，未改动）
@@ -299,6 +300,7 @@ mcd-saver/
 │   ├── check_toc.py                    # README 目录锚点与中英结构校验
 │   ├── sync_readme.py                  # README「近期版本」区块自动生成（源自 CHANGELOG）
 │   ├── gen_star_chart.py               # Star 历史曲线生成（GitHub API → SVG）
+│   ├── audit_readme.py                 # README 事实一致性审计（命令表/用例数/版本/许可证）
 │   └── build_releases.py               # 发布产物构建与校验（英文 zip + 中文说明）
 ├── references/
 │   ├── tools.md                        # 35 个工具完整目录与使用要点
@@ -315,5 +317,5 @@ mcd-saver/
 │   └── verified-run.md                 # 真实环境验证记录（脱敏，可复现）
 ├── fixtures/                           # 7 份离线回归数据（菜单/券/订单/积分/团购等）
 ├── releases/                           # 发布产物：每版英文 zip + 中文说明 + 索引
-└── tests/                              # pytest 单元测试（309 个用例 + 一致性校验）
+└── tests/                              # pytest 单元测试（319 个用例 + 一致性校验）
 ```

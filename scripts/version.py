@@ -119,6 +119,53 @@ def current_repo_version() -> str:
     return match.group(1)
 
 
+# ---------------------------------------------------------------------------
+# 重复执行保护
+# ---------------------------------------------------------------------------
+# 某些执行环境会把同一条命令跑两次（重试 / 双写）。若直接递增，版本会连跳两位、
+# 留下空档号。这里用一个「待发布标记」做幂等：递增后写入标记，只有当该版本已打 tag
+# （发版完成）或显式 --force 时才允许继续递增。
+PENDING_MARKER = REPO_ROOT / ".git" / "RELEASE_PENDING"
+
+
+def released_tag_exists(version: str) -> bool:
+    """本地是否已存在该版本的 tag（发版完成的标志）。"""
+    tag = "v" + version
+    try:
+        import subprocess
+
+        out = subprocess.run(["git", "-C", str(REPO_ROOT), "tag", "--list", tag],
+                             capture_output=True, text=True, timeout=10)
+        return tag in out.stdout.split()
+    except Exception:  # noqa: BLE001 - 无 git 时按"未发版"处理，不阻断递增
+        return False
+
+
+def pending_version() -> str:
+    """读取待发布标记（上一次 --apply 递增到、但尚未打 tag 的版本）。"""
+    try:
+        return PENDING_MARKER.read_text(encoding="utf-8").strip()
+    except OSError:
+        return ""
+
+
+def mark_pending(version: str) -> None:
+    """写入待发布标记。"""
+    try:
+        PENDING_MARKER.parent.mkdir(parents=True, exist_ok=True)
+        PENDING_MARKER.write_text(version + "\n", encoding="utf-8")
+    except OSError:
+        pass
+
+
+def clear_pending() -> None:
+    """清除待发布标记（发版完成后或 --force 时调用）。"""
+    try:
+        PENDING_MARKER.unlink()
+    except OSError:
+        pass
+
+
 def apply_version(new_version: str) -> list[str]:
     """把新版本写回发布五件套（CHANGELOG 由人工撰写，不在此列）。
 
@@ -187,14 +234,27 @@ def main(argv: list[str] | None = None) -> int:
                         help="当前版本号（缺省时自动读取仓库 CLIENT_INFO）")
     parser.add_argument("--apply", action="store_true",
                         help="递增并把新版本写回五件套（CLIENT_INFO/SKILL.md/README×2）")
+    parser.add_argument("--force", action="store_true",
+                        help="即使存在「待发布标记」也强制递增（用于放弃上次未发版的递增）")
     args = parser.parse_args(argv)
 
     current = args.current if args.current else current_repo_version()
+
+    if args.apply and not args.current:
+        # 幂等保护：同一条命令被执行两次时，第二次不再递增
+        if released_tag_exists(current):
+            clear_pending()  # 上一次递增已发版，清掉标记
+        elif pending_version() == current and not args.force:
+            print("已递增至 {0}（尚未打 tag），检测到重复执行 → 跳过重复递增".format(current))
+            print("完成发版（打 tag）后可继续递增；如需放弃上次递增并强制前进，加 --force")
+            return 0
+
     nxt = next_version(current)
     print(f"{current} → {nxt}")
     if args.apply:
         for f in apply_version(nxt):
             print("updated:", f)
+        mark_pending(nxt)
         print("提醒：--apply 不覆盖测试计数。发版前请同步更新以下位置的用例数：")
         print("  docs/assets/banner.svg · README.md/README_EN.md（Tests 徽章与测试保障段）· SKILL.md 目录树")
         print("  并在 CHANGELOG 增加新版本条目、于 #275 同步版本进展。")

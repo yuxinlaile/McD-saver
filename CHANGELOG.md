@@ -3,6 +3,34 @@
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 格式，
 版本号遵循项目自定义 `z.x.y` 规则（修订号 ≤3、次版本号 ≤6，超限进位），由 `scripts/version.py` 递增并同步发布文件。
 
+## [2.4.0] - 2026-10-21
+
+贡献流程标准化、README 事实核对、版本递增的重复执行保护。
+
+### 新增
+
+- `CODE_OF_CONDUCT.md`（改编自 Contributor Covenant 2.1）；README「参与贡献 / Contributing」重写为
+  四条标准入口（报 Bug / 提需求 / 改代码 / 补文档算例），分别链接 Issue 模板、PR 模板与行为准则。
+- `scripts/audit_readme.py`：README 事实一致性审计——命令速查表 ↔ CLI 子命令双向校验、反引号中的
+  脚本路径存在性、用例数与 `pytest --collect-only` 实测一致、Python 版本三方一致（README /
+  `pyproject.toml` / CI 矩阵）、许可证声明与 `LICENSE` 一致；已接入 CI（`README fact audit`）
+  并由 `tests/test_readme_audit.py` 引入。
+- CI 增加 `sync_readme.py --check` 步骤，确保 README 的近期版本区块与 CHANGELOG 不脱节。
+
+### 修复
+
+- **版本递增的重复执行保护**：执行环境重试同一条命令时，`version.py --apply` 会连跳两位
+  （曾出现 2.3.2 → 2.3.3 → 2.4.0 的空档）。现写入 `.git/RELEASE_PENDING` 待发布标记：
+  同一版本未打 tag 前重复执行只跳一格，打 tag 后自动放行，`--force` 可强制前进。
+  新增 `tests/test_version_idempotent.py`（7 项）锁定该行为。
+- **README 事实核对（基线 v2.3.3）**：发现 9 处不一致并修复——用例数 10 处仍写 309（实际 319）、
+  Python 运行要求只写在徽章里（正文无声明，已在「快速开始」补「运行要求」段）。
+- `CONTRIBUTING.md` 的提交自检清单补入 `python scripts/audit_readme.py`。
+
+### 质量
+
+- 309 → 319 项测试全过
+
 ## [2.3.3] - 2026-10-21
 
 Star 曲线加入每日自动重算。

@@ -7,12 +7,12 @@
 **让 AI 帮你用最少的钱吃麦当劳** —— Agent Skill + 独立 CLI 二合一
 
 [![在线试算](https://img.shields.io/badge/%F0%9F%8C%90_在线试算-免登录-FFC72C?style=flat-square)](https://yuxinlaile.github.io/McD-saver/demo.html)
-[![Release](https://img.shields.io/badge/Release-v2.3.3-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.3.3)
+[![Release](https://img.shields.io/badge/Release-v2.4.0-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.4.0)
 [![Stars](https://img.shields.io/github/stars/yuxinlaile/McD-saver?style=flat-square&label=Stars)](https://github.com/yuxinlaile/McD-saver/stargazers)
 [![CI](https://github.com/yuxinlaile/McD-saver/actions/workflows/ci.yml/badge.svg)](https://github.com/yuxinlaile/McD-saver/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Dependencies](https://img.shields.io/badge/Dependencies-None%20(stdlib)-green)
-![Tests](https://img.shields.io/badge/Tests-309%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/Tests-319%20passed-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![Agent Skills](https://img.shields.io/badge/Works%20with-Agent%20Skills%20standard-0A7A72)
 ![MCP](https://img.shields.io/badge/MCP-Streamable%20HTTP-purple)
@@ -110,7 +110,7 @@
 - 401 快速失败、429 指数退避尊重 `Retry-After`、5xx/网络错误自动重试
 - 范围边界：聚焦下单前的省钱决策——不包含爬虫、自动下单、无人值守定时领券等自动化能力
 
-**🧪 测试保障**：309 个单元测试覆盖 SSE 解析、Token 解析、退避计算、比价决策、
+**🧪 测试保障**：319 个单元测试覆盖 SSE 解析、Token 解析、退避计算、比价决策、
 组合优化与 CLI 退出码；`demo.py` 全链路输出被 `tests/test_demo_pipeline.py`
 断言——**demo 即回归测试**。
 
@@ -127,6 +127,9 @@ python demo.py          # 离线全链路：领券→选券→比价→积分→
 或直接打开[在线试算页](https://yuxinlaile.github.io/McD-saver/demo.html)（免登录，
 31 项菜单 / 9 张券 / 11 条团购示例；支持 **Token 快速导入**——桌面生成命令、
 手机端 Agent 粘贴或 menu.json 文件导入，同步麦当劳 App 全量真实菜单）。
+
+**运行要求**：Python 3.9+（全部功能仅用标准库，无第三方运行时依赖）；跑测试需
+`pip install -r requirements-dev.txt`（`pytest` / `pytest-cov`）。
 
 ### 安装步骤
 
@@ -219,7 +222,7 @@ Cherry Studio / Trae / VSCode / Kiro 各自 MCP 设置页 · Codex `~/.codex/con
 scripts/     核心实现：MCP 客户端、CLI、券组合优化器、沉默成本体检、版本与发布工具
 references/  方法论手册：工具目录、省钱策略、团购比价、场景工作流、MCP 踩坑、排错
 docs/        在线试算页与品牌资源（demo.html / index.html / banner.svg）
-tests/       309 项单元测试 + 规范一致性校验
+tests/       319 项单元测试 + 规范一致性校验
 fixtures/    离线回归数据（菜单、券、订单、积分、商城、团购）
 releases/    发布产物：每版英文压缩包 + 中文说明 + 索引
 ```
@@ -274,14 +277,14 @@ releases/    发布产物：每版英文压缩包 + 中文说明 + 索引
 
 ## 更新说明
 
-当前版本 **v2.3.3**。最近 3 个版本（由 CHANGELOG 自动生成）：
+当前版本 **v2.4.0**。最近 3 个版本（由 CHANGELOG 自动生成）：
 
 <!-- release-highlights:start -->
 | 版本 | 亮点 |
 |---|---|
+| **v2.4.0** | `CODE_OF_CONDUCT.md`（改编自 Contributor Covenant 2.1）；README「参与 |
 | **v2.3.3** | 新增 `.github/workflows/star-chart.yml`：每日 11:17（UTC+8）自动运行 `s |
 | **v2.3.2** | Star 曲线改为自绘 |
-| **v2.3.1** | 「近期版本」区块改为自动生成 |
 <!-- release-highlights:end -->
 
 完整变更记录见 [CHANGELOG.md](CHANGELOG.md)，各版本下载见
@@ -297,19 +300,20 @@ releases/    发布产物：每版英文压缩包 + 中文说明 + 索引
 
 ## 参与贡献
 
-Issue / PR / Discussions 都欢迎。三类最省力的切入点：
+欢迎 Issue / PR / Discussions。动手前请先读 [CONTRIBUTING.md](CONTRIBUTING.md)（开发环境、分支与提交规范、
+发版流程），并遵守[贡献者行为准则](CODE_OF_CONDUCT.md)。
 
-| 方向 | 怎么开始 |
+| 你可以做什么 | 从这里开始 |
 |---|---|
-| **工作流与文档** | 在 `references/workflows.md` 补一个真实场景；工具目录以 `python scripts/mcd.py tools` 的实时输出为准 |
-| **中英校对** | README / `SKILL.md` / `references/` 的中英对应；改完跑 `python scripts/check_toc.py` |
-| **测试与算例** | `tests/` 补用例；`examples/` 补离线算例（一单三种买法、沉默成本体检读法） |
+| **报 Bug** | [提交 Bug 报告](https://github.com/yuxinlaile/McD-saver/issues/new?template=bug_report.md)——附复现命令与 `--verbose` 输出（**请勿粘贴 Token**） |
+| **提需求** | [提交功能请求](https://github.com/yuxinlaile/McD-saver/issues/new?template=feature_request.md) |
+| **改代码** | 认领 Issue → 从 `main` 拉分支 → 按 [PR 模板](.github/PULL_REQUEST_TEMPLATE.md) 填写 → 提交前跑 `python -m pytest tests/` |
+| **补文档 / 算例** | `references/workflows.md` 补场景、`examples/` 补离线算例；中英校对后跑 `python scripts/check_toc.py` |
 
 **提交前自查**：`python -m pytest tests/` 全过 · 无 Token 等敏感信息 · `references/` 与
 `SKILL.md` 同步 · CHANGELOG 补条目 · **README 中英同步**。
 
-完整流程见 [CONTRIBUTING.md](CONTRIBUTING.md)；真实运行留档见
-[examples/verified-run.md](examples/verified-run.md)；离线算例见
+真实运行留档见 [examples/verified-run.md](examples/verified-run.md)；离线算例见
 [examples/three-ways.md](examples/three-ways.md)（一单三种买法）与
 [examples/silent-cost-example.md](examples/silent-cost-example.md)（沉默成本体检读法）。
 

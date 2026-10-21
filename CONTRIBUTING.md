@@ -20,6 +20,9 @@
 
 ## 行为准则
 
+完整的社区行为规范见 [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)（改编自 Contributor Covenant 2.1）。
+本项目另有两条硬性要求：
+
 - 友善交流，尊重每一位参与者（麦门一家亲）；
 - **切勿在任何 Issue / PR / Discussion 中粘贴 MCP Token、密码或个人凭证**；
   如不慎泄露，立即到 [open.mcd.cn/mcp](https://open.mcd.cn/mcp) 重新申请；
@@ -33,7 +36,7 @@ cd mcd-saver
 
 # 运行时零依赖（Python 3.9+ 标准库），仅测试需要 pytest
 pip install -r requirements-dev.txt
-python -m pytest tests/ -v          # 当前 309 个用例，覆盖率门槛 70%
+python -m pytest tests/ -v          # 当前 319 个用例，覆盖率门槛 70%
 
 # 语法检查（与 CI 一致，覆盖 scripts/ 下全部模块与 demo.py）
 python -m py_compile scripts/*.py demo.py
@@ -57,6 +60,7 @@ python -m py_compile scripts/*.py demo.py
 ## 提交自检清单
 
 - [ ] `python -m pytest tests/` 全部通过；
+- [ ] `python scripts/audit_readme.py` 通过（命令表 / 用例数 / Python 版本 / 许可证与仓库一致）；
 - [ ] 语法检查覆盖所有改动脚本；
 - [ ] 未包含任何真实 Token、密码或个人凭证；
 - [ ] 涉及工具目录/工作流的变更已同步 `references/` 与 `SKILL.md`；
