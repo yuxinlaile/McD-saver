@@ -3,6 +3,26 @@
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 格式，
 版本号遵循项目自定义 `z.x.y` 规则（修订号 ≤3、次版本号 ≤6，超限进位），由 `scripts/version.py` 递增并同步发布文件。
 
+## [2.3.1] - 2026-10-21
+
+README 精简与同步守卫。
+
+### 改进
+
+- **「近期版本」区块改为自动生成**：新增 `scripts/sync_readme.py`，从 CHANGELOG 提取最近 3 个版本的
+  要点写入 README 中英的 `<!-- release-highlights -->` 标记区，发版时由 `scripts/version.py --apply`
+  自动刷新；区块长度固定 3 行，不再随发版增长。
+- **移除 README 中的内部流程说明**：「发布产物与版本策略 / Release artifacts」整节删除（中英各一处），
+  相关内容保留在 `releases/README.md` 与 `CONTRIBUTING.md`。
+- **新增 README 同步守卫**（`tests/test_readme_sync.py`，10 项）：近期版本区块与 CHANGELOG 一致、
+  环境变量表与代码双向互校、`SKILL.md` 目录树中的路径真实存在、README 与 `references/tools.md`
+  工具集合一致、全部 Markdown 相对链接可达、试算页示例数据条数与 README 表述一致。
+- `references/tools.md` 的「主题活动」表统一为三列格式（原为带序号的四列表格），使工具清单可被自动比对。
+
+### 质量
+
+- 290 → 300 项测试全过
+
 ## [2.3.0] - 2026-10-21
 
 品牌统一与徽章调整。
@@ -28,7 +48,7 @@
 
 ### 修复
 
-- **带券核价此前从未真正生效**（用真实 Token + 已领取的券实测定位）：
+- **带券核价打通**（此前券从未真正生效；用真实 Token 实测定位）：
   - 券必须**同时**给出 `couponId` 与 `couponCode`，且挂在 `items[].productCode` 对应条目上
     （只给其一 → 服务端 code 600010「使用优惠券需要couponId和couponCode」；
     挂在顶层 → 返回成功但**券被静默忽略**，价格不变）；

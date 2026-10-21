@@ -38,7 +38,6 @@ PAIRS: List[Tuple[str, str]] = [
     ("工具能力总览", "Tool coverage"),
     ("常见问题", "FAQ"),
     ("更新说明", "Release notes"),
-    ("发布产物与版本策略", "Release artifacts"),
     ("反馈与支持", "Feedback"),
     ("参与贡献", "Contributing"),
     ("免责声明", "Disclaimer"),

@@ -7,12 +7,12 @@
 **让 AI 帮你用最少的钱吃麦当劳** —— Agent Skill + 独立 CLI 二合一
 
 [![在线试算](https://img.shields.io/badge/%F0%9F%8C%90_在线试算-免登录-FFC72C?style=flat-square)](https://yuxinlaile.github.io/McD-saver/demo.html)
-[![Release](https://img.shields.io/badge/Release-v2.3.0-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.3.0)
+[![Release](https://img.shields.io/badge/Release-v2.3.1-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.3.1)
 [![Stars](https://img.shields.io/github/stars/yuxinlaile/McD-saver?style=flat-square&label=Stars)](https://github.com/yuxinlaile/McD-saver/stargazers)
 [![CI](https://github.com/yuxinlaile/McD-saver/actions/workflows/ci.yml/badge.svg)](https://github.com/yuxinlaile/McD-saver/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Dependencies](https://img.shields.io/badge/Dependencies-None%20(stdlib)-green)
-![Tests](https://img.shields.io/badge/Tests-290%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/Tests-300%20passed-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![Agent Skills](https://img.shields.io/badge/Works%20with-Agent%20Skills%20standard-0A7A72)
 ![MCP](https://img.shields.io/badge/MCP-Streamable%20HTTP-purple)
@@ -38,7 +38,6 @@
 - [工具能力总览](#工具能力总览)
 - [常见问题](#常见问题)
 - [更新说明](#更新说明)
-- [发布产物与版本策略](#发布产物与版本策略)
 - [反馈与支持](#反馈与支持)
 - [参与贡献](#参与贡献)
 - [免责声明](#免责声明)
@@ -111,7 +110,7 @@
 - 401 快速失败、429 指数退避尊重 `Retry-After`、5xx/网络错误自动重试
 - 范围边界：聚焦下单前的省钱决策——不包含爬虫、自动下单、无人值守定时领券等自动化能力
 
-**🧪 测试保障**：290 个单元测试覆盖 SSE 解析、Token 解析、退避计算、比价决策、
+**🧪 测试保障**：300 个单元测试覆盖 SSE 解析、Token 解析、退避计算、比价决策、
 组合优化与 CLI 退出码；`demo.py` 全链路输出被 `tests/test_demo_pipeline.py`
 断言——**demo 即回归测试**。
 
@@ -220,7 +219,7 @@ Cherry Studio / Trae / VSCode / Kiro 各自 MCP 设置页 · Codex `~/.codex/con
 scripts/     核心实现：MCP 客户端、CLI、券组合优化器、沉默成本体检、版本与发布工具
 references/  方法论手册：工具目录、省钱策略、团购比价、场景工作流、MCP 踩坑、排错
 docs/        在线试算页与品牌资源（demo.html / index.html / banner.svg）
-tests/       290 项单元测试 + 规范一致性校验
+tests/       300 项单元测试 + 规范一致性校验
 fixtures/    离线回归数据（菜单、券、订单、积分、商城、团购）
 releases/    发布产物：每版英文压缩包 + 中文说明 + 索引
 ```
@@ -275,45 +274,18 @@ releases/    发布产物：每版英文压缩包 + 中文说明 + 索引
 
 ## 更新说明
 
-当前版本 **v2.3.0**。近期版本要点：
+当前版本 **v2.3.1**。最近 3 个版本（由 CHANGELOG 自动生成）：
 
+<!-- release-highlights:start -->
 | 版本 | 亮点 |
 |---|---|
-| **v2.2.0** | 测试 171→245 · 覆盖率 76% · 文档一致性进 CI · JSON-RPC 错误码修复 |
-| **v2.1.3** | 滑杆支持直接输入数值 · 移动端卡片裁切修复 |
-| **v2.1.2** | 试算页四维约束滑杆 · 真实运行验证记录 · CI 覆盖率门槛 |
-| **v2.1.1** | 真实计价两阶段优化（Top-K 预筛，调用次数 -60%）|
-| **v2.1.0** | 主动滑动窗口限速（300/min）· 方案排名场景标签 |
-| **v2.0.3** | optimizer 自动衔接团购终局建议（官方 vs 团购一次算清）|
-| v2.0.2 | 移动端文案适配 + 悬浮计算按钮（结果可达性）|
-| v2.0.0 | 版本号自动递增工具（自定义 z.x.y 格式：y≤3、x≤6）|
-| v1.7.4 | 试算页移动端优化（触控 44px / iOS 输入缩放规避）|
-| v1.7.3 | 试算页 Token 快速导入卡片置顶 · 团购示例扩充 11 条 |
-| v1.7.2 | 用券排程升级净价值模型（修正高估）· 客单价口径修正 |
-| v1.7.1 | 省钱等级（S/A/B/C/D）· 参数自动串联技巧 |
-| v1.7.0 | 点餐替换建议（热量代价从小到大）· 口味记忆 · MCP 实战踩坑指南 |
-| v1.6.0 | 用券排程 · 券面值实测 · 可分享 HTML 体检报告 · 离线全链路 demo |
-| v1.5.0 | 营养约束：蛋白质下限 / 钠上限，违规如实标注 |
-| v1.4.x | 多维约束 + 套餐替换 + 积分影子价格 + 一键领券 |
-
+| **v2.3.1** | 「近期版本」区块改为自动生成 |
+| **v2.3.0** | 包名 / 技能名 / 客户端标识统一为 `mcd-saver` |
+| **v2.2.3** | 带券核价打通 |
+<!-- release-highlights:end -->
 
 完整变更记录见 [CHANGELOG.md](CHANGELOG.md)，各版本下载见
 [Releases](https://github.com/yuxinlaile/McD-saver/releases)。
-
-## 发布产物与版本策略
-
-每个版本在 [`releases/`](releases/README.md) 与同名 GitHub Release 上各有一对产物，命名固定：
-
-| 类型 | 命名 | 形式 | 内容 |
-|---|---|---|---|
-| 英文名 | `mcd-saver-v<版本>.zip` | 压缩包 | 对应 tag 的完整源码，解压后根目录 `McD-Saver-v<版本>/` |
-| 中文名 | `麦麦省钱助手-v<版本>-发布说明.md` | 说明文档 | 版本信息、安装指引、该版变更记录、SHA-256 校验 |
-
-- 版本号遵循项目自定义 `z.x.y` 规则（修订号 ≤3、次版本号 ≤6，超限进位），由 `scripts/version.py` 递增并同步发布文件
-- 产物由 `scripts/build_releases.py` 生成与校验：`--all` 构建全部版本、`--verify` 校验命名、配对与压缩包完整性
-- 每个 tag 与同名 Release 一一对应，Release 挂载同名压缩包与说明文档，形成「tag ↔ Release ↔ releases 目录」三方一致
-  （GitHub 资产名不支持非 ASCII：中文说明在 Release 附件中另存为 `mcd-saver-v<版本>-release-notes-zh.md`，
-  内容一致，**中文原名以 `releases/` 目录为准**）
 
 ## 反馈与支持
 

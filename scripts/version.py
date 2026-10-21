@@ -164,6 +164,18 @@ def apply_version(new_version: str) -> list[str]:
         t = t.replace(f"Current version **v{old_v}**", f"Current version **v{new_version}**")
         _write_text(p, t)
         updated.append(name)
+
+    # 4) README「近期版本」区块：由 CHANGELOG 自动生成（避免手写漂移与无限增长）
+    try:
+        import sync_readme
+
+        for name, text in sync_readme.sync(REPO_ROOT, sync_readme.DEFAULT_LIMIT).items():
+            p = REPO_ROOT / name
+            if p.read_text(encoding="utf-8") != text:
+                _write_text(p, text)
+                updated.append(name)
+    except Exception as exc:  # noqa: BLE001 - 同步失败不阻断版本递增
+        print("警告: README 近期版本区块同步失败: {0}".format(exc), file=sys.stderr)
     return updated
 
 

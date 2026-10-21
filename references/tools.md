@@ -74,13 +74,13 @@
 
 以下五个工具构成严格的级联查询链，必须按序执行：
 
-| 顺序 | 工具 | 说明 |
+| 工具 | 说明 | 使用要点 |
 |---|---|---|
-| 1 | `query-party-city` | 可参与城市列表 |
-| 2 | `query-party-store` | 指定城市下可参与门店列表 |
-| 3 | `query-partystore-date` | 指定门店下可预约日期 |
-| 4 | `query-partystore-session` | 指定门店、日期下可预约场次 |
-| 5 | `party-order-create` | 创建主题活动订单（**写操作，需确认**） |
+| `query-party-city` | 可参与城市列表 | 级联第 1 步：先确定城市 |
+| `query-party-store` | 指定城市下可参与门店列表 | 级联第 2 步：需要 storeCode |
+| `query-partystore-date` | 指定门店下可预约日期 | 级联第 3 步：需要门店编码 |
+| `query-partystore-session` | 指定门店、日期下可预约场次 | 级联第 4 步：需要日期 |
+| `party-order-create` | 创建主题活动订单 | **写操作，需确认**（级联第 5 步） |
 
 ## 9. 辅助
 

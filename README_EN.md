@@ -7,12 +7,12 @@
 **Let AI get you McDonald's for less** — Agent Skill + standalone CLI in one repo
 
 [![Live Demo](https://img.shields.io/badge/%F0%9F%8E%AE_Live_Demo-no_sign--in-FFC72C?style=flat-square)](https://yuxinlaile.github.io/McD-saver/demo.html)
-[![Release](https://img.shields.io/badge/Release-v2.3.0-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.3.0)
+[![Release](https://img.shields.io/badge/Release-v2.3.1-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.3.1)
 [![Stars](https://img.shields.io/github/stars/yuxinlaile/McD-saver?style=flat-square&label=Stars)](https://github.com/yuxinlaile/McD-saver/stargazers)
 [![CI](https://github.com/yuxinlaile/McD-saver/actions/workflows/ci.yml/badge.svg)](https://github.com/yuxinlaile/McD-saver/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Dependencies](https://img.shields.io/badge/Dependencies-None%20(stdlib)-green)
-![Tests](https://img.shields.io/badge/Tests-290%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/Tests-300%20passed-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![Agent Skills](https://img.shields.io/badge/Works%20with-Agent%20Skills%20standard-0A7A72)
 ![MCP](https://img.shields.io/badge/MCP-Streamable%20HTTP-purple)
@@ -38,7 +38,6 @@
 - [Tool coverage](#tool-coverage)
 - [FAQ](#faq)
 - [Release notes](#release-notes)
-- [Release artifacts](#release-artifacts)
 - [Feedback](#feedback)
 - [Contributing](#contributing)
 - [Disclaimer](#disclaimer)
@@ -116,7 +115,7 @@ order created ≠ paid — payment always happens on McDonald's official page.
 - 401 fails fast; 429 exponential backoff honoring `Retry-After`; 5xx/network auto-retry
 - Scope boundary: focused on pre-order savings decisions — no scraping, auto-ordering or unattended scheduling capabilities
 
-**🧪 Tested**: 290 unit tests covering SSE parsing, token resolution, backoff math,
+**🧪 Tested**: 300 unit tests covering SSE parsing, token resolution, backoff math,
 comparison decisions, combination optimization and CLI exit codes; the full
 `demo.py` pipeline is asserted by `tests/test_demo_pipeline.py` — **the demo
 doubles as a regression test**.
@@ -231,7 +230,7 @@ never commit it, never let it appear in logs. If leaked, re-apply at open.mcd.cn
 scripts/     Core: MCP client, CLI, coupon optimizer, silent-cost audit, version & release tooling
 references/  Playbooks: tool catalog, savings strategies, group-buy comparison, workflows, pitfalls
 docs/        Online calculator and brand assets (demo.html / index.html / banner.svg)
-tests/       290 unit tests plus repository-consistency checks
+tests/       300 unit tests plus repository-consistency checks
 fixtures/    Offline regression data (menu, coupons, orders, points, mall, deals)
 releases/    Release artifacts: English zip + Chinese notes + index per version
 ```
@@ -289,43 +288,14 @@ More troubleshooting: [`references/error-handling.md`](references/error-handling
 
 ## Release notes
 
-Current version **v2.3.0**. Recent highlights:
-| Version | Highlights |
-|---|---|
-| **v2.2.0** | 171→245 tests · 76% coverage · docs consistency in CI · JSON-RPC error-code fix |
-| **v2.1.3** | Sliders accept typed values · mobile card clipping fixed |
-| **v2.1.2** | Demo 4D constraint sliders · verified-run record · CI coverage gate |
-| **v2.1.1** | Two-phase real pricing (Top-K prefilter, -60% calls) |
-| **v2.1.0** | Proactive rate limiting (300/min) · scene labels for plan ranking |
-| **v2.0.3** | optimizer auto-links group-buy final call (official vs deals in one pass) |
-| **v2.0.2** | Mobile copy adaptation + floating calc FAB (result reachability) |
-| **v2.0.1** | Mobile import paths (agent paste / menu.json file) |
-| **v2.0.0** | Auto version-bump tool (custom z.x.y scheme: y≤3, x≤6) |
-| **v1.7.4** | Mobile optimization (44px touch targets / iOS zoom fix / result card on top) |
-| **v1.7.3** | Demo token-import card pinned to top · group-buy samples 6→11 |
-| **v1.7.1** | Savings grade (S/A/B/C/D) · parameter-chaining guide |
-| **v1.7.0** | Swap suggestions ordered by kcal cost · taste memory · MCP pitfalls guide · capability status disclosure |
-| v1.6.0 | Coupon scheduling (realizable vs doomed) · coupon-value probing · shareable HTML report · offline full-pipeline demo |
-| v1.5.0 | Nutrition constraints: protein floor / sodium cap, violators flagged honestly |
-| v1.4.x | Multi-dimension constraints + set-meal swap + points shadow price + one-shot claiming |
+Current version **v2.3.1**. The three most recent releases (auto-generated from CHANGELOG):
+
+<!-- release-highlights:start -->
+Recent releases: **v2.3.1** · **v2.3.0** · **v2.2.3**
+<!-- release-highlights:end -->
 
 Full history in [CHANGELOG.md](CHANGELOG.md); downloads on the
 [Releases](https://github.com/yuxinlaile/McD-saver/releases) page.
-
-## Release artifacts
-
-Every version ships one pair of artifacts — in [`releases/`](releases/README.md) and on the matching GitHub Release:
-
-| Type | Naming | Form | Contents |
-|---|---|---|---|
-| English | `mcd-saver-v<version>.zip` | Archive | Full source at that tag; extracts to `McD-Saver-v<version>/` |
-| Chinese | `麦麦省钱助手-v<version>-发布说明.md` | Notes | Version info, install steps, changes for that version, SHA-256 |
-
-- Versions follow the project's custom `z.x.y` scheme (patch ≤3, minor ≤6, carry on overflow), bumped and synced by `scripts/version.py`
-- `scripts/build_releases.py` builds and verifies artifacts: `--all` for every tag, `--verify` for naming, pairing and archive integrity
-- Each tag maps to exactly one release, and every release carries the same two files — tag ↔ release ↔ `releases/` stay in lockstep
-  (GitHub asset names reject non-ASCII, so the Chinese notes appear as `mcd-saver-v<version>-release-notes-zh.md`
-  with identical content; the original Chinese filename lives in `releases/`)
 
 ## Feedback
 

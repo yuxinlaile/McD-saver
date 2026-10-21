@@ -150,8 +150,11 @@ class TestRepositoryLayout:
     def test_readme_has_structure_and_release_sections(self):
         zh = read("README.md")
         en = read("README_EN.md")
-        assert "## 项目结构" in zh and "## 发布产物与版本策略" in zh
-        assert "## Project layout" in en and "## Release artifacts" in en
+        assert "## 项目结构" in zh and "## 更新说明" in zh
+        assert "## Project layout" in en and "## Release notes" in en
+        # 发布产物与版本策略属内部流程说明，只保留在 releases/README.md 与 CONTRIBUTING.md
+        assert "## 发布产物与版本策略" not in zh
+        assert "## Release artifacts" not in en
 
     def test_no_python_files_at_repo_root_except_demo(self):
         strays = [p.name for p in ROOT.glob("*.py") if p.name != "demo.py"]
