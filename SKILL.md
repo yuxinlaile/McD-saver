@@ -1,7 +1,7 @@
 ---
 name: mcd-saver
 description: 麦麦省钱助手——基于麦当劳中国官方 MCP Server 的省钱点餐技能。当用户提到麦当劳、麦乐送、麦麦、点麦当劳、想省钱/薅羊毛/领券/优惠、查优惠怎么用、积分兑换、麦麦商城、积分抽奖、麦当劳活动，或询问"怎么点麦当劳最划算"时使用本技能。核心能力：在下单前自动完成"领券→选券→比价→积分抵扣评估"，用 35 个官方工具帮用户以最低价格吃到同样的麦当劳。
-version: 2.3.2
+version: 2.3.3
 license: MIT
 ---
 
@@ -276,6 +276,7 @@ mcd-saver/
 ├── demo.py                             # 离线全链路演示（内嵌 fixture，不联网）
 ├── .github/
 │   ├── workflows/ci.yml                # CI：3.9 / 3.11 / 3.13 矩阵 + 覆盖率门槛
+│   ├── workflows/star-chart.yml        # 每日重算 Star 曲线并按需提交
 │   ├── ISSUE_TEMPLATE/                 # Bug / 功能建议模板与讨论区入口
 │   └── PULL_REQUEST_TEMPLATE.md        # PR 检查清单
 ├── docs/

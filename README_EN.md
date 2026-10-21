@@ -7,7 +7,7 @@
 **Let AI get you McDonald's for less** — Agent Skill + standalone CLI in one repo
 
 [![Live Demo](https://img.shields.io/badge/%F0%9F%8E%AE_Live_Demo-no_sign--in-FFC72C?style=flat-square)](https://yuxinlaile.github.io/McD-saver/demo.html)
-[![Release](https://img.shields.io/badge/Release-v2.3.2-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.3.2)
+[![Release](https://img.shields.io/badge/Release-v2.3.3-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.3.3)
 [![Stars](https://img.shields.io/github/stars/yuxinlaile/McD-saver?style=flat-square&label=Stars)](https://github.com/yuxinlaile/McD-saver/stargazers)
 [![CI](https://github.com/yuxinlaile/McD-saver/actions/workflows/ci.yml/badge.svg)](https://github.com/yuxinlaile/McD-saver/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
@@ -288,10 +288,10 @@ More troubleshooting: [`references/error-handling.md`](references/error-handling
 
 ## Release notes
 
-Current version **v2.3.2**. The three most recent releases (auto-generated from CHANGELOG):
+Current version **v2.3.3**. The three most recent releases (auto-generated from CHANGELOG):
 
 <!-- release-highlights:start -->
-Recent releases: **v2.3.2** · **v2.3.1** · **v2.3.0**
+Recent releases: **v2.3.3** · **v2.3.2** · **v2.3.1**
 <!-- release-highlights:end -->
 
 Full history in [CHANGELOG.md](CHANGELOG.md); downloads on the
@@ -351,8 +351,10 @@ If you find this useful, a ⭐ helps more McDonald's regulars discover it:
 ![Star History](docs/assets/star-history.svg)
 
 > The curve is generated in this repo: `scripts/gen_star_chart.py` renders GitHub star
-> timestamps into an SVG — re-run `python scripts/gen_star_chart.py` any time (needs
-> `GITHUB_TOKEN` or a logged-in `gh` CLI). The Stars badge at the top is the live count.
+> timestamps into an SVG, **recomputed daily by CI** (run `python scripts/gen_star_chart.py`
+> locally to refresh right away — needs `GITHUB_TOKEN` or a logged-in `gh` CLI).
+> The Stars badge at the top is the live count. For the same curve from third-party
+> star-history.com, click [here](https://star-history.com/#yuxinlaile/McD-saver&Date).
 
 </div>
 

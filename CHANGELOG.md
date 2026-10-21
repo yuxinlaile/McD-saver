@@ -3,6 +3,21 @@
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 格式，
 版本号遵循项目自定义 `z.x.y` 规则（修订号 ≤3、次版本号 ≤6，超限进位），由 `scripts/version.py` 递增并同步发布文件。
 
+## [2.3.3] - 2026-10-21
+
+Star 曲线加入每日自动重算。
+
+### 改进
+
+- 新增 `.github/workflows/star-chart.yml`：每日 11:17（UTC+8）自动运行 `scripts/gen_star_chart.py`
+  重算 `docs/assets/star-history.svg`，内容有变化时自动提交（无变化则跳过）；支持手动触发
+  （workflow_dispatch）。
+- README 的 Star History 段落注明曲线由 CI 每日重算，并附第三方 star-history.com 的同款曲线链接。
+
+### 质量
+
+- 309 项测试全绿
+
 ## [2.3.2] - 2026-10-21
 
 Star 曲线改为仓库内自绘，参与贡献段落重写。

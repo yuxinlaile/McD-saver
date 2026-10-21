@@ -7,7 +7,7 @@
 **让 AI 帮你用最少的钱吃麦当劳** —— Agent Skill + 独立 CLI 二合一
 
 [![在线试算](https://img.shields.io/badge/%F0%9F%8C%90_在线试算-免登录-FFC72C?style=flat-square)](https://yuxinlaile.github.io/McD-saver/demo.html)
-[![Release](https://img.shields.io/badge/Release-v2.3.2-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.3.2)
+[![Release](https://img.shields.io/badge/Release-v2.3.3-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.3.3)
 [![Stars](https://img.shields.io/github/stars/yuxinlaile/McD-saver?style=flat-square&label=Stars)](https://github.com/yuxinlaile/McD-saver/stargazers)
 [![CI](https://github.com/yuxinlaile/McD-saver/actions/workflows/ci.yml/badge.svg)](https://github.com/yuxinlaile/McD-saver/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
@@ -274,14 +274,14 @@ releases/    发布产物：每版英文压缩包 + 中文说明 + 索引
 
 ## 更新说明
 
-当前版本 **v2.3.2**。最近 3 个版本（由 CHANGELOG 自动生成）：
+当前版本 **v2.3.3**。最近 3 个版本（由 CHANGELOG 自动生成）：
 
 <!-- release-highlights:start -->
 | 版本 | 亮点 |
 |---|---|
+| **v2.3.3** | 新增 `.github/workflows/star-chart.yml`：每日 11:17（UTC+8）自动运行 `s |
 | **v2.3.2** | Star 曲线改为自绘 |
 | **v2.3.1** | 「近期版本」区块改为自动生成 |
-| **v2.3.0** | 包名 / 技能名 / 客户端标识统一为 `mcd-saver` |
 <!-- release-highlights:end -->
 
 完整变更记录见 [CHANGELOG.md](CHANGELOG.md)，各版本下载见
@@ -336,8 +336,9 @@ Issue / PR / Discussions 都欢迎。三类最省力的切入点：
 ![Star History](docs/assets/star-history.svg)
 
 > 曲线由本仓库自行生成：`scripts/gen_star_chart.py` 取 GitHub API 的打星时间渲染为 SVG，
-> 随时可用 `python scripts/gen_star_chart.py` 重算（需 `GITHUB_TOKEN` 或已登录的 `gh` CLI）；
-> 顶部 Stars 徽章为实时值。
+> **每日由 CI 自动重算**（也可本地 `python scripts/gen_star_chart.py` 立即刷新，需 `GITHUB_TOKEN`
+> 或已登录的 `gh` CLI）；顶部 Stars 徽章为实时值。想看第三方 star-history.com 的同款曲线，
+> 可点[这里](https://star-history.com/#yuxinlaile/McD-saver&Date)。
 
 </div>
 
