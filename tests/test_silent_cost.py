@@ -76,6 +76,35 @@ class TestOrders:
         result = analyze_orders({"data": []})
         assert result["total_spend"] is None and result["top_items"] == []
 
+    def test_refund_is_signed_and_excluded_from_spend(self):
+        """退款/冲正金额为负：既不能当正消费，也不算 0 元订单。"""
+        raw = {"data": [
+            {"totalAmount": 30.0},
+            {"totalAmount": -20.0},
+            {"totalAmount": 0},
+        ]}
+        result = analyze_orders(raw)
+        assert result["refund_order_count"] == 1
+        assert result["free_order_count"] == 1
+        assert result["amount_count"] == 1
+        assert result["total_spend"] == 30.0
+        assert result["avg_ticket"] == 30.0
+
+    def test_refund_string_keeps_sign(self):
+        from silent_cost import _parse_amount
+        assert _parse_amount("-¥12.50") == -12.5
+        assert _parse_amount("-20") == -20.0
+        assert _parse_amount("¥12.50") == 12.5
+
+    def test_report_mentions_refunds(self):
+        from silent_cost import analyze_coupons, render_report, schedule_coupons
+        raw = {"data": [{"totalAmount": 30.0}, {"totalAmount": -20.0}]}
+        orders = analyze_orders(raw)
+        coupons = analyze_coupons({"data": []})
+        text = render_report(coupons, orders, analyze_points({}), None,
+                             schedule_coupons(coupons, orders))
+        assert "退款/冲正" in text
+
 
 class TestPoints:
     def test_full_fields(self):

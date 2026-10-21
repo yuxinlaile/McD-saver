@@ -196,3 +196,17 @@ class TestVerifyRun:
         assert "stub" in text
         assert (tmp_path / "verified-run-report.html").exists()
         assert "已写入" in capsys.readouterr().out
+
+    def test_out_flag_overrides_default_path(self, tmp_path, monkeypatch):
+        self._stub(monkeypatch, tmp_path)
+        custom = tmp_path / "nested" / "run.md"
+        assert verify_run.main(["--out", str(custom)]) == 0
+        assert custom.exists()
+        assert "真实运行验证记录" in custom.read_text(encoding="utf-8")
+
+    def test_default_output_is_gitignored(self):
+        """默认输出必须落在 .gitignore 覆盖的路径上，避免误运行污染入库样例。"""
+        rel = verify_run.OUT.relative_to(verify_run.REPO_ROOT).as_posix()
+        ignore = (verify_run.REPO_ROOT / ".gitignore").read_text(encoding="utf-8")
+        assert rel in ignore
+        assert verify_run.OUT.name != "verified-run.md"

@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 """真实运行验证记录生成器（verified-run）。
 
-在**真实 Token 环境**下运行一次，自动把四步检查的实测证据写入
-``examples/verified-run.md``——这是「真实性即信任」的留档。
+在**真实 Token 环境**下运行一次，自动把四步检查的实测证据写成 Markdown 记录。
+默认写到 ``examples/verified-run.local.md``（已在 ``.gitignore`` 中，不会污染仓库）；
+需要更新入库样例时用 ``--out examples/verified-run.md`` 显式指定。
 
 安全约定：
 - Token 与手机号绝不写入输出（本脚本输出的内容已脱敏）；
@@ -13,8 +14,9 @@
 用法::
 
     export MCD_MCP_TOKEN=你的token   # 或写入 ~/.mcd_mcp_token
-    python scripts/verify_run.py               # 生成验证记录
+    python scripts/verify_run.py               # 写本地文件（不入库）
     python scripts/verify_run.py --html        # 同时生成 HTML 体检报告
+    python scripts/verify_run.py --out examples/verified-run.md   # 更新入库样例
 """
 from __future__ import annotations
 
@@ -28,14 +30,32 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from mcd_client import McdMcpClient, load_token  # noqa: E402
 import silent_cost  # noqa: E402
 
-OUT = Path(__file__).resolve().parent.parent / "examples" / "verified-run.md"
+EXAMPLES = Path(__file__).resolve().parent.parent / "examples"
+# 默认写本地文件：该文件被 .gitignore 排除，避免一次误运行就覆写入库样例
+OUT = EXAMPLES / "verified-run.local.md"
+REPO_ROOT = Path(__file__).resolve().parent.parent
+
+
+def _display_path(path: Path) -> str:
+    """仓库内路径显示为相对路径，仓库外显示绝对路径（便于在记录里定位）。"""
+    try:
+        return path.resolve().relative_to(REPO_ROOT).as_posix()
+    except ValueError:
+        return path.as_posix()
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="verify_run", description="生成真实运行验证记录")
     parser.add_argument("--html", action="store_true", help="同时生成 HTML 体检报告")
     parser.add_argument("--store-code", default="", help="门店编码（默认取菜单数据）")
+    parser.add_argument("--out", default=None,
+                        help="输出路径（默认 examples/verified-run.local.md；"
+                             "更新入库样例请传 examples/verified-run.md）")
     args = parser.parse_args(argv)
+
+    out = Path(args.out) if args.out else OUT
+    if not out.is_absolute():
+        out = Path(__file__).resolve().parent.parent / out
 
     token = load_token()
     if not token:
@@ -64,10 +84,10 @@ def main(argv: list[str] | None = None) -> int:
     points = silent_cost.analyze_points(raw_points)
     schedule = silent_cost.schedule_coupons(coupons, orders)
 
-    # 3) 可选 HTML 报告
+    # 3) 可选 HTML 报告（与记录同目录，均不入库）
     html_path = None
     if args.html:
-        html_path = OUT.parent / "verified-run-report.html"
+        html_path = out.parent / "verified-run-report.html"
         html_path.write_text(
             silent_cost.render_html(coupons, orders, points, None, schedule,
                                     generated=dt.datetime.now().strftime("%Y-%m-%d %H:%M")),
@@ -124,13 +144,15 @@ def main(argv: list[str] | None = None) -> int:
             "",
         ]
     if html_path:
-        lines += ["## HTML 体检报告", "", "- 文件：`examples/{0}`".format(html_path.name), ""]
+        lines += ["## HTML 体检报告", "",
+                  "- 文件：`{0}`（本地生成，不入库）".format(_display_path(html_path)), ""]
     lines += ["---", "",
               "> 复核方式：`python scripts/verify_run.py` 可随时重新生成；",
               "> 所有金额均为 MCP 实时返回，脚本不估算。", ""]
 
-    OUT.write_text("\n".join(lines), encoding="utf-8")
-    print("已写入：{0}".format(OUT))
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text("\n".join(lines), encoding="utf-8")
+    print("已写入：{0}".format(out))
     if html_path:
         print("HTML 报告：{0}".format(html_path))
     return 0

@@ -25,5 +25,6 @@ Thumbs.db
 .coverage.*
 htmlcov/
 examples/verified-run-report.html
+examples/verified-run.local.md
 # 发布产物：压缩包为二进制，由 scripts/build_releases.py 重建后挂载到 Release
 releases/**/*.zip

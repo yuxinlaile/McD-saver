@@ -60,7 +60,8 @@ DEFAULT_BASE_URL = os.environ.get("MCD_MCP_URL", "https://mcp.mcd.cn")
 DEFAULT_TIMEOUT = 30.0          # 单次请求超时（秒）
 DEFAULT_MAX_RETRIES = 3         # 可重试错误的最大自动重试次数
 DEFAULT_RATE_LIMIT = 300        # 主动滑动窗口限速（次/分钟，官方上限 600 的一半）
-MAX_BACKOFF_SECONDS = 30.0      # 单次退避等待上限（秒）
+MAX_BACKOFF_SECONDS = 30.0      # 指数退避的单次等待上限（秒）
+MAX_RETRY_AFTER_SECONDS = 300.0  # 服务器 Retry-After 的硬上限（秒）：尊重指示但不无限等待
 TOKEN_ENV_VAR = "MCD_MCP_TOKEN"
 TOKEN_FILE_ENV_VAR = "MCD_MCP_TOKEN_FILE"
 DEFAULT_TOKEN_FILE = "~/.mcd_mcp_token"
@@ -68,8 +69,8 @@ DEFAULT_TOKEN_FILE = "~/.mcd_mcp_token"
 # MCP 协议版本（Streamable HTTP 传输规范）
 PROTOCOL_VERSION = "2025-03-26"
 
-CLIENT_INFO = {"name": "mcd-saver", "version": "2.4.1"}
-USER_AGENT = "mcd-saver/2.4.1"
+CLIENT_INFO = {"name": "mcd-saver", "version": "2.4.2"}
+USER_AGENT = "mcd-saver/2.4.2"
 
 
 # ---------------------------------------------------------------------------
@@ -171,15 +172,16 @@ def load_token(cli_token: Optional[str] = None) -> Optional[str]:
 def _compute_backoff(attempt: int, retry_after: float = 0.0) -> float:
     """计算第 attempt 次重试前的等待秒数（指数退避 + 随机抖动）。
 
-    规则：``max(Retry-After, 2**attempt + jitter)``，封顶
-    ``MAX_BACKOFF_SECONDS``。jitter 取 [0, 1) 均匀随机值。
+    规则：``max(Retry-After, 2**attempt + jitter)``；指数部分封顶
+    ``MAX_BACKOFF_SECONDS``，整体封顶 ``MAX_RETRY_AFTER_SECONDS``——
+    服务器要求的等待时间优先，但不超过硬上限。jitter 取 [0, 1) 均匀随机值。
 
     Args:
         attempt: 已失败次数（0 表示首次失败后）。
         retry_after: 服务器 Retry-After 响应头值（秒），无则传 0。
     """
-    base = 2.0 ** attempt + random.uniform(0.0, 1.0)
-    return min(max(retry_after, base), MAX_BACKOFF_SECONDS)
+    base = min(2.0 ** attempt + random.uniform(0.0, 1.0), MAX_BACKOFF_SECONDS)
+    return min(max(retry_after, base), MAX_RETRY_AFTER_SECONDS)
 
 
 def _parse_retry_after(value: Optional[str]) -> float:
@@ -461,9 +463,10 @@ class McdMcpClient:
     ) -> Optional[Dict[str, Any]]:
         body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
         last_error: Optional[McpError] = None
-        self._throttle()
 
         for attempt in range(self.max_retries + 1):
+            # 限速按「实际发出的请求」计：重试同样占配额，必须计入滑动窗口
+            self._throttle()
             request = urllib.request.Request(
                 self.base_url, data=body, headers=self._headers(), method="POST"
             )

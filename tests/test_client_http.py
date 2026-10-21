@@ -109,6 +109,17 @@ class TestHttpErrors:
         assert client.initialize()["serverInfo"] == {}
         assert len(sleeps) == 1
 
+    def test_each_attempt_passes_through_throttle(self, monkeypatch):
+        """重试同样占每分钟配额：每次实际发出的请求都要过限速器。"""
+        err = urllib.error.HTTPError("u", 500, "boom", {}, io.BytesIO(b"oops"))
+        patch_urlopen(monkeypatch, err, json_rpc({"ok": True}))
+        monkeypatch.setattr(mc.time, "sleep", lambda s: None)
+        client = make_client(max_retries=1)
+        calls = []
+        monkeypatch.setattr(client, "_throttle", lambda: calls.append(1))
+        client._post({"jsonrpc": "2.0", "id": 1, "method": "x"})
+        assert len(calls) == 2, "首次请求 + 一次重试，应各过一次限速器"
+
     def test_429_exhausted_raises_rate_limit(self, monkeypatch):
         err1 = urllib.error.HTTPError("u", 429, "rate", {}, io.BytesIO(b""))
         err2 = urllib.error.HTTPError("u", 429, "rate", {}, io.BytesIO(b""))

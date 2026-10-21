@@ -32,7 +32,7 @@
 
 ## HTML 体检报告
 
-- 文件：`examples/verified-run-report.html`
+- 文件：`examples/verified-run-report.html`（本地生成，不入库）
 
 ---
 

@@ -5,6 +5,7 @@ import pytest
 
 from mcd_client import (
     MAX_BACKOFF_SECONDS,
+    MAX_RETRY_AFTER_SECONDS,
     AuthError,
     McdMcpClient,
     _compute_backoff,
@@ -62,7 +63,12 @@ class TestBackoff:
 
     def test_capped_at_max(self):
         for attempt in (0, 2, 8):
-            assert _compute_backoff(attempt, retry_after=999.0) <= MAX_BACKOFF_SECONDS
+            assert _compute_backoff(attempt, retry_after=999.0) <= MAX_RETRY_AFTER_SECONDS
+
+    def test_retry_after_above_backoff_is_honored(self):
+        # 服务器要求等待 120s 时不能截到 30s，否则必然再撞 429
+        assert _compute_backoff(0, retry_after=120.0) == 120.0
+        assert _compute_backoff(3, retry_after=60.0) == 60.0
 
     def test_non_negative(self):
         assert _compute_backoff(0) >= 0.0

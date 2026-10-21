@@ -5,7 +5,7 @@
 
 .DESCRIPTION
   将本仓库的 Skill 文件复制到指定 Agent 的技能目录。
-  只复制 SKILL.md / scripts / references / config / examples，
+  只复制 SKILL.md / README / CHANGELOG / scripts / references / config / examples / docs / LICENSE，
   不读取 Token、不修改 MCP 连接器、不安装任何软件。
   已存在的同名技能会先备份为 <name>.bak。
 
@@ -29,7 +29,7 @@ $targetRoot = @{
     codex     = Join-Path $HOME '.agents\skills'
 }[$Target]
 
-$items = @('SKILL.md', 'scripts', 'references', 'config', 'examples', 'docs', 'LICENSE')
+$items = @('SKILL.md', 'README.md', 'CHANGELOG.md', 'scripts', 'references', 'config', 'examples', 'docs', 'LICENSE')
 $missing = $items | Where-Object { -not (Test-Path (Join-Path $sourceDir $_)) }
 if ($missing) {
     Write-Error "仓库文件不完整，缺少：$($missing -join ', ')。请重新克隆仓库。"

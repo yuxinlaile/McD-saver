@@ -35,7 +35,7 @@ jobs:
         run: pip install -r requirements-dev.txt
 
       - name: Run unit tests with coverage
-        run: python -m pytest tests/ -v --cov=scripts --cov-report=term-missing --cov-fail-under=70
+        run: python -m pytest tests/ -v --cov=scripts --cov-report=term-missing --cov-fail-under=78
 
       - name: README anchors and structure
         run: python scripts/check_toc.py
@@ -66,3 +66,35 @@ jobs:
         env:
           MCD_MCP_TOKEN: ""
           MCD_MCP_TOKEN_FILE: "/dev/null"
+
+  # Windows 是主要使用场景（中文路径、PowerShell、install.ps1），单跑一次 3.9 保证平台分支可达
+  test-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
+      - name: Syntax check
+        run: python -m compileall -q scripts demo.py
+
+      - name: Install dev dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Run unit tests
+        run: python -m pytest tests/ -q
+
+      - name: Installer dry run
+        shell: pwsh
+        run: |
+          pwsh -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 -Target workbuddy
+          $target = Join-Path $HOME ".workbuddy\skills\mcd-saver"
+          foreach ($item in @('SKILL.md','README.md','CHANGELOG.md','scripts','references')) {
+            if (-not (Test-Path (Join-Path $target $item))) {
+              Write-Error "安装结果缺少 $item"
+              exit 1
+            }
+          }

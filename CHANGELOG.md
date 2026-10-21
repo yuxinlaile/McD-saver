@@ -3,6 +3,37 @@
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 格式，
 版本号遵循项目自定义 `z.x.y` 规则（修订号 ≤3、次版本号 ≤6，超限进位），由 `scripts/version.py` 递增并同步发布文件。
 
+> 历史条目中的 `docs/development-log.md` 已于 v2.2.2 并入 `workbuddy.md`（该文件不再存在）。
+> `1.0.0` / `1.1.0` 为未发行里程碑：没有对应的 git tag 与 `releases/` 产物，`releases/` 从 `1.2.0` 起。
+
+## [2.4.2] - 2026-10-21
+
+修复遗留的工程债：负金额解析、重试限速、验证记录落盘、CI 平台覆盖与文档数字。
+
+### 修复
+
+- **退款与重试链路修复**：`silent_cost._parse_amount` 的正则忽略负号，退款单会被当成正常消费计入客单价；
+  现保留符号（含 `-¥12.50` 这类形态），消费画像新增 `refund_order_count`，退款不计入总支出与客单价。
+  `mcd_client._post` 的 `_throttle()` 原本在重试循环之外，429 退避后的重试不计入滑动窗口，现每次实际发出的
+  请求（含重试）都过限速器。`Retry-After` 此前被截到 30s，服务器要求等待更久时会提前重试；现指数退避部分
+  仍封顶 30s，但尊重服务器指示至 300s 硬上限。
+- **`verify_run.py` 覆写入库样例**：默认输出改为 `examples/verified-run.local.md`（`.gitignore` 已覆盖），
+  更新入库样例需显式 `--out examples/verified-run.md`；`examples/verified-run.md` 中不可达的 HTML 引用
+  改为「本地生成，不入库」。
+- **覆盖率报告数字过期**：按实测（317 项测试 / 79% / 495 行未覆盖）重写 `docs/coverage-report.md`。
+
+### 改进
+
+- **CI 增加 Windows job**（`windows-latest` + Python 3.9）：跑测试并校验 `install.ps1` 的安装结果，
+  覆盖此前只能在 Windows 触发的分支；覆盖率门槛 70% → 78%。
+- `install.ps1` 增补 `README.md` / `CHANGELOG.md`，装成技能包后仍带说明与变更记录。
+- `CHANGELOG` 顶部注明：`1.0.0` / `1.1.0` 为未发行里程碑（无 tag 与 `releases/` 产物），
+  历史条目中的 `docs/development-log.md` 已于 v2.2.2 并入 `workbuddy.md`。
+
+### 质量
+
+- 310 → 317 项测试全过
+
 ## [2.4.1] - 2026-10-21
 
 Star History 图表改用第三方渲染，移除仓库内的自绘链路。

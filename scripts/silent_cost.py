@@ -136,9 +136,12 @@ def _parse_amount(value: Any) -> Optional[float]:
     if isinstance(value, (int, float)):
         return float(value)
     if isinstance(value, str):
-        match = re.search(r"(\d+(?:\.\d+)?)", value.replace(",", ""))
+        # 保留负号：退款/冲正金额在订单里以负数出现，丢掉符号会被当成正常消费。
+        # 负号与数字之间可能夹着货币符号（如 "-¥12.50"），需一起匹配。
+        match = re.search(r"(-)?\s*[¥￥$]?\s*(\d+(?:\.\d+)?)", value.replace(",", ""))
         if match:
-            return float(match.group(1))
+            number = float(match.group(2))
+            return -number if match.group(1) else number
     return None
 
 
@@ -240,6 +243,7 @@ def analyze_orders(orders_raw: Any, today: Optional[datetime] = None) -> Dict[st
     item_counter: Dict[str, int] = {}
     unrecognized = 0
     free_count = 0
+    refund_count = 0
     for order in records:
         amount = _parse_amount(_first_key(order, AMOUNT_KEYS))
         if amount is None:
@@ -249,6 +253,9 @@ def analyze_orders(orders_raw: Any, today: Optional[datetime] = None) -> Dict[st
             # 拿它当「不看券时的自然消费基准」是循环论证，会系统性拉低基准
             #（消费口径与点单口径分离）
             amounts.append(amount)
+        elif amount < 0:
+            # 退款/冲正：既不是消费也不是 0 元订单，单独计数并从客单价口径排除
+            refund_count += 1
         else:
             free_count += 1
         when = _first_key(order, TIME_KEYS)
@@ -280,6 +287,7 @@ def analyze_orders(orders_raw: Any, today: Optional[datetime] = None) -> Dict[st
         "order_count": len(records),
         "amount_count": len(amounts),
         "free_order_count": free_count,
+        "refund_order_count": refund_count,
         "total_spend": total if amounts else None,
         "avg_ticket": (total / len(amounts)) if amounts else None,
         "order_frequency": frequency,
@@ -496,6 +504,9 @@ def render_report(coupons: Dict[str, Any], orders: Dict[str, Any],
                     item["name"], item["count"]))
     else:
         lines.append("  暂无可识别的历史订单金额。")
+    if orders.get("refund_order_count"):
+        lines.append("  （另有 {0} 笔退款/冲正订单：金额为负，不计入总支出与客单价）".format(
+            orders["refund_order_count"]))
     if orders["unrecognized"]:
         lines.append("  （{0} 单金额字段未识别，已跳过）".format(orders["unrecognized"]))
 
