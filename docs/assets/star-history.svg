@@ -10,14 +10,14 @@
 <text x="44" y="127.0" font-family="ui-monospace,Consolas,monospace" font-size="12" fill="#9CA3AF" text-anchor="end">90</text>
 <line x1="52" y1="44.0" x2="704" y2="44.0" stroke="#E5E7EB" stroke-width="1"/>
 <text x="44" y="48.0" font-family="ui-monospace,Consolas,monospace" font-size="12" fill="#9CA3AF" text-anchor="end">120</text>
-<polygon points="52.0,360.0 52.0,354.7 111.3,354.7 170.5,349.5 229.8,344.2 289.1,341.6 348.4,333.7 407.6,331.0 466.9,331.0 526.2,331.0 585.5,331.0 644.7,101.9 704.0,65.1 704.0,360.0" fill="#FFC72C" fill-opacity="0.18"/>
-<polyline points="52.0,354.7 111.3,354.7 170.5,349.5 229.8,344.2 289.1,341.6 348.4,333.7 407.6,331.0 466.9,331.0 526.2,331.0 585.5,331.0 644.7,101.9 704.0,65.1" fill="none" stroke="#FFC72C" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="52.0,360.0 52.0,354.7 111.3,354.7 170.5,349.5 229.8,344.2 289.1,341.6 348.4,333.7 407.6,331.0 466.9,331.0 526.2,331.0 585.5,331.0 644.7,101.9 704.0,57.2 704.0,360.0" fill="#FFC72C" fill-opacity="0.18"/>
+<polyline points="52.0,354.7 111.3,354.7 170.5,349.5 229.8,344.2 289.1,341.6 348.4,333.7 407.6,331.0 466.9,331.0 526.2,331.0 585.5,331.0 644.7,101.9 704.0,57.2" fill="none" stroke="#FFC72C" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
 <text x="52.0" y="386" font-family="ui-monospace,Consolas,monospace" font-size="12" fill="#9CA3AF" text-anchor="start">10-10</text>
 <text x="229.8" y="386" font-family="ui-monospace,Consolas,monospace" font-size="12" fill="#9CA3AF" text-anchor="middle">10-13</text>
 <text x="466.9" y="386" font-family="ui-monospace,Consolas,monospace" font-size="12" fill="#9CA3AF" text-anchor="middle">10-17</text>
 <text x="704.0" y="386" font-family="ui-monospace,Consolas,monospace" font-size="12" fill="#9CA3AF" text-anchor="end">10-21</text>
-<circle cx="704.0" cy="65.1" r="4" fill="#DA291C"/>
-<text x="696.0" y="57.1" font-family="ui-monospace,Consolas,monospace" font-size="15" font-weight="bold" fill="#DA291C" text-anchor="end">112 ★</text>
+<circle cx="704.0" cy="57.2" r="4" fill="#DA291C"/>
+<text x="696.0" y="49.2" font-family="ui-monospace,Consolas,monospace" font-size="15" font-weight="bold" fill="#DA291C" text-anchor="end">115 ★</text>
 <text x="52" y="24" font-family="ui-monospace,Consolas,monospace" font-size="13" fill="#374151">yuxinlaile/McD-saver · GitHub Stars</text>
 <text x="704" y="24" font-family="ui-monospace,Consolas,monospace" font-size="12" fill="#9CA3AF" text-anchor="end">截至 2026-10-21</text>
 </svg>
