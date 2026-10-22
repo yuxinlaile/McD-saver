@@ -22,6 +22,8 @@ import sys
 from pathlib import Path
 from typing import List, Set
 
+from console import ensure_utf8_stdio
+
 REPO = Path(__file__).resolve().parent.parent
 
 
@@ -146,6 +148,7 @@ def audit() -> List[str]:
 
 
 def main() -> int:
+    ensure_utf8_stdio()
     problems = audit()
     if not problems:
         print("README 审计通过：命令表 / 脚本路径 / 用例数 / Python 版本 / 许可证 均与仓库一致。")

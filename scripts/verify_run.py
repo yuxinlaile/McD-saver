@@ -27,6 +27,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from console import ensure_utf8_stdio  # noqa: E402
 from mcd_client import McdMcpClient, load_token  # noqa: E402
 import silent_cost  # noqa: E402
 
@@ -45,6 +46,7 @@ def _display_path(path: Path) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
+    ensure_utf8_stdio()
     parser = argparse.ArgumentParser(prog="verify_run", description="生成真实运行验证记录")
     parser.add_argument("--html", action="store_true", help="同时生成 HTML 体检报告")
     parser.add_argument("--store-code", default="", help="门店编码（默认取菜单数据）")

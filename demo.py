@@ -35,6 +35,7 @@ from typing import Any, Dict, List
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "scripts"))
 
+from console import ensure_utf8_stdio  # noqa: E402
 from optimizer import build_candidates, make_local_pricer, score_and_rank  # noqa: E402
 from silent_cost import (  # noqa: E402
     analyze_coupons, analyze_mall, analyze_orders, analyze_points,
@@ -182,6 +183,7 @@ def build_report(only: str = "") -> str:
 
 
 def main(argv: List[str] | None = None) -> int:
+    ensure_utf8_stdio()
     parser = argparse.ArgumentParser(prog="demo", description="麦麦省钱助手 30 秒离线全链路演示")
     parser.add_argument("--section", default="", help="只看某一段（领券/选券/比价/积分/沉默成本/跨渠道）")
     args = parser.parse_args(argv)

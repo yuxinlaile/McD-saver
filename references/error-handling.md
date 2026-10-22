@@ -49,6 +49,18 @@
    - 持续出现请提 Issue 并附 Content-Type（勿附 Token）。
 5. **创建订单后用户未支付**
    - `query-order` 查看订单状态；未支付订单由用户决定继续支付或 `cancel-order`。
+6. **券不在本店 / 本渠道可用**
+   - 症状：同一张券 A 店能用、B 店不能用；到店券拿去做外送不生效。
+   - 原因：门店券由 `query-store-coupons` 按 `storeCode` 与取餐方式（`orderType`）返回，换店或换到店/外送即对应另一批券。
+   - 怎么办：先确认门店编码与取餐方式，再重新查询；不要拿上一次的券列表跨店使用。
+7. **未达使用门槛**
+   - 症状：券面写「满 40 减 10」，购物车 ¥33.5，`calculate-price` 不抵扣。
+   - 原因：门槛判定在 `scripts/silent_cost.py::_coupon_threshold()`，门槛高于客单价时该券净价值为 0。
+   - 怎么办：用 `optimizer.py` 看这张券的净价值（面值 − 凑单缺口），再决定是否凑单。
+8. **不在可用时段 / 已过期**
+   - 症状：券还在列表里，但结算不生效。
+   - 原因：有效期字段不统一（`validityEndTime` / `validUntil` / `endTime` 等，见 `scripts/silent_cost.py::EXPIRE_KEYS`），跨零点或限时段的券会失效。
+   - 怎么办：用 `silent_cost.py` 看临期券与排期结果，优先用掉 7 天内到期的。
 
 ## 五、上报 Issue 的信息清单
 

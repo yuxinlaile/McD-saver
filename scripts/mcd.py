@@ -48,6 +48,8 @@ import json
 import sys
 from typing import Any, Dict, List, Optional
 
+from console import ensure_utf8_stdio
+
 try:  # 兼容“直接运行脚本”与“作为模块运行”两种方式
     from mcd_client import (
         AuthError,
@@ -319,6 +321,7 @@ def cmd_claim(client: McdMcpClient, yes: bool) -> int:
 # 入口
 # ---------------------------------------------------------------------------
 def main(argv: Optional[List[str]] = None) -> int:
+    ensure_utf8_stdio()
     parser = build_parser()
     args = parser.parse_args(argv)
 

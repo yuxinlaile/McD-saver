@@ -36,6 +36,8 @@ import zipfile
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
+from console import ensure_utf8_stdio
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 RELEASES_DIR = REPO_ROOT / "releases"
 REPO_URL = "https://github.com/yuxinlaile/McD-saver"
@@ -404,6 +406,7 @@ def verify(verbose: bool = True) -> List[str]:
 
 
 def main(argv: Optional[List[str]] = None) -> int:
+    ensure_utf8_stdio()
     parser = argparse.ArgumentParser(description="构建/校验发布产物（英文名 zip + 中文名说明）")
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--all", action="store_true", help="为全部 tag 构建产物并重建索引")

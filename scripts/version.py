@@ -40,6 +40,8 @@ import re
 import sys
 from pathlib import Path
 
+from console import ensure_utf8_stdio
+
 MAX_MINOR = 6   # x 上限
 MAX_PATCH = 3   # y 上限
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -227,6 +229,7 @@ def apply_version(new_version: str) -> list[str]:
 
 
 def main(argv: list[str] | None = None) -> int:
+    ensure_utf8_stdio()
     parser = argparse.ArgumentParser(
         prog="version",
         description="McD Saver 版本号递增工具（自定义 z.x.y 格式：y≤3、x≤6）")

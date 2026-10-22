@@ -45,6 +45,8 @@ import sys
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
+from console import ensure_utf8_stdio
+
 try:  # 兼容“直接运行脚本”与“作为模块运行”两种方式
     from mcd_client import tool_json
 except ImportError:  # pragma: no cover - 以模块方式导入时补脚本目录
@@ -692,6 +694,7 @@ def run_plan(args: argparse.Namespace) -> int:
 
 
 def main(argv: Optional[List[str]] = None) -> int:
+    ensure_utf8_stdio()
     parser = build_parser()
     args = parser.parse_args(argv)
     if args.command == "plan":

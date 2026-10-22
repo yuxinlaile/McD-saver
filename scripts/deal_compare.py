@@ -51,6 +51,8 @@ import uuid
 from datetime import date, datetime
 from typing import Any, Dict, List, Optional
 
+from console import ensure_utf8_stdio
+
 EXIT_OK = 0
 EXIT_USAGE = 1
 EXIT_EMPTY = 2
@@ -365,6 +367,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: Optional[List[str]] = None) -> int:
+    ensure_utf8_stdio()
     parser = build_parser()
     args = parser.parse_args(argv)
     if not args.command:

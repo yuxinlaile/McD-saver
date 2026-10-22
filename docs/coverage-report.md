@@ -1,6 +1,6 @@
 # 覆盖率报告（`--cov=scripts`）
 
-> 生成于 2026-10-19，最近更新 v2.4.2（2026-10-21）。覆盖率口径：`pytest --cov=scripts`
+> 生成于 2026-10-19，最近更新 v2.4.3（2026-10-22）。覆盖率口径：`pytest --cov=scripts`
 > （仅统计 `scripts/` 下的运行时代码，不含 `demo.py`、测试自身与 `__main__` 保护块）。
 > 复现命令：`python -m pytest tests/ -q --cov=scripts --cov-report=term-missing`。
 
@@ -12,24 +12,25 @@
 |---|---|---|---|
 | 2026-10-19 分析前 | 201 | **61.9%**（报表四舍五入显示 62%） | CLI 命令层与网络层几乎未测 |
 | 补齐 P0 后（v2.2.0） | 245 | **76%** | `mcd.py` 28%→94%、`mcd_client.py` 56%→95%、`version.py` 80%→97% |
-| 当前（v2.4.2） | **317** | **79%**（497 / 2372 语句） | CI 门槛 70% → **78%**；新增 `windows-latest` job |
+| 当前（v2.4.3） | **322** | **79%**（498 / 2406 语句） | CI 门槛 70% → **78%**；新增 `windows-latest` job |
 
-### 1.2 未覆盖明细（497 行）
+### 1.2 未覆盖明细（498 行）
 
 | 文件 | 未覆盖/总语句 | 覆盖率 | 主要未覆盖内容 | 原因归类 |
 |---|---|---|---|---|
-| `build_releases.py` | 110 / 235 | 53% | `build_zip`（`git archive`）、`upload_release`（HTTP 上传）、`main` 的 `--all` 分支 | B + C |
-| `deal_compare.py` | 94 / 249 | 62% | `add` / `list` / `compare` 的部分分支与格式化输出 | B |
-| `sync_readme.py` | 35 / 96 | 64% | `--write` 落盘分支、标记缺失时的报错路径 | A + B |
-| `audit_readme.py` | 22 / 94 | 77% | 各项检查的失败分支（命令缺失、版本不一致等） | E |
-| `check_toc.py` | 23 / 109 | 79% | `main` 的失败分支（标题数不一致、英文缺章节） | A + E |
-| `optimizer.py` | 83 / 399 | 79% | `main`、`--mcp` 真实计价分支、若干渲染分支 | A + B |
-| `silent_cost.py` | 73 / 417 | 82% | `main`、`--probe` 实测分支、部分空数据分支 | A + B |
-| `version.py` | 13 / 148 | 91% | `main` 的少数退出路径 | A |
-| `mcd.py` | 14 / 173 | 92% | `parser.error` 分支、`claim` 少数分支 | E |
+| `build_releases.py` | 111 / 237 | 53% | `build_zip`（`git archive`）、`upload_release`（HTTP 上传）、`main` 的 `--all` 分支 | B + C |
+| `deal_compare.py` | 94 / 251 | 63% | `add` / `list` / `compare` 的部分分支与格式化输出 | B |
+| `sync_readme.py` | 36 / 98 | 63% | `--write` 落盘分支、标记缺失时的报错路径 | A + B |
+| `audit_readme.py` | 21 / 96 | 78% | 各项检查的失败分支（命令缺失、版本不一致等） | E |
+| `check_toc.py` | 23 / 111 | 79% | `main` 的失败分支（标题数不一致、英文缺章节） | A + E |
+| `optimizer.py` | 83 / 401 | 79% | `main`、`--mcp` 真实计价分支、若干渲染分支 | A + B |
+| `silent_cost.py` | 73 / 419 | 83% | `main`、`--probe` 实测分支、部分空数据分支 | A + B |
+| `version.py` | 13 / 150 | 91% | `main` 的少数退出路径 | A |
+| `mcd.py` | 14 / 175 | 92% | `parser.error` 分支、`claim` 少数分支 | E |
 | `mcd_client.py` | 23 / 321 | 93% | POSIX 权限告警（Windows 不执行）、极少数异常分支 | D |
 | `silent_report.py` | 4 / 67 | 94% | 纸面富贵/无排程等渲染分支 | E |
-| `verify_run.py` | 3 / 64 | 95% | `--store-code` 分支、`--out` 指向仓库外时的显示路径 | D |
+| `verify_run.py` | 3 / 66 | 95% | `--store-code` 分支、`--out` 指向仓库外时的显示路径 | D |
+| `console.py` | 0 / 14 | 100% | — | — |
 
 ### 1.3 五类根因
 
@@ -63,8 +64,8 @@
 
 | 任务 | 当前 → 目标 | 做法 |
 |---|---|---|
-| `deal_compare` CLI | 62% → 85% | `tmp_path` 建券库，跑 `add` / `list` / `compare`，断言排序与退出码 0/1/2 |
-| `sync_readme` | 64% → 90% | 临时 README/CHANGELOG 跑 `--write`，覆盖标记缺失与区块不一致两条失败路径 |
+| `deal_compare` CLI | 63% → 85% | `tmp_path` 建券库，跑 `add` / `list` / `compare`，断言排序与退出码 0/1/2 |
+| `sync_readme` | 63% → 90% | 临时 README/CHANGELOG 跑 `--write`，覆盖标记缺失与区块不一致两条失败路径 |
 | `build_releases` | 53% → 70% | `--index` / `--verify` 失败分支；`git` 与 `urlopen` 打桩，**不发起真实上传** |
 | `check_toc` / `audit_readme` 失败分支 | 77%–79% → 95% | 临时 README 制造死链、章节缺失、中英数量不一致、命令缺失 |
 | `optimizer --mcp` | 79% → 90% | `prefilter_plans` + 假 pricer 跑通真实计价分支，不联网 |

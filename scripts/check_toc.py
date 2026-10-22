@@ -21,6 +21,8 @@ import unicodedata
 from pathlib import Path
 from typing import List, Tuple
 
+from console import ensure_utf8_stdio
+
 ROOT = Path(__file__).resolve().parents[1]
 
 # 中英章节配对表：新增章节必须同步登记，否则英文缺失会在此暴露
@@ -124,6 +126,7 @@ def _toc_titles(md_path: Path, all_titles: List[str]) -> List[str]:
 
 
 def main(argv: List[str] | None = None) -> int:
+    ensure_utf8_stdio()
     args = list(sys.argv[1:] if argv is None else argv)
     zh_path = Path(args[0]) if args else ROOT / "README.md"
     en_path = Path(args[1]) if len(args) > 1 else ROOT / "README_EN.md"

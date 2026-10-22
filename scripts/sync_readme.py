@@ -21,6 +21,8 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Tuple
 
+from console import ensure_utf8_stdio
+
 START = "<!-- release-highlights:start -->"
 END = "<!-- release-highlights:end -->"
 DEFAULT_LIMIT = 3
@@ -94,6 +96,7 @@ def sync(root: Path, limit: int) -> Dict[str, str]:
 
 
 def main(argv=None) -> int:
+    ensure_utf8_stdio()
     parser = argparse.ArgumentParser(description="同步 README 的近期版本区块")
     parser.add_argument("--write", action="store_true", help="写入 README")
     parser.add_argument("--check", action="store_true", help="只校验（漂移则退出码 1）")

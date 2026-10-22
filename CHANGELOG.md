@@ -6,6 +6,26 @@
 > 历史条目中的 `docs/development-log.md` 已于 v2.2.2 并入 `workbuddy.md`（该文件不再存在）。
 > `1.0.0` / `1.1.0` 为未发行里程碑：没有对应的 git tag 与 `releases/` 产物，`releases/` 从 `1.2.0` 起。
 
+## [2.4.3] - 2026-10-22
+
+修复非中文 Windows 下中文输出崩溃，补齐券相关的排错条目。
+
+### 修复
+
+- **非中文 Windows 下中文输出崩溃**：控制台编码为 cp1252 时，`python demo.py` 与各 CLI 打印中文抛
+  `UnicodeEncodeError`，命令整体失败。新增 `scripts/console.py`，各入口在 `main()` 开头把非 UTF-8 的
+  stdout/stderr 切到 UTF-8（`errors="replace"` 兜底），已是 UTF-8 的流不动；
+  新增 `tests/test_console.py`（5 项，含「所有入口统一兜底」守卫）。
+
+### 文档
+
+- `references/error-handling.md` 的「常见问题排查」补 3 条券相关条目：券不在本店/本渠道可用、
+  未达使用门槛、不在可用时段或已过期，均按「症状 → 原因 → 怎么办」组织。
+
+### 质量
+
+- 317 → 322 项测试全过
+
 ## [2.4.2] - 2026-10-21
 
 修复遗留的工程债：负金额解析、重试限速、验证记录落盘、CI 平台覆盖与文档数字。
@@ -20,7 +40,7 @@
 - **`verify_run.py` 覆写入库样例**：默认输出改为 `examples/verified-run.local.md`（`.gitignore` 已覆盖），
   更新入库样例需显式 `--out examples/verified-run.md`；`examples/verified-run.md` 中不可达的 HTML 引用
   改为「本地生成，不入库」。
-- **覆盖率报告数字过期**：按实测（317 项测试 / 79% / 497 行未覆盖）重写 `docs/coverage-report.md`。
+- **覆盖率报告数字过期**：按实测（317 项测试 / 79% / 未覆盖 497 行）重写 `docs/coverage-report.md`。
 
 ### 改进
 

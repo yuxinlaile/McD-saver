@@ -45,6 +45,8 @@ import sys
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
+from console import ensure_utf8_stdio
+
 EXIT_OK = 0
 EXIT_USAGE = 1
 
@@ -630,6 +632,7 @@ def _run_probe(coupons: Dict[str, Any], store_code: str) -> int:
 
 
 def main(argv: Optional[List[str]] = None) -> int:
+    ensure_utf8_stdio()
     parser = build_parser()
     args = parser.parse_args(argv)
 
