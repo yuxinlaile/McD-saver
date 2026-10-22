@@ -30,6 +30,7 @@ python scripts/build_releases.py --verify    # 校验命名、配对、压缩包
 
 | 版本 | 发布日期 | 英文发行包（压缩包） | 中文说明（文档） | Release |
 |---|---|---|---|---|
+| v2.4.3 | 2026-10-22 | [`mcd-saver-v2.4.3.zip`](https://github.com/yuxinlaile/McD-saver/releases/download/v2.4.3/mcd-saver-v2.4.3.zip) | [`麦麦省钱助手-v2.4.3-发布说明.md`](v2.4.3/麦麦省钱助手-v2.4.3-发布说明.md) | [Release](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.4.3) |
 | v2.4.2 | 2026-10-21 | [`mcd-saver-v2.4.2.zip`](https://github.com/yuxinlaile/McD-saver/releases/download/v2.4.2/mcd-saver-v2.4.2.zip) | [`麦麦省钱助手-v2.4.2-发布说明.md`](v2.4.2/麦麦省钱助手-v2.4.2-发布说明.md) | [Release](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.4.2) |
 | v2.4.1 | 2026-10-21 | [`mcd-saver-v2.4.1.zip`](https://github.com/yuxinlaile/McD-saver/releases/download/v2.4.1/mcd-saver-v2.4.1.zip) | [`麦麦省钱助手-v2.4.1-发布说明.md`](v2.4.1/麦麦省钱助手-v2.4.1-发布说明.md) | [Release](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.4.1) |
 | v2.4.0 | 2026-10-21 | [`mcd-saver-v2.4.0.zip`](https://github.com/yuxinlaile/McD-saver/releases/download/v2.4.0/mcd-saver-v2.4.0.zip) | [`麦麦省钱助手-v2.4.0-发布说明.md`](v2.4.0/麦麦省钱助手-v2.4.0-发布说明.md) | [Release](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.4.0) |
