@@ -1,0 +1,12 @@
+# 换行符策略：仓库内一律存 LF，检出到任何平台都不做 CRLF 转换。
+# 目的：消除「同一次改动因 CRLF/LF 差异显示为整文件重写」的假 diff
+# （历史遗留：2026-10 之前的提交由 API 以工作树字节写入，导致 31 个文件存成了 CRLF）。
+* text=auto eol=lf
+
+# 二进制文件不做任何转换
+*.png binary
+*.jpg binary
+*.zip binary
+*.ico binary
+*.woff binary
+*.woff2 binary
