@@ -1,7 +1,7 @@
 ---
 name: mcd-saver
 description: 麦麦省钱助手——基于麦当劳中国官方 MCP Server 的省钱点餐技能。当用户提到麦当劳、麦乐送、麦麦、点麦当劳、想省钱/薅羊毛/领券/优惠、查优惠怎么用、积分兑换、麦麦商城、积分抽奖、麦当劳活动，或询问"怎么点麦当劳最划算"时使用本技能。核心能力：在下单前自动完成"领券→选券→比价→积分抵扣评估"，用 35 个官方工具帮用户以最低价格吃到同样的麦当劳。
-version: 2.4.3
+version: 2.5.0
 license: MIT
 ---
 
@@ -270,7 +270,7 @@ mcd-saver/
 ├── CONTEST_DECLARATION.md              # 参赛声明（官方原文，未改动）
 ├── MCP_INTEGRATION.md                  # MCP 集成说明（参赛要求文件）
 ├── mcp-config.example.json             # 脱敏 MCP 配置（参赛要求文件，与 config/ 版内容一致）
-├── workbuddy.md                      # WorkBuddy 开发上下文（WorkBuddy 专项核验用）
+├── workbuddy.md                       # WorkBuddy 开发上下文（WorkBuddy 专项核验用）
 ├── pyproject.toml                      # 打包元数据与 pytest 配置（版本号随发版同步）
 ├── requirements-dev.txt                # 开发依赖（pytest / pytest-cov）
 ├── install.ps1                         # Windows WorkBuddy 一键安装脚本
@@ -315,5 +315,5 @@ mcd-saver/
 │   └── verified-run.md                 # 真实环境验证记录（脱敏，可复现）
 ├── fixtures/                           # 7 份离线回归数据（菜单/券/订单/积分/团购等）
 ├── releases/                           # 发布产物：每版英文 zip + 中文说明 + 索引
-└── tests/                              # pytest 单元测试（322 个用例 + 一致性校验）
+└── tests/                              # pytest 单元测试（327 个用例 + 一致性校验）
 ```

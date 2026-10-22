@@ -36,7 +36,7 @@ cd mcd-saver
 
 # 运行时零依赖（Python 3.9+ 标准库），仅测试需要 pytest
 pip install -r requirements-dev.txt
-python -m pytest tests/ -v          # 当前 322 个用例，覆盖率门槛 78%
+python -m pytest tests/ -v          # 当前 327 个用例，覆盖率门槛 78%
 
 # 语法检查（与 CI 一致，覆盖 scripts/ 下全部模块与 demo.py）
 python -m py_compile scripts/*.py demo.py
@@ -60,7 +60,10 @@ python -m py_compile scripts/*.py demo.py
 ## 提交自检清单
 
 - [ ] `python -m pytest tests/` 全部通过；
+- [ ] `python scripts/check_toc.py` 通过（README 中英目录锚点与章节一一对应）；
 - [ ] `python scripts/audit_readme.py` 通过（命令表 / 用例数 / Python 版本 / 许可证与仓库一致）；
+- [ ] `python scripts/sync_readme.py --check` 通过（「近期版本」区块与 CHANGELOG 同步）；
+- [ ] 改动涉及发版产物时，`python scripts/build_releases.py --verify` 通过；
 - [ ] 语法检查覆盖所有改动脚本；
 - [ ] 未包含任何真实 Token、密码或个人凭证；
 - [ ] 涉及工具目录/工作流的变更已同步 `references/` 与 `SKILL.md`；

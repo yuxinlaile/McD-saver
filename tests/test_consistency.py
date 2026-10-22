@@ -60,7 +60,7 @@ class TestVersionConsistency:
 
 
 class TestTestCountConsistency:
-    """测试计数四处一致（README 中英 / banner / SKILL）。"""
+    """测试计数在所有对外文档中一致（README 中英 / banner / SKILL / CONTRIBUTING / 站点 / 集成说明）。"""
 
     def test_counts_are_equal_everywhere(self):
         version = client_version()  # 仅为触发一次读取，失败信息更直观
@@ -69,9 +69,14 @@ class TestTestCountConsistency:
         banner = re.findall(r"(\d+) unit tests", read("docs/assets/banner.svg"))
         skill = re.findall(r"（(\d+) 个用例", read("SKILL.md"))
         readme_body = re.findall(r"(\d+) 个单元测试", read("README.md"))
-        assert zh and en and banner and skill, (
-            "计数提取失败: zh={0} en={1} banner={2} skill={3}".format(zh, en, banner, skill))
-        values = set(zh) | set(en) | set(banner) | set(skill) | set(readme_body)
+        contributing = re.findall(r"当前 (\d+) 个用例", read("CONTRIBUTING.md"))
+        site = re.findall(r"(\d+) 项测试", read("docs/index.html"))
+        integration = re.findall(r"(\d+) 个 pytest 单元测试", read("MCP_INTEGRATION.md"))
+        assert zh and en and banner and skill and contributing and site and integration, (
+            "计数提取失败: zh={0} en={1} banner={2} skill={3} contributing={4} site={5} integration={6}".format(
+                zh, en, banner, skill, contributing, site, integration))
+        values = (set(zh) | set(en) | set(banner) | set(skill) | set(readme_body)
+                  | set(contributing) | set(site) | set(integration))
         assert len(values) == 1, "测试计数不一致：{0}（当前版本 {1}）".format(sorted(values), version)
         assert int(values.pop()) >= 150, "测试数量异常偏低，疑似误改"
 
@@ -227,3 +232,71 @@ class TestNeutralWording:
         assert "WorkBuddy" in text and "麦当劳" in text
         for marker in ("promotion/", "Star 目标", "渠道矩阵"):
             assert marker not in text, "workbuddy.md 含内部运营表述：{0}".format(marker)
+
+
+class TestWorkbuddyFacts:
+    """workbuddy.md 的统计数字与版本里程碑必须跟仓库同步（该文件是参赛核验材料）。"""
+
+    def test_test_count_matches(self):
+        text = read("workbuddy.md")
+        counts = set(re.findall(r"(\d+) 项单元测试", text))
+        assert counts, "workbuddy.md 未标注单元测试数量"
+        assert len(counts) == 1, "workbuddy.md 内部测试计数自相矛盾：{0}".format(sorted(counts))
+        assert counts.pop() == re.search(r"Tests-(\d+)%20passed", read("README.md")).group(1), \
+            "workbuddy.md 的测试计数与 README 徽章不一致"
+
+    def test_release_count_matches(self):
+        text = read("workbuddy.md")
+        match = re.search(r"(\d+) 个发布版本，截至 v(\d+\.\d+\.\d+)", text)
+        assert match, "workbuddy.md 应写成「N 个发布版本，截至 vX.Y.Z」"
+        counted, upto = int(match.group(1)), match.group(2)
+        folders = [p.name[1:] for p in (ROOT / "releases").iterdir()
+                   if p.is_dir() and re.match(r"^v\d+\.\d+\.\d+$", p.name)]
+        expected = [v for v in folders
+                    if tuple(int(x) for x in v.split(".")) <= tuple(int(x) for x in upto.split("."))]
+        assert counted == len(expected), (
+            "workbuddy.md 称截至 v{0} 共 {1} 个发布版本，实际为 {2} 个".format(upto, counted, len(expected)))
+
+    def test_milestone_table_covers_current_version(self):
+        text = read("workbuddy.md")
+        assert "| v{0} |".format(client_version()) in text, \
+            "workbuddy.md 的版本里程碑表缺少当前版本 v{0}".format(client_version())
+
+
+class TestProcessDocs:
+    """发版自检命令必须同时出现在贡献指南、PR 模板与 CI 中，避免流程文档漂移。"""
+
+    GUARDS = (
+        ("check_toc.py", ("CONTRIBUTING.md", ".github/PULL_REQUEST_TEMPLATE.md", ".github/workflows/ci.yml")),
+        ("audit_readme.py", ("CONTRIBUTING.md", ".github/PULL_REQUEST_TEMPLATE.md", ".github/workflows/ci.yml")),
+        ("sync_readme.py --check", ("CONTRIBUTING.md", ".github/PULL_REQUEST_TEMPLATE.md", ".github/workflows/ci.yml")),
+        ("build_releases.py --verify", ("CONTRIBUTING.md", ".github/PULL_REQUEST_TEMPLATE.md", ".github/workflows/ci.yml")),
+    )
+
+    def test_guards_documented_everywhere(self):
+        missing = []
+        for command, files in self.GUARDS:
+            for name in files:
+                if command not in read(name):
+                    missing.append("{0} 缺少 {1}".format(name, command))
+        assert not missing, "流程文档缺少自检命令：{0}".format(missing)
+
+
+class TestReadmeLayout:
+    """README 中英的「项目结构」块应覆盖仓库全部一级目录。"""
+
+    def _block(self, name):
+        text = read(name)
+        heading = "## 项目结构" if name == "README.md" else "## Project layout"
+        start = text.index("```", text.index(heading))
+        end = text.index("```", start + 3)
+        return text[start:end]
+
+    def test_structure_lists_every_top_level_dir(self):
+        actual = {p.name for p in ROOT.iterdir()
+                  if p.is_dir() and not p.name.startswith((".", "__"))}
+        for name in ("README.md", "README_EN.md"):
+            block = self._block(name)
+            listed = set(re.findall(r"^([a-z_]+)/", block, re.M))
+            missing = actual - listed
+            assert not missing, "{0} 的项目结构块遗漏目录：{1}".format(name, sorted(missing))

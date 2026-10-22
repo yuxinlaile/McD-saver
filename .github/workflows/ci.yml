@@ -46,6 +46,9 @@ jobs:
       - name: README release highlights in sync
         run: python scripts/sync_readme.py --check
 
+      - name: Release artifacts consistency
+        run: python scripts/build_releases.py --verify
+
       - name: CLI smoke test
         run: |
           python scripts/mcd.py --help

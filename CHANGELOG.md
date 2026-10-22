@@ -6,6 +6,31 @@
 > 历史条目中的 `docs/development-log.md` 已于 v2.2.2 并入 `workbuddy.md`（该文件不再存在）。
 > `1.0.0` / `1.1.0` 为未发行里程碑：没有对应的 git tag 与 `releases/` 产物，`releases/` 从 `1.2.0` 起。
 
+## [2.5.0] - 2026-10-22
+
+全仓文档同步，把「靠人记」的更新点改成自动守卫。
+
+### 修复
+
+- **文档事实同步**：`workbuddy.md` 的统计仍停在 2026-10-20（265 项 / 23 版），版本里程碑止于 v2.3.0；
+  现按实测更新为 327 项 / 33 个发布版本（截至 v2.4.3），并补齐 v2.3.1–v2.5.0 八条里程碑。
+- **README 中英「项目结构」遗漏一级目录**：补 `config/` 与 `examples/`。
+- **`SKILL.md` 目录树 `workbuddy.md` 行缩进错位**：对齐修正。
+
+### 改进
+
+- **测试计数守卫扩面**：4 处 → 7 处，新增 `CONTRIBUTING.md`、`docs/index.html`、`MCP_INTEGRATION.md`。
+- **新增流程文档守卫**：`check_toc.py` / `audit_readme.py` / `sync_readme.py --check` /
+  `build_releases.py --verify` 四条命令必须同时出现在 `CONTRIBUTING.md`、PR 模板与 CI 中。
+- **新增 `workbuddy.md` 事实守卫**：单元测试数须等于 README 徽章、发布版本数须与 `releases/` 实际目录数一致、
+  版本里程碑表须含当前版本。
+- **新增 README 结构守卫**：中英「项目结构」块须覆盖仓库全部一级目录。
+- **CI 增加发布产物校验**（`build_releases.py --verify`），PR 模板补齐四条自检命令。
+
+### 质量
+
+- 322 → 327 项测试全过
+
 ## [2.4.3] - 2026-10-22
 
 修复非中文 Windows 下中文输出崩溃，补齐券相关的排错条目。
