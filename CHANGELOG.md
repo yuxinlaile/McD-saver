@@ -6,6 +6,19 @@
 > 历史条目中的 `docs/development-log.md` 已于 v2.2.2 并入 `workbuddy.md`（该文件不再存在）。
 > `1.0.0` / `1.1.0` 为未发行里程碑：没有对应的 git tag 与 `releases/` 产物，`releases/` 从 `1.2.0` 起。
 
+## [2.5.2] - 2026-10-22
+
+修复 README 的 Release 徽章链接失效。
+
+### 修复
+
+- **README 中英 Release 徽章链接指向不存在的 tag**：徽章文字为 v2.5.1，链接却指向 `releases/tag/v2.5.2`。
+  新增断言：徽章文字与链接目标必须同版本（`tests/test_consistency.py::test_readme_badge_links_match`）。
+
+### 质量
+
+- 329 项测试全过
+
 ## [2.5.1] - 2026-10-22
 
 修复 v2.5.0 引入的 CI 步骤错误。

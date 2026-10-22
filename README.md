@@ -7,12 +7,12 @@
 **让 AI 帮你用最少的钱吃麦当劳** —— Agent Skill + 独立 CLI 二合一
 
 [![在线试算](https://img.shields.io/badge/%F0%9F%8C%90_在线试算-免登录-FFC72C?style=flat-square)](https://yuxinlaile.github.io/McD-saver/demo.html)
-[![Release](https://img.shields.io/badge/Release-v2.5.1-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.5.2)
+[![Release](https://img.shields.io/badge/Release-v2.5.2-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.5.2)
 [![Stars](https://img.shields.io/github/stars/yuxinlaile/McD-saver?style=flat-square&label=Stars)](https://github.com/yuxinlaile/McD-saver/stargazers)
 [![CI](https://github.com/yuxinlaile/McD-saver/actions/workflows/ci.yml/badge.svg)](https://github.com/yuxinlaile/McD-saver/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Dependencies](https://img.shields.io/badge/Dependencies-None%20(stdlib)-green)
-![Tests](https://img.shields.io/badge/Tests-328%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/Tests-329%20passed-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![Agent Skills](https://img.shields.io/badge/Works%20with-Agent%20Skills%20standard-0A7A72)
 ![MCP](https://img.shields.io/badge/MCP-Streamable%20HTTP-purple)
@@ -110,7 +110,7 @@
 - 401 快速失败、429 指数退避尊重 `Retry-After`、5xx/网络错误自动重试
 - 范围边界：聚焦下单前的省钱决策——不包含爬虫、自动下单、无人值守定时领券等自动化能力
 
-**🧪 测试保障**：328 个单元测试覆盖 SSE 解析、Token 解析、退避计算、比价决策、
+**🧪 测试保障**：329 个单元测试覆盖 SSE 解析、Token 解析、退避计算、比价决策、
 组合优化与 CLI 退出码；`demo.py` 全链路输出被 `tests/test_demo_pipeline.py`
 断言——**demo 即回归测试**。
 
@@ -224,7 +224,7 @@ references/  方法论手册：工具目录、省钱策略、团购比价、场�
 config/      MCP 客户端配置示例（占位符 Token）
 examples/    示例会话、可复现算例与真实环境验证记录
 docs/        在线试算页与品牌资源（demo.html / index.html / banner.svg）
-tests/       328 项单元测试 + 规范一致性校验
+tests/       329 项单元测试 + 规范一致性校验
 fixtures/    离线回归数据（菜单、券、订单、积分、商城、团购）
 releases/    发布产物：每版英文压缩包 + 中文说明 + 索引
 ```
@@ -279,14 +279,14 @@ releases/    发布产物：每版英文压缩包 + 中文说明 + 索引
 
 ## 更新说明
 
-当前版本 **v2.5.1**。最近 3 个版本（由 CHANGELOG 自动生成）：
+当前版本 **v2.5.2**。最近 3 个版本（由 CHANGELOG 自动生成）：
 
 <!-- release-highlights:start -->
 | 版本 | 亮点 |
 |---|---|
+| **v2.5.2** | README 中英 Release 徽章链接指向不存在的 tag |
 | **v2.5.1** | CI 的发布产物校验必然失败 |
 | **v2.5.0** | 文档事实同步 |
-| **v2.4.3** | 非中文 Windows 下中文输出崩溃 |
 <!-- release-highlights:end -->
 
 完整变更记录见 [CHANGELOG.md](CHANGELOG.md)，各版本下载见

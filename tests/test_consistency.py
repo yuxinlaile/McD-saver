@@ -53,6 +53,15 @@ class TestVersionConsistency:
             assert badge, "{0} 缺少 Release 徽章".format(name)
             assert badge.group(1) == version, "{0} 徽章版本滞后".format(name)
 
+    def test_readme_badge_links_match(self):
+        """徽章文字与链接目标必须指向同一个版本（曾出现文字 2.5.1、链接指向 2.5.2 的残留）。"""
+        version = client_version()
+        for name in ("README.md", "README_EN.md"):
+            links = set(re.findall(r"releases/tag/v(\d+\.\d+\.\d+)", read(name)))
+            assert links, "{0} 缺少 Release 徽章链接".format(name)
+            assert links == {version}, "{0} 的 Release 链接与当前版本不一致：{1}".format(
+                name, sorted(links))
+
     def test_readme_current_version_sentence_matches(self):
         version = client_version()
         assert "当前版本 **v{0}**".format(version) in read("README.md")
