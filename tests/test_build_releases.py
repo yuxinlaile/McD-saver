@@ -94,6 +94,14 @@ class TestIndexAndVerify:
         problems = br.verify(verbose=False)
         assert any("缺少中文说明" in p for p in problems)
 
+    def test_verify_without_zip_check_tolerates_missing_package(self, tmp_path, monkeypatch):
+        """CI 浅克隆里没有 zip（不入库），--no-zip-check 只校验说明与索引。"""
+        monkeypatch.setattr(br, "RELEASES_DIR", tmp_path)
+        self._make_pair(tmp_path, "2.1.3", valid_zip=False)
+        br.build_index(["2.1.3"])
+        assert br.verify(verbose=False, require_zip=False) == []
+        assert any("缺少英文压缩包" in p for p in br.verify(verbose=False))
+
     def test_verify_flags_bad_directory_name(self, tmp_path, monkeypatch):
         monkeypatch.setattr(br, "RELEASES_DIR", tmp_path)
         (tmp_path / "release-1").mkdir()

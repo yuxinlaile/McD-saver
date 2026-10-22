@@ -47,7 +47,7 @@ jobs:
         run: python scripts/sync_readme.py --check
 
       - name: Release artifacts consistency
-        run: python scripts/build_releases.py --verify
+        run: python scripts/build_releases.py --verify --no-zip-check
 
       - name: CLI smoke test
         run: |

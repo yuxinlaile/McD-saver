@@ -83,7 +83,7 @@ delivery-query-addresses（无地址则 delivery-create-address）
   会话保持、`application/json` 与 `text/event-stream` 双格式响应解析；
   401 快速失败、429 指数退避 + 抖动重试（尊重 `Retry-After`）、5xx/网络错误重试。
 - `scripts/mcd.py`：CLI（check / tools / schema / call），结构化退出码（0/1/2/3/4）。
-- `tests/`：327 个 pytest 单元测试（SSE 解析、Token 解析、比价决策、券组合优化、
+- `tests/`：328 个 pytest 单元测试（SSE 解析、Token 解析、比价决策、券组合优化、
   沉默成本、claim 领券流程、CLI 退出码），
   CI 在每次 push / PR 时自动执行。
 

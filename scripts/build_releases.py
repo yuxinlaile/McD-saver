@@ -341,8 +341,13 @@ def upload_release(version: str, repo: str = "yuxinlaile/McD-saver") -> None:
     _upload_asset(repo, release_id, zip_path.name, zip_path.read_bytes(), "application/zip", token)
     _upload_asset(repo, release_id, doc_asset_name(version), doc_path.read_bytes(), "text/markdown", token)
 
-def verify(verbose: bool = True) -> List[str]:
-    """校验产物：命名规范、两件套配对、压缩包完整性与索引覆盖。返回问题列表。"""
+def verify(verbose: bool = True, require_zip: bool = True) -> List[str]:
+    """校验产物：命名规范、两件套配对、压缩包完整性与索引覆盖。返回问题列表。
+
+    Args:
+        require_zip: 是否要求压缩包存在。压缩包不入库，CI 的浅克隆里必然没有，
+            此时传 ``False`` 只校验命名、中文说明与索引。
+    """
     problems: List[str] = []
     if not RELEASES_DIR.is_dir():
         return ["releases 目录不存在"]
@@ -370,7 +375,8 @@ def verify(verbose: bool = True) -> List[str]:
             if "v{0}".format(version) not in doc:
                 problems.append("v{0} 说明文档未标注版本号".format(version))
         if not zip_path.exists():
-            problems.append("v{0} 缺少英文压缩包 {1}（本地构建，不入库）".format(version, pkg_name(version)))
+            if require_zip:
+                problems.append("v{0} 缺少英文压缩包 {1}（本地构建，不入库）".format(version, pkg_name(version)))
             continue
         try:
             with zipfile.ZipFile(zip_path) as zf:
@@ -413,13 +419,15 @@ def main(argv: Optional[List[str]] = None) -> int:
     group.add_argument("--current", action="store_true", help="只构建当前版本（默认行为）")
     group.add_argument("--index", action="store_true", help="只重建索引")
     group.add_argument("--verify", action="store_true", help="只校验产物，不构建")
+    parser.add_argument("--no-zip-check", action="store_true",
+                        help="校验时跳过压缩包存在性与 SHA-256（压缩包不入库，CI 用）")
     parser.add_argument("--upload", action="store_true",
                         help="构建后上传到同名 GitHub Release（中文说明使用 ASCII 别名）")
     parser.add_argument("--version", help="指定版本号（如 2.1.3），覆盖默认当前版本")
     args = parser.parse_args(argv)
 
     if args.verify:
-        return 1 if verify() else 0
+        return 1 if verify(require_zip=not args.no_zip_check) else 0
 
     if args.index:
         path = build_index()
