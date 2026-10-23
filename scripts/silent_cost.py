@@ -42,7 +42,7 @@ import argparse
 import json
 import re
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 
 from console import ensure_utf8_stdio
@@ -51,6 +51,8 @@ EXIT_OK = 0
 EXIT_USAGE = 1
 
 EXPIRING_DAYS = 7
+# 多单排程的观察期上限：超过这个天数再排没有决策价值（频率低时也会退化成噪声）
+TIMELINE_MAX_DAYS = 60
 
 # 常见字段命名变体（按优先级）
 FACE_KEYS = ["parValue", "faceValue", "worth", "face", "discountValue"]
@@ -298,6 +300,19 @@ def analyze_orders(orders_raw: Any, today: Optional[datetime] = None) -> Dict[st
     }
 
 
+def _coupon_net_value(face: Optional[float], threshold: Optional[float],
+                      avg_ticket: Optional[float]) -> float:
+    """券的净价值 = 面值 − 为达门槛额外付出的部分。
+
+    排程（单窗口）与多单时间轴共用同一口径，抽成函数避免两处漂移。
+    """
+    if face is None:
+        return 0.0
+    if threshold and avg_ticket is not None and threshold > avg_ticket:
+        return round(max(0.0, face - (threshold - avg_ticket)), 2)
+    return round(face, 2)
+
+
 # ---------------------------------------------------------------------------
 # 用券排程（v1.6）：过期窗口 × 点单频率 → 可实现 vs 注定过期
 # ---------------------------------------------------------------------------
@@ -323,11 +338,7 @@ def schedule_coupons(coupons: Dict[str, Any], orders: Dict[str, Any]) -> Optiona
     judged = []
     for coupon in expiring:
         entry = dict(coupon)
-        threshold = coupon.get("threshold")
-        if threshold and avg_ticket is not None and threshold > avg_ticket:
-            entry["net_value"] = round(max(0.0, (coupon["face"] or 0.0) - (threshold - avg_ticket)), 2)
-        else:
-            entry["net_value"] = coupon["face"]  # 无门槛或门槛内：净价值=面值
+        entry["net_value"] = _coupon_net_value(entry.get("face"), entry.get("threshold"), avg_ticket)
         entry["category"] = "paper" if entry["net_value"] <= 0 else "worth"
         judged.append(entry)
     # 排程：净价值 > 0 的券按净价值降序排入点单次数
@@ -358,6 +369,137 @@ def schedule_coupons(coupons: Dict[str, Any], orders: Dict[str, Any]) -> Optiona
         "realizable": realizable,
         "doomed": doomed,
         "face_total": realizable + doomed,
+    }
+
+
+# ---------------------------------------------------------------------------
+# 多单排程（v2.6）：把券排到未来每一次点单上，输出到日期粒度
+# ---------------------------------------------------------------------------
+def analyze_coupon_book(coupons_raw: Any, today: Optional[datetime] = None) -> Dict[str, Any]:
+    """返回**全部**可识别有效期的券（不限于 7 天临期），供多单排程使用。
+
+    与 analyze_coupons 的区别：后者只保留 7 天内到期的券，有效期更长的券会被
+    整体丢弃，导致「长有效期券在短窗口里被误判排不上」。本函数不做窗口裁剪。
+    已过期（剩余天数 < 0）的券不计入。
+    """
+    today = today or datetime.now()
+    records = _unwrap(coupons_raw)
+    book: List[Dict[str, Any]] = []
+    unrecognized = 0
+    for coupon in records:
+        days = _parse_expire_days(_first_key(coupon, EXPIRE_KEYS), today)
+        if days is None:
+            unrecognized += 1
+            continue
+        if days < 0:
+            continue
+        book.append({
+            "title": str(coupon.get("title") or coupon.get("couponName")
+                         or coupon.get("couponId") or "未命名券"),
+            "face": _coupon_face(coupon),
+            "days": days,
+            "threshold": _coupon_threshold(coupon),
+            "couponId": coupon.get("couponId"),
+            "productCode": _first_key(coupon, ["productCode", "itemCode", "goodsCode", "mealCode"]),
+        })
+    book.sort(key=lambda c: (c["days"], -(c["face"] or 0.0)))
+    return {"total": len(records), "coupons": book, "unrecognized": unrecognized}
+
+
+def plan_timeline(book: Dict[str, Any], orders: Dict[str, Any],
+                  today: Optional[datetime] = None,
+                  horizon_days: Optional[int] = None) -> Optional[Dict[str, Any]]:
+    """把券按到期先后排到未来每一次点单上（最早到期优先，每单一张）。
+
+    规则：
+
+    - 点单日：从今天起，以「1 / 点单频率」天为间隔向后推，直到观察期结束；
+    - 每单只核销一张券——与 optimizer 的保守叠加策略一致，不假设可叠加；
+    - 候选券必须满足：面值与有效期可识别、净价值 > 0、在该单日期仍未过期；
+    - 分配顺序：净价值降序，每张券排到「不晚于其到期日的最后一个空位」——
+      即带截止期的单位时间调度最优解，保证可实现金额最大；排完再做一次
+      前移压缩，让计划读起来更靠前（不改变金额）；
+    - 观察期内未被排上的券标记 expired，其面值计入 doomed；
+      净价值 ≤ 0 的券标记 paper（纸面富贵），不计入可实现也不计入浪费；
+      到期日超出观察期的券标记 later，不参与本次排程。
+
+    数据不足（无券或无历史点单频率）返回 None。
+    """
+    today = today or datetime.now()
+    frequency = orders.get("order_frequency")
+    avg_ticket = orders.get("avg_ticket")
+    coupons = [dict(c) for c in book.get("coupons", [])]
+    if not coupons or not frequency or frequency <= 0:
+        return None
+    last_expiry = max(c["days"] for c in coupons)
+    horizon = last_expiry if horizon_days is None else horizon_days
+    horizon = max(1, min(int(horizon), TIMELINE_MAX_DAYS, max(last_expiry, 1)))
+    interval = max(1, int(round(1.0 / frequency)))
+    for coupon in coupons:
+        coupon["net_value"] = _coupon_net_value(coupon.get("face"), coupon.get("threshold"), avg_ticket)
+        coupon["status"] = "pending" if coupon["net_value"] > 0 else "paper"
+    order_dates = []
+    offset = 0
+    while offset <= horizon:
+        order_dates.append(today.date() + timedelta(days=offset))
+        offset += interval
+    # 分配：净价值降序，各自排到「不晚于到期日的最后一个空位」。
+    # 这是带截止期的单位时间调度最优解（Moore-Hodgson），
+    # 比「先到期先用」的贪心更优：后者可能为了救一张快过期的小券而挤掉大券。
+    slots: List[Optional[Dict[str, Any]]] = [None] * len(order_dates)
+    pending = [c for c in coupons if c["status"] == "pending"]
+    pending.sort(key=lambda c: (-(c["net_value"] or 0.0), c["days"]))
+    for coupon in pending:
+        for slot_index in range(len(order_dates) - 1, -1, -1):
+            if slots[slot_index] is not None:
+                continue
+            if (order_dates[slot_index] - today.date()).days > coupon["days"]:
+                continue
+            slots[slot_index] = coupon
+            coupon["status"] = "used"
+            break
+    # 前移压缩：已排上的券尽量往靠前的空位挪，只改善可读性，不改变可实现金额。
+    for coupon in sorted([c for c in coupons if c["status"] == "used"], key=lambda c: (c["days"], -(c["net_value"] or 0.0))):
+        current = next(i for i, c in enumerate(slots) if c is coupon)
+        for slot_index in range(current):
+            if slots[slot_index] is None:
+                slots[slot_index], slots[current] = slots[current], slots[slot_index]
+                break
+    orders_out: List[Dict[str, Any]] = []
+    for index, date in enumerate(order_dates, 1):
+        coupon = slots[index - 1]
+        if coupon is None:
+            orders_out.append({"index": index, "date": date.isoformat(),
+                               "title": None, "net_value": 0.0})
+            continue
+        coupon["used_order"] = index
+        coupon["used_date"] = date.isoformat()
+        orders_out.append({"index": index, "date": date.isoformat(),
+                           "title": coupon["title"], "net_value": coupon["net_value"]})
+    for coupon in coupons:
+        if coupon["status"] == "pending":
+            coupon["status"] = "expired" if coupon["days"] <= horizon else "later"
+    used = [c for c in coupons if c["status"] == "used"]
+    expired = [c for c in coupons if c["status"] == "expired"]
+    paper = [c for c in coupons if c["status"] == "paper"]
+    later = [c for c in coupons if c["status"] == "later"]
+    realizable = round(sum(c["net_value"] for c in used), 2)
+    doomed = round(sum((c["face"] or 0.0) for c in expired), 2)
+    return {
+        "today": today.date().isoformat(),
+        "horizon_days": horizon,
+        "interval_days": interval,
+        "frequency": frequency,
+        "expected_orders": round(frequency * horizon, 2),
+        "orders": orders_out,
+        "coupons": coupons,
+        "used": used,
+        "expired": expired,
+        "paper": paper,
+        "later": later,
+        "realizable": realizable,
+        "doomed": doomed,
+        "face_total": round(realizable + doomed, 2),
     }
 
 
@@ -446,7 +588,8 @@ def _fmt(value: Optional[float]) -> str:
 
 def render_report(coupons: Dict[str, Any], orders: Dict[str, Any],
                   points: Dict[str, Any], mall: Optional[Dict[str, Any]] = None,
-                  schedule: Optional[Dict[str, Any]] = None) -> str:
+                  schedule: Optional[Dict[str, Any]] = None,
+                  timeline: Optional[Dict[str, Any]] = None) -> str:
     lines: List[str] = []
     lines.append("=" * 68)
     lines.append("麦麦省钱助手 · 沉默成本体检报告")
@@ -490,6 +633,29 @@ def render_report(coupons: Dict[str, Any], orders: Dict[str, Any],
         lines.append("  名义 ¥{0:.2f} → 可实现（净价值）¥{1:.2f}，注定过期 ¥{2:.2f}。".format(
             schedule["face_total"], schedule["realizable"], schedule["doomed"]))
         lines.append("  本月最该做的事：把排得上的券优先用掉——这笔钱不用就是纯损失。")
+
+    if timeline:
+        lines.append("")
+        lines.append("【一·C】多单排程（观察期 {0} 天，按历史频率 {1:.3f} 单/天，间隔约 {2} 天）".format(
+            timeline["horizon_days"], timeline["frequency"], timeline["interval_days"]))
+        if timeline.get("expected_orders", 1) < 1:
+            lines.append("  说明：按历史频率，观察期内预计不足 1 单，以下只排「今天这一单」作参考。")
+        for order in timeline["orders"]:
+            if order["title"]:
+                lines.append("  第{0}单 {1} → {2} ｜ 净价值 ¥{3:.2f}".format(
+                    order["index"], order["date"], order["title"], order["net_value"]))
+            else:
+                lines.append("  第{0}单 {1} → 无可用券".format(order["index"], order["date"]))
+        if timeline["expired"]:
+            lines.append("  排不上（观察期内过期）：")
+            for c in timeline["expired"]:
+                lines.append("    · {0} ｜ ¥{1:.2f} ｜ {2} 天后到期".format(
+                    c["title"], c["face"] or 0.0, c["days"]))
+        if timeline["later"]:
+            lines.append("  （{0} 张券在观察期之后才到期，本次不参与排程）".format(
+                len(timeline["later"])))
+        lines.append("  时间轴口径：名义 ¥{0:.2f} → 可实现 ¥{1:.2f}，到期浪费 ¥{2:.2f}。".format(
+            timeline["face_total"], timeline["realizable"], timeline["doomed"]))
 
     lines.append("")
     lines.append("【二】消费画像（近 {0} 单）".format(orders["order_count"]))
@@ -597,8 +763,16 @@ def build_parser() -> argparse.ArgumentParser:
     report.add_argument("--probe", action="store_true",
                         help="无面值券走 calculate-price 实测精确价值（需要 MCP Token）")
     report.add_argument("--store-code", default="", help="--probe 实测时的门店编码")
+    report.add_argument("--timeline", action="store_true",
+                        help="追加多单排程：把券按到期先后排到未来每一次点单（日期粒度）")
+    report.add_argument("--horizon", type=int, default=None,
+                        help="多单排程的观察期天数（默认到最晚到期日，上限 {0} 天）".format(TIMELINE_MAX_DAYS))
     demo = sub.add_parser("demo", help="离线演示（内嵌示例数据）")
     demo.add_argument("--html", metavar="PATH", help="同时输出单文件 HTML 报告（零依赖，可截图分享）")
+    demo.add_argument("--timeline", action="store_true",
+                      help="追加多单排程：把券按到期先后排到未来每一次点单（日期粒度）")
+    demo.add_argument("--horizon", type=int, default=None,
+                      help="多单排程的观察期天数（默认到最晚到期日，上限 {0} 天）".format(TIMELINE_MAX_DAYS))
     return parser
 
 
@@ -637,18 +811,24 @@ def main(argv: Optional[List[str]] = None) -> int:
     args = parser.parse_args(argv)
 
     if args.command == "demo":
-        coupons = analyze_coupons(DEMO_COUPONS, datetime(2026, 10, 12))
-        orders = analyze_orders(DEMO_ORDERS, datetime(2026, 10, 12))
+        today = datetime(2026, 10, 12)
+        coupons = analyze_coupons(DEMO_COUPONS, today)
+        orders = analyze_orders(DEMO_ORDERS, today)
         points = analyze_points(DEMO_POINTS)
         schedule = schedule_coupons(coupons, orders)
-        print(render_report(coupons, orders, points, analyze_mall(DEMO_MALL), schedule))
+        timeline = None
+        if getattr(args, "timeline", False):
+            book = analyze_coupon_book(DEMO_COUPONS, today)
+            timeline = plan_timeline(book, orders, today, getattr(args, "horizon", None))
+        print(render_report(coupons, orders, points, analyze_mall(DEMO_MALL), schedule, timeline))
         if getattr(args, "html", None):
             _write_html(args.html, coupons, orders, points, schedule)
         return EXIT_OK
 
     if args.command == "report":
         try:
-            coupons = analyze_coupons(_load_json(args.coupons) if args.coupons else {})
+            coupons_raw = _load_json(args.coupons) if args.coupons else {}
+            coupons = analyze_coupons(coupons_raw)
             orders = analyze_orders(_load_json(args.orders) if args.orders else {})
             points = analyze_points(_load_json(args.points) if args.points else {})
             mall = _load_json(args.mall) if args.mall else None
@@ -661,7 +841,11 @@ def main(argv: Optional[List[str]] = None) -> int:
             if code != EXIT_OK:
                 return code
         schedule = schedule_coupons(coupons, orders)
-        print(render_report(coupons, orders, points, analyze_mall(mall), schedule))
+        timeline = None
+        if getattr(args, "timeline", False):
+            book = analyze_coupon_book(coupons_raw)
+            timeline = plan_timeline(book, orders, horizon_days=getattr(args, "horizon", None))
+        print(render_report(coupons, orders, points, analyze_mall(mall), schedule, timeline))
         if getattr(args, "html", None):
             _write_html(args.html, coupons, orders, points, schedule)
         return EXIT_OK

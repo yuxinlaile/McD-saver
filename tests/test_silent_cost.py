@@ -357,3 +357,105 @@ class TestNetValueSchedule:
         schedule = schedule_coupons(coupons, orders)
         text = render_report(coupons, orders, analyze_points({}), None, schedule)
         assert "纸面富贵" in text and "净价值" in text
+
+
+class TestTimelineSchedule:
+    """v2.6 新增：多单排程——把券按到期日排到未来每一次点单（日期粒度）。"""
+
+    def _orders(self, amounts, dates=None, today=datetime(2026, 10, 12)):
+        dates = dates or ["2026-10-10", "2026-10-11"]
+        payload = [{"createTime": d, "totalAmount": a} for d, a in zip(dates, amounts)]
+        return analyze_orders({"data": payload}, today=today)
+
+    def test_book_keeps_coupon_beyond_expiring_window(self):
+        from silent_cost import analyze_coupon_book
+        raw = {"data": [
+            {"title": "明天到期", "parValue": 5.0, "validityEndTime": "2026-10-13"},
+            {"title": "二十天后", "parValue": 10.0, "validityEndTime": "2026-11-01"},
+        ]}
+        expiring = analyze_coupons(raw, TODAY)
+        book = analyze_coupon_book(raw, TODAY)
+        # 旧口径只留 7 天内到期的券，长有效期券被整体丢弃
+        assert len(expiring["expiring"]) == 1
+        assert len(book["coupons"]) == 2
+
+    def test_optimal_assignment_beats_expiry_first(self):
+        from silent_cost import analyze_coupon_book, plan_timeline
+        # 十天一单（间隔 10 天）：下一次点单之后再没有机会核销 5 天内到期的券
+        raw = {"data": [
+            {"title": "大券", "parValue": 13.0, "validityEndTime": "2026-10-17"},
+            {"title": "小券", "parValue": 8.0, "validityEndTime": "2026-10-14"},
+        ]}
+        book = analyze_coupon_book(raw, TODAY)
+        orders = self._orders([30.0], dates=["2026-10-02"])
+        plan = plan_timeline(book, orders, TODAY)
+        # 先到期先用会选 8 元的小券；最优解选 13 元的大券，可实现金额多 5 元
+        assert plan["realizable"] == 13.0
+        assert plan["doomed"] == 8.0
+        assert plan["orders"][0]["title"] == "大券"
+
+    def test_assignment_compacts_towards_earlier_orders(self):
+        from silent_cost import analyze_coupon_book, plan_timeline
+        raw = {"data": [
+            {"title": "大券", "parValue": 13.0, "validityEndTime": "2026-10-17"},
+            {"title": "小券", "parValue": 8.0, "validityEndTime": "2026-10-14"},
+            {"title": "远期券", "parValue": 5.0, "validityEndTime": "2026-12-26"},
+        ]}
+        book = analyze_coupon_book(raw, TODAY)
+        plan = plan_timeline(book, self._orders([30.0, 30.0]), TODAY)
+        assert plan["realizable"] == 26.0 and plan["doomed"] == 0.0
+        # 每天都下单时三张券都该排上，且快过期的券排在更靠前的单次
+        titles = [o["title"] for o in plan["orders"][:3]]
+        assert titles[0] == "小券" and titles[1] == "大券"
+
+    def test_coupon_expiring_before_next_order_is_wasted(self):
+        from silent_cost import analyze_coupon_book, plan_timeline
+        raw = {"data": [
+            {"title": "快过期", "parValue": 6.0, "validityEndTime": "2026-10-14"},
+            {"title": "已排上", "parValue": 4.0, "validityEndTime": "2026-10-12"},
+        ]}
+        book = analyze_coupon_book(raw, TODAY)
+        orders = self._orders([30.0], dates=["2026-10-11"])
+        plan = plan_timeline(book, orders, TODAY)
+        # 频率 1 单/天 → 每天一单，两张券都该排上
+        assert plan["doomed"] == 0.0
+        assert plan["realizable"] == 10.0
+
+    def test_paper_coupon_not_scheduled(self):
+        from silent_cost import analyze_coupon_book, plan_timeline
+        raw = {"data": [
+            {"title": "满50减9", "parValue": 9.0, "validityEndTime": "2026-10-20"},
+        ]}
+        book = analyze_coupon_book(raw, TODAY)
+        orders = self._orders([30.0, 30.0])
+        plan = plan_timeline(book, orders, TODAY)
+        # 门槛 50 − 客单 30 = 20 的额外付出 > 面值 9 → 纸面富贵
+        assert plan["paper"] and not plan["used"]
+        assert plan["realizable"] == 0.0
+
+    def test_horizon_is_capped(self):
+        from silent_cost import analyze_coupon_book, plan_timeline
+        raw = {"data": [{"title": "券", "parValue": 5.0, "validityEndTime": "2026-12-31"}]}
+        book = analyze_coupon_book(raw, TODAY)
+        plan = plan_timeline(book, self._orders([30.0, 30.0]), TODAY, horizon_days=999)
+        assert plan["horizon_days"] <= 60
+
+    def test_no_frequency_returns_none(self):
+        from silent_cost import analyze_coupon_book, plan_timeline
+        book = analyze_coupon_book({"data": [
+            {"title": "券", "parValue": 5.0, "validityEndTime": "2026-10-20"}]}, TODAY)
+        assert plan_timeline(book, analyze_orders({"data": []}, today=TODAY), TODAY) is None
+
+    def test_report_contains_timeline_section(self):
+        from silent_cost import analyze_coupon_book, plan_timeline
+        raw = {"data": [
+            {"title": "满30减6", "parValue": 6.0, "validityEndTime": "2026-10-17"},
+            {"title": "满40减10", "parValue": 10.0, "validityEndTime": "2026-10-30"},
+        ]}
+        coupons = analyze_coupons(raw, TODAY)
+        orders = self._orders([30.0, 30.0])
+        plan = plan_timeline(analyze_coupon_book(raw, TODAY), orders, TODAY)
+        text = render_report(coupons, orders, analyze_points({}), None,
+                             None, plan)
+        assert "【一·C】多单排程" in text
+        assert "到期浪费" in text

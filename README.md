@@ -7,12 +7,12 @@
 **让 AI 帮你用最少的钱吃麦当劳** —— Agent Skill + 独立 CLI 二合一
 
 [![在线试算](https://img.shields.io/badge/%F0%9F%8C%90_在线试算-免登录-FFC72C?style=flat-square)](https://yuxinlaile.github.io/McD-saver/demo.html)
-[![Release](https://img.shields.io/badge/Release-v2.5.2-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.5.2)
+[![Release](https://img.shields.io/badge/Release-v2.6.0-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.6.0)
 [![Stars](https://img.shields.io/github/stars/yuxinlaile/McD-saver?style=flat-square&label=Stars)](https://github.com/yuxinlaile/McD-saver/stargazers)
 [![CI](https://github.com/yuxinlaile/McD-saver/actions/workflows/ci.yml/badge.svg)](https://github.com/yuxinlaile/McD-saver/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Dependencies](https://img.shields.io/badge/Dependencies-None%20(stdlib)-green)
-![Tests](https://img.shields.io/badge/Tests-329%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/Tests-337%20passed-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![Agent Skills](https://img.shields.io/badge/Works%20with-Agent%20Skills%20standard-0A7A72)
 ![MCP](https://img.shields.io/badge/MCP-Streamable%20HTTP-purple)
@@ -96,6 +96,8 @@
 **🩺 沉默成本体检**（`silent_cost.py`）
 
 - 临期券扫描 + **用券排程**（过期窗口 × 点单频率 →「可实现 vs 注定过期」）
+- **多单排程时间轴**（`--timeline`）：把券逐张排到未来每一次点单，给出「第几单、哪天、用哪张、净价值」；
+  分配按到期日求最优解，不是「谁先过期先用谁」
 - 消费画像（客单价/高频单品）+ 积分影子价格
 - 无面值券 `--probe` 实测精确价值；`--html` 生成可分享单文件报告
 
@@ -110,7 +112,7 @@
 - 401 快速失败、429 指数退避尊重 `Retry-After`、5xx/网络错误自动重试
 - 范围边界：聚焦下单前的省钱决策——不包含爬虫、自动下单、无人值守定时领券等自动化能力
 
-**🧪 测试保障**：329 个单元测试覆盖 SSE 解析、Token 解析、退避计算、比价决策、
+**🧪 测试保障**：337 个单元测试覆盖 SSE 解析、Token 解析、退避计算、比价决策、
 组合优化与 CLI 退出码；`demo.py` 全链路输出被 `tests/test_demo_pipeline.py`
 断言——**demo 即回归测试**。
 
@@ -163,7 +165,7 @@ python demo.py          # 离线全链路：领券→选券→比价→积分→
 | `python scripts/mcd.py claim` | 一键领取可领券（展示清单→确认→领取） |
 | `python scripts/optimizer.py plan --wants w.json --menu m.json --coupons c.json [--mcp]` | 券组合优化；`--budget/--max-kcal/--min-protein/--max-sodium` 四维约束；本地券库非空时自动输出团购终局建议（`--no-deals` 关闭） |
 | `python scripts/deal_compare.py add/list/compare` | 团购券录入与全渠道比价 |
-| `python scripts/silent_cost.py report --coupons c.json --orders o.json --points p.json` | 沉默成本体检；`--probe` 实测券价值 / `--html` 生成分享报告 |
+| `python scripts/silent_cost.py report --coupons c.json --orders o.json --points p.json` | 沉默成本体检；`--probe` 实测券价值 / `--timeline` 多单排程 / `--html` 生成分享报告 |
 
 **CLI 退出码**（mcd.py）：`0` 成功 · `1` 工具错误 · `2` 鉴权失败 · `3` 限流 · `4` 网络错误
 （deal_compare.py：`0` 成功 · `1` 用法/数据错误 · `2` 券库为空）
@@ -224,7 +226,7 @@ references/  方法论手册：工具目录、省钱策略、团购比价、场�
 config/      MCP 客户端配置示例（占位符 Token）
 examples/    示例会话、可复现算例与真实环境验证记录
 docs/        在线试算页与品牌资源（demo.html / index.html / banner.svg）
-tests/       329 项单元测试 + 规范一致性校验
+tests/       337 项单元测试 + 规范一致性校验
 fixtures/    离线回归数据（菜单、券、订单、积分、商城、团购）
 releases/    发布产物：每版英文压缩包 + 中文说明 + 索引
 ```
@@ -279,14 +281,14 @@ releases/    发布产物：每版英文压缩包 + 中文说明 + 索引
 
 ## 更新说明
 
-当前版本 **v2.5.2**。最近 3 个版本（由 CHANGELOG 自动生成）：
+当前版本 **v2.6.0**。最近 3 个版本（由 CHANGELOG 自动生成）：
 
 <!-- release-highlights:start -->
 | 版本 | 亮点 |
 |---|---|
+| **v2.6.0** | 多单用券排程 `--timeline` |
 | **v2.5.2** | README 中英 Release 徽章链接指向不存在的 tag |
 | **v2.5.1** | CI 的发布产物校验必然失败 |
-| **v2.5.0** | 文档事实同步 |
 <!-- release-highlights:end -->
 
 完整变更记录见 [CHANGELOG.md](CHANGELOG.md)，各版本下载见

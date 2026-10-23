@@ -7,12 +7,12 @@
 **Let AI get you McDonald's for less** — Agent Skill + standalone CLI in one repo
 
 [![Live Demo](https://img.shields.io/badge/%F0%9F%8E%AE_Live_Demo-no_sign--in-FFC72C?style=flat-square)](https://yuxinlaile.github.io/McD-saver/demo.html)
-[![Release](https://img.shields.io/badge/Release-v2.5.2-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.5.2)
+[![Release](https://img.shields.io/badge/Release-v2.6.0-9a3412?style=flat-square)](https://github.com/yuxinlaile/McD-saver/releases/tag/v2.6.0)
 [![Stars](https://img.shields.io/github/stars/yuxinlaile/McD-saver?style=flat-square&label=Stars)](https://github.com/yuxinlaile/McD-saver/stargazers)
 [![CI](https://github.com/yuxinlaile/McD-saver/actions/workflows/ci.yml/badge.svg)](https://github.com/yuxinlaile/McD-saver/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Dependencies](https://img.shields.io/badge/Dependencies-None%20(stdlib)-green)
-![Tests](https://img.shields.io/badge/Tests-329%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/Tests-337%20passed-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![Agent Skills](https://img.shields.io/badge/Works%20with-Agent%20Skills%20standard-0A7A72)
 ![MCP](https://img.shields.io/badge/MCP-Streamable%20HTTP-purple)
@@ -101,6 +101,8 @@ order created ≠ paid — payment always happens on McDonald's official page.
 **🩺 Silent-cost check** (`silent_cost.py`)
 
 - Expiring-coupon scan + **coupon scheduling** (expiry window × order frequency → realizable vs doomed value)
+- **Multi-order timeline** (`--timeline`): lays every coupon onto the next orders and reports order number, date,
+  coupon and net value; the assignment is solved optimally against expiry dates rather than "expiring first"
 - Order-history profile (avg ticket / repeat items) + points shadow price
 - Faceless coupons probed via `--probe`; `--html` generates a shareable single-file report
 
@@ -115,7 +117,7 @@ order created ≠ paid — payment always happens on McDonald's official page.
 - 401 fails fast; 429 exponential backoff honoring `Retry-After`; 5xx/network auto-retry
 - Scope boundary: focused on pre-order savings decisions — no scraping, auto-ordering or unattended scheduling capabilities
 
-**🧪 Tested**: 329 unit tests covering SSE parsing, token resolution, backoff math,
+**🧪 Tested**: 337 unit tests covering SSE parsing, token resolution, backoff math,
 comparison decisions, combination optimization and CLI exit codes; the full
 `demo.py` pipeline is asserted by `tests/test_demo_pipeline.py` — **the demo
 doubles as a regression test**.
@@ -173,7 +175,7 @@ never fabricate discounts**.
 | `python scripts/mcd.py claim` | Claim available coupons (list → confirm → bind) |
 | `python scripts/optimizer.py plan --wants w.json --menu m.json --coupons c.json [--mcp]` | Combination optimizer; `--budget/--max-kcal/--min-protein/--max-sodium` constraints; auto group-buy final call when the deal library is non-empty (`--no-deals` to disable) |
 | `python scripts/deal_compare.py add/list/compare` | Record group-buys & cross-channel comparison |
-| `python scripts/silent_cost.py report --coupons c.json --orders o.json --points p.json` | Silent-cost check; `--probe` measures coupon value / `--html` generates a shareable report |
+| `python scripts/silent_cost.py report --coupons c.json --orders o.json --points p.json` | Silent-cost check; `--probe` measures coupon value / `--timeline` multi-order schedule / `--html` generates a shareable report |
 
 **CLI exit codes** (mcd.py): `0` ok · `1` tool error · `2` auth · `3` rate-limited · `4` network
 (deal_compare.py: `0` ok · `1` usage/data error · `2` empty library)
@@ -236,7 +238,7 @@ references/  Playbooks: tool catalog, savings strategies, group-buy comparison, 
 config/      MCP client config example (placeholder token)
 examples/    Sample sessions, reproducible worked examples, verified-run record
 docs/        Online calculator and brand assets (demo.html / index.html / banner.svg)
-tests/       329 unit tests plus repository-consistency checks
+tests/       337 unit tests plus repository-consistency checks
 fixtures/    Offline regression data (menu, coupons, orders, points, mall, deals)
 releases/    Release artifacts: English zip + Chinese notes + index per version
 ```
@@ -294,10 +296,10 @@ More troubleshooting: [`references/error-handling.md`](references/error-handling
 
 ## Release notes
 
-Current version **v2.5.2**. The three most recent releases (auto-generated from CHANGELOG):
+Current version **v2.6.0**. The three most recent releases (auto-generated from CHANGELOG):
 
 <!-- release-highlights:start -->
-Recent releases: **v2.5.2** · **v2.5.1** · **v2.5.0**
+Recent releases: **v2.6.0** · **v2.5.2** · **v2.5.1**
 <!-- release-highlights:end -->
 
 Full history in [CHANGELOG.md](CHANGELOG.md); downloads on the
