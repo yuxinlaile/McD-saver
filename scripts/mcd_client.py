@@ -69,8 +69,8 @@ DEFAULT_TOKEN_FILE = "~/.mcd_mcp_token"
 # MCP 协议版本（Streamable HTTP 传输规范）
 PROTOCOL_VERSION = "2025-03-26"
 
-CLIENT_INFO = {"name": "mcd-saver", "version": "2.5.2"}
-USER_AGENT = "mcd-saver/2.5.2"
+CLIENT_INFO = {"name": "mcd-saver", "version": "2.6.0"}
+USER_AGENT = "mcd-saver/2.6.0"
 
 
 # ---------------------------------------------------------------------------
